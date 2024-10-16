@@ -1,9 +1,14 @@
-import { Routes, Route, Link } from 'react-router-dom';
-import './App.css';
-import Home from './pages/home';
-import Login from './pages/login';
-import Admin from './pages/admin';
-import PrivateRoute from './PrivateRoute';
+import { Routes, Route, Link } from "react-router-dom";
+import "./App.css";
+import Home from "./pages/home";
+import Login from "./pages/login";
+import AdminLayout from "./pages/admin";
+import PrivateRoute from "./PrivateRoute";
+import Profile from "./pages/admin/profile";
+import Dashboard from "./pages/admin/dashboard";
+import PostManagement from "./pages/admin/post-management";
+import PostCreate from "./pages/admin/post-create";
+import AdsManagement from "./pages/admin/ads-management";
 
 function App() {
   return (
@@ -11,13 +16,21 @@ function App() {
       <Routes>
         <Route index element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route 
-          path="/admin/*" 
+        <Route
+          path="/admin/*"
           element={
             <PrivateRoute>
-              <Admin />
+              <AdminLayout>
+                <Routes>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="post-management" element={<PostManagement />} />
+                  <Route path="ads-management" element={<AdsManagement />} />
+                  <Route path="post-create" element={<PostCreate />} />
+                  <Route path="profile" element={<Profile />} />{" "}
+                </Routes>
+              </AdminLayout>
             </PrivateRoute>
-          } 
+          }
         />
         <Route path="*" element={<p>There's nothing here: 404!</p>} />
       </Routes>
@@ -40,18 +53,18 @@ export default App;
 //       <Routes>
 //         {/* Trang public */}
 //         <Route path="/" element={<Home />} />
-        
+
 //         {/* Trang đăng nhập */}
 //         <Route path="/login" element={<Login />} />
-        
+
 //         {/* Trang quản lý - bắt buộc đăng nhập */}
-//         <Route 
-//           path="/admin/*" 
+//         <Route
+//           path="/admin/*"
 //           element={
 //             <PrivateRoute>
 //               <Admin />
 //             </PrivateRoute>
-//           } 
+//           }
 //         />
 //       </Routes>
 //     </Router>

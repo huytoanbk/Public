@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Divider, notification } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -25,29 +26,48 @@ const Login = () => {
   const navigate = useNavigate();
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
   } = useForm({
     resolver: zodResolver(isRegister ? registerSchema : loginSchema),
   });
 
-  const handleLogin = (data) => {
-    const token = 'fake-jwt-token';
-    localStorage.setItem('token', token);
-    notification.success({
-      message: 'Login successful',
-    });
-    navigate('/admin');
+  const handleLogin = async (data) => {
+    try {
+      const response = await axios.post('https://jsonplaceholder.typicode.com/posts', data);
+      if (response.status === 201) {
+        localStorage.setItem('token', 'fake-jwt-token');
+        notification.success({
+          message: 'Login successful',
+        });
+        navigate('/admin');
+      }
+    } catch (error) {
+      setError('username', { message: 'Invalid username or password' });
+      notification.error({
+        message: 'Login failed',
+      });
+    }
   };
 
-  const handleRegister = (data) => {
-    notification.success({
-      message: 'Registration successful',
-    });
-    reset();
-    setIsRegister(false);
+  const handleRegister = async (data) => {
+    try {
+      const response = await axios.post('https://jsonplaceholder.typicode.com/posts', data);
+      if (response.status === 201) {
+        notification.success({
+          message: 'Registration successful',
+        });
+        reset();
+        setIsRegister(false);
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Registration failed',
+      });
+    }
   };
 
   const onSubmit = (data) => {
@@ -66,57 +86,68 @@ const Login = () => {
         </h2>
 
         <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Username */}
           <Form.Item
             validateStatus={errors.username ? 'error' : ''}
             help={errors.username?.message}
           >
-            <Input
-              {...register('username')}
-              prefix={<UserOutlined />}
-              placeholder="Username"
-              className="py-2 px-3"
-              size="large"
-              bordered={false}
-              style={{ borderBottom: '1px solid #ddd' }}
+            <Controller
+              name="username"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  prefix={<UserOutlined />}
+                  placeholder="Username"
+                  className="py-2 px-3"
+                  size="large"
+                  style={{ borderBottom: '1px solid #ddd' }}
+                />
+              )}
             />
           </Form.Item>
 
-          {/* Password */}
           <Form.Item
             validateStatus={errors.password ? 'error' : ''}
             help={errors.password?.message}
           >
-            <Input.Password
-              {...register('password')}
-              prefix={<LockOutlined />}
-              placeholder="Password"
-              className="py-2 px-3"
-              size="large"
-              bordered={false}
-              style={{ borderBottom: '1px solid #ddd' }}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <Input.Password
+                  {...field}
+                  prefix={<LockOutlined />}
+                  placeholder="Password"
+                  className="py-2 px-3"
+                  size="large"
+                  style={{ borderBottom: '1px solid #ddd' }}
+                />
+              )}
             />
           </Form.Item>
 
-          {/* Confirm Password (Hiển thị khi đăng ký) */}
           {isRegister && (
             <Form.Item
               validateStatus={errors.confirmPassword ? 'error' : ''}
               help={errors.confirmPassword?.message}
             >
-              <Input.Password
-                {...register('confirmPassword')}
-                prefix={<LockOutlined />}
-                placeholder="Confirm Password"
-                className="py-2 px-3"
-                size="large"
-                bordered={false}
-                style={{ borderBottom: '1px solid #ddd' }}
+              <Controller
+                name="confirmPassword"
+                control={control}
+                render={({ field }) => (
+                  <Input.Password
+                    {...field}
+                    prefix={<LockOutlined />}
+                    placeholder="Confirm Password"
+                    className="py-2 px-3"
+                    size="large"
+                    style={{ borderBottom: '1px solid #ddd' }}
+                  />
+                )}
               />
             </Form.Item>
           )}
 
-          {/* Button */}
           <Form.Item>
             <Button
               type="primary"
@@ -137,9 +168,7 @@ const Login = () => {
             onClick={() => setIsRegister(!isRegister)}
             className="text-blue-500 hover:text-blue-600 transition duration-300"
           >
-            {isRegister
-              ? 'Already have an account? Login'
-              : 'Don\'t have an account? Register'}
+            {isRegister ? 'Already have an account? Login' : "Don't have an account? Register"}
           </Button>
         </div>
       </div>
