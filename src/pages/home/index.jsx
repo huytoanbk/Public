@@ -18,6 +18,8 @@ import {
   DownOutlined,
 } from "@ant-design/icons";
 import { getListPost } from "../../services/get-list-post";
+import "../../styles/home.css";
+import { Link } from "react-router-dom";
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
@@ -32,7 +34,7 @@ const HomePage = () => {
     sort: "newest",
   });
   const [pagination, setPagination] = useState({
-    current: 0,
+    current: 1,
     pageSize: 9,
   });
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,7 @@ const HomePage = () => {
   };
 
   return (
-    <Layout className="bg-[#f5f5f5] pt-5">
+    <Layout className="bg-[#f5f5f5] pt-5 homepage">
       <Content className="px-4 max-w-[1100px] mx-auto ">
         <Row gutter={16} className="py-3 w-full flex-1">
           <Col span={16} className="bg-white">
@@ -82,7 +84,11 @@ const HomePage = () => {
               <Header style={{ background: "white", padding: 0 }}>
                 <Row justify="space-between" align="middle">
                   <Col>
-                    <Tabs defaultActiveKey="all" onChange={handleTabChange}>
+                    <Tabs
+                      className="mb-0"
+                      defaultActiveKey="all"
+                      onChange={handleTabChange}
+                    >
                       <TabPane tab="Tất cả" key="all"></TabPane>
                       <TabPane tab="Cho thuê" key="rent"></TabPane>
                       <TabPane tab="Ở ghép" key="share"></TabPane>
@@ -100,19 +106,19 @@ const HomePage = () => {
                         <Option value="priceLow">Giá thấp trước</Option>
                         <Option value="priceHigh">Giá cao trước</Option>
                       </Select>
-                      <Button onClick={toggleViewMode}>
+                      {/* <Button onClick={toggleViewMode}>
                         {viewMode === "list" ? (
                           <AppstoreOutlined />
                         ) : (
                           <UnorderedListOutlined />
                         )}
-                      </Button>
+                      </Button> */}
                     </div>
                   </Col>
                 </Row>
               </Header>
 
-              <div className="w-[800px]">
+              <div className="">
                 {loading ? (
                   <Spin size="large" />
                 ) : articles ? (
@@ -123,7 +129,43 @@ const HomePage = () => {
                         dataSource={articles}
                         renderItem={(item) => (
                           <List.Item>
-                            <Card title={item.title}>{item.content}</Card>
+                            <Card className="product-card">
+                              <Row gutter={10}>
+                                <Col span={8} className="product-image-col">
+                                  <img
+                                    src={item.images[0]}
+                                    alt={item.title}
+                                    className="product-image"
+                                  />
+                                </Col>
+
+                                <Col span={16} className="product-info-col">
+                                  <Link to={`/product/${item.id}`}>
+                                    <h3 className="product-title">
+                                      {item.title}
+                                    </h3>
+                                  </Link>
+
+                                  <p className="product-price">
+                                    {item.price} triệu/tháng{" "}
+                                    <span className="dot">·</span> {item.size}{" "}
+                                    m²
+                                  </p>
+
+                                  <p className="product-location">
+                                    {item.district}{" "}
+                                    <span className="dot">·</span>{" "}
+                                    {new Date(
+                                      item.createdAt
+                                    ).toLocaleDateString()}
+                                  </p>
+
+                                  <div className="product-owner">
+                                    {item.ownerInfo}
+                                  </div>
+                                </Col>
+                              </Row>
+                            </Card>
                           </List.Item>
                         )}
                         pagination={false}
@@ -154,11 +196,7 @@ const HomePage = () => {
 
           <Col span={6} className="bg-white">
             <Collapse accordion>
-              <Panel
-                header="Lọc theo khoảng giá"
-                key="1"
-                extra={<DownOutlined />}
-              >
+              <Panel header="Lọc theo khoảng giá" key="1">
                 <Select defaultValue="under1m" style={{ width: "100%" }}>
                   <Option value="under1m">Giá dưới 1 triệu</Option>
                   <Option value="1to2m">Giá 1 - 2 triệu</Option>
@@ -169,11 +207,7 @@ const HomePage = () => {
                 </Select>
               </Panel>
 
-              <Panel
-                header="Lọc theo diện tích"
-                key="2"
-                extra={<DownOutlined />}
-              >
+              <Panel header="Lọc theo diện tích" key="2">
                 <Select defaultValue="under20sqm" style={{ width: "100%" }}>
                   <Option value="under20sqm">Dưới 20 m²</Option>
                   <Option value="20to30sqm">20 - 30 m²</Option>
@@ -183,11 +217,7 @@ const HomePage = () => {
                 </Select>
               </Panel>
 
-              <Panel
-                header="Lọc theo tình trạng nội thất"
-                key="3"
-                extra={<DownOutlined />}
-              >
+              <Panel header="Lọc theo tình trạng nội thất" key="3">
                 <Select defaultValue="fullFurnished" style={{ width: "100%" }}>
                   <Option value="premiumFurnished">Nội thất cao cấp</Option>
                   <Option value="fullFurnished">Nội thất đầy đủ</Option>
@@ -195,7 +225,7 @@ const HomePage = () => {
                 </Select>
               </Panel>
 
-              <Panel header="Lọc theo quận" key="4" extra={<DownOutlined />}>
+              <Panel header="Lọc theo quận" key="4">
                 <Select defaultValue="baDinh" style={{ width: "100%" }}>
                   <Option value="baDinh">Quận Ba Đình</Option>
                   <Option value="bacTuLiem">Quận Bắc Từ Liêm</Option>

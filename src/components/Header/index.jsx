@@ -2,23 +2,25 @@ import { useState } from "react";
 import { Layout, Input, Button, Dropdown, Menu, Select, Row, Col } from "antd";
 import { UserOutlined, PlusOutlined, MenuOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
+// import { useForm, useController } from "react-hook-form";
 
 const { Header } = Layout;
 const { Option } = Select;
 
 const AppHeader = () => {
-  const [user, setUser] = useState(null);
+  const { clearUserInfo, userInfo } = useUser();
   const navigate = useNavigate();
   const { pathname = "" } = useLocation();
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
-      setUser(null);
+      clearUserInfo();
     }
   };
 
   const accountMenu = (
     <Menu onClick={handleMenuClick}>
-      {user ? (
+      {userInfo ? (
         <>
           <Menu.Item key="saved">Tin đã lưu</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
@@ -103,7 +105,7 @@ const AppHeader = () => {
         <Col>
           <Dropdown overlay={accountMenu} trigger={["click"]}>
             <Button icon={<UserOutlined />}>
-              {user ? `Xin chào, ${user.name}` : "Tài khoản"}
+              {userInfo ? `Xin chào, ${userInfo?.fullName}` : "Tài khoản"}
             </Button>
           </Dropdown>
         </Col>
@@ -119,7 +121,7 @@ const AppHeader = () => {
           </Col>
         )}
       </Row>
-      {!pathname.includes("/login") && (
+      {pathname === "/" && (
         <Row
           justify="center"
           align="middle"

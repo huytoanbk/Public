@@ -5,5 +5,7 @@ export async function getUserInfo() {
   const userInfo = await axiosInstance.get(`${baseUrl}/users`);
   if (userInfo && userInfo.data) {
     localStorage.setItem("userInfo", JSON.stringify(userInfo.data));
+    return userInfo;
   }
+  return {};
 }

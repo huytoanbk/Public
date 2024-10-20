@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { Form, Input, Button, Divider, notification } from "antd";
 import {
   LockOutlined,
@@ -13,6 +18,7 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { getUserInfo } from "../../utiils/get-user-info";
+import { useUser } from "../../context/UserContext";
 
 const loginSchema = z.object({
   email: z
@@ -54,6 +60,7 @@ const registerSchema = z
 
 const Login = () => {
   const [params] = useSearchParams();
+  const { updateUserInfo } = useUser();
   const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_API_ENDPOINT;
@@ -87,7 +94,8 @@ const Login = () => {
 
   const handleAfterGetToken = async (tokenInfo) => {
     localStorage.setItem("token", JSON.stringify(tokenInfo));
-    getUserInfo();
+    const userInfo = await getUserInfo();
+    updateUserInfo({...tokenInfo, ...userInfo.data});
     navigate("/");
   };
 
@@ -122,9 +130,9 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const isRegisterSearchParam = params.get('is_register');
-    isRegisterSearchParam ? setIsRegister(true) : setIsRegister(false)
-  },[params])
+    const isRegisterSearchParam = params.get("is_register");
+    isRegisterSearchParam ? setIsRegister(true) : setIsRegister(false);
+  }, [params]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
