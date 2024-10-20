@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import Home from "./pages/home";
 import Login from "./pages/login";
@@ -9,12 +9,33 @@ import Dashboard from "./pages/admin/dashboard";
 import PostManagement from "./pages/admin/post-management";
 import PostCreate from "./pages/admin/post-create";
 import AdsManagement from "./pages/admin/ads-management";
+import UserProfile from "./pages/profile";
+import UserPostCreate from "./pages/post-room";
+import AppHeader from "./components/Header";
 
 function App() {
+  const {pathname = ''} = useLocation();
   return (
     <div className="App">
+      {!pathname.includes('/admin') && <AppHeader />}
       <Routes>
         <Route index element={<Home />} />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <UserProfile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/post-room"
+          element={
+            <PrivateRoute>
+              <UserPostCreate />
+            </PrivateRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route
           path="/admin/*"
@@ -39,36 +60,3 @@ function App() {
 }
 
 export default App;
-
-// import React from 'react';
-// import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import Home from './pages/Home';
-// import Admin from './pages/Admin';
-// import Login from './components/Login';
-// import PrivateRoute from './PrivateRoute';
-
-// function App() {
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* Trang public */}
-//         <Route path="/" element={<Home />} />
-
-//         {/* Trang đăng nhập */}
-//         <Route path="/login" element={<Login />} />
-
-//         {/* Trang quản lý - bắt buộc đăng nhập */}
-//         <Route
-//           path="/admin/*"
-//           element={
-//             <PrivateRoute>
-//               <Admin />
-//             </PrivateRoute>
-//           }
-//         />
-//       </Routes>
-//     </Router>
-//   );
-// }
-
-// export default App;

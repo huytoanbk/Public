@@ -1,3 +1,216 @@
-export default function Home() {
-    return <></>
-}
+import { useState, useEffect } from "react";
+import {
+  Layout,
+  Row,
+  Col,
+  Tabs,
+  Select,
+  Button,
+  Card,
+  Collapse,
+  List,
+  Pagination,
+  Spin,
+} from "antd";
+import {
+  AppstoreOutlined,
+  UnorderedListOutlined,
+  DownOutlined,
+} from "@ant-design/icons";
+import { getListPost } from "../../services/get-list-post";
+
+const { Header, Content } = Layout;
+const { TabPane } = Tabs;
+const { Option } = Select;
+const { Panel } = Collapse;
+
+const HomePage = () => {
+  const [articles, setArticles] = useState([]);
+  const [viewMode, setViewMode] = useState("list");
+  const [filter, setFilter] = useState({
+    tab: "all",
+    sort: "newest",
+  });
+  const [pagination, setPagination] = useState({
+    current: 0,
+    pageSize: 9,
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoading(true);
+        const response = await getListPost({
+          page: pagination.current - 1,
+          size: pagination.pageSize,
+          tab: filter.tab,
+          sort: filter.sort,
+        });
+        setArticles(response.content);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.error("Error fetching articles:", error);
+      }
+    };
+    fetchArticles();
+  }, [filter, pagination]);
+
+  const handleTabChange = (key) => {
+    setFilter({ ...filter, tab: key });
+  };
+
+  const handleSortChange = (value) => {
+    setFilter({ ...filter, sort: value });
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(viewMode === "list" ? "grid" : "list");
+  };
+
+  const handlePageChange = (page, pageSize) => {
+    setPagination({ current: page, pageSize });
+  };
+
+  return (
+    <Layout className="bg-[#f5f5f5] pt-5">
+      <Content className="px-4 max-w-[1100px] mx-auto ">
+        <Row gutter={16} className="py-3 w-full flex-1">
+          <Col span={16} className="bg-white">
+            <div>
+              <Header style={{ background: "white", padding: 0 }}>
+                <Row justify="space-between" align="middle">
+                  <Col>
+                    <Tabs defaultActiveKey="all" onChange={handleTabChange}>
+                      <TabPane tab="Tất cả" key="all"></TabPane>
+                      <TabPane tab="Cho thuê" key="rent"></TabPane>
+                      <TabPane tab="Ở ghép" key="share"></TabPane>
+                    </Tabs>
+                  </Col>
+
+                  <Col>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Select
+                        defaultValue="newest"
+                        style={{ width: 150 }}
+                        onChange={handleSortChange}
+                      >
+                        <Option value="newest">Tin mới trước</Option>
+                        <Option value="priceLow">Giá thấp trước</Option>
+                        <Option value="priceHigh">Giá cao trước</Option>
+                      </Select>
+                      <Button onClick={toggleViewMode}>
+                        {viewMode === "list" ? (
+                          <AppstoreOutlined />
+                        ) : (
+                          <UnorderedListOutlined />
+                        )}
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              </Header>
+
+              <div className="w-[800px]">
+                {loading ? (
+                  <Spin size="large" />
+                ) : articles ? (
+                  <div>
+                    {viewMode === "list" ? (
+                      <List
+                        itemLayout="vertical"
+                        dataSource={articles}
+                        renderItem={(item) => (
+                          <List.Item>
+                            <Card title={item.title}>{item.content}</Card>
+                          </List.Item>
+                        )}
+                        pagination={false}
+                      />
+                    ) : (
+                      <Row gutter={[16, 16]}>
+                        {articles.map((article) => (
+                          <Col span={8} key={article.id}>
+                            <Card title={article.title}>{article.content}</Card>
+                          </Col>
+                        ))}
+                      </Row>
+                    )}
+                    <Pagination
+                      current={pagination.current}
+                      pageSize={pagination.pageSize}
+                      total={articles.length}
+                      onChange={handlePageChange}
+                      showSizeChanger={false}
+                    />
+                  </div>
+                ) : (
+                  <p>No data</p>
+                )}
+              </div>
+            </div>
+          </Col>
+
+          <Col span={6} className="bg-white">
+            <Collapse accordion>
+              <Panel
+                header="Lọc theo khoảng giá"
+                key="1"
+                extra={<DownOutlined />}
+              >
+                <Select defaultValue="under1m" style={{ width: "100%" }}>
+                  <Option value="under1m">Giá dưới 1 triệu</Option>
+                  <Option value="1to2m">Giá 1 - 2 triệu</Option>
+                  <Option value="2to3m">Giá 2 - 3 triệu</Option>
+                  <Option value="3to5m">Giá 3 - 5 triệu</Option>
+                  <Option value="5to7m">Giá 5 - 7 triệu</Option>
+                  <Option value="above7m">Giá trên 7 triệu</Option>
+                </Select>
+              </Panel>
+
+              <Panel
+                header="Lọc theo diện tích"
+                key="2"
+                extra={<DownOutlined />}
+              >
+                <Select defaultValue="under20sqm" style={{ width: "100%" }}>
+                  <Option value="under20sqm">Dưới 20 m²</Option>
+                  <Option value="20to30sqm">20 - 30 m²</Option>
+                  <Option value="30to40sqm">30 - 40 m²</Option>
+                  <Option value="40to50sqm">40 - 50 m²</Option>
+                  <Option value="above50sqm">Trên 50 m²</Option>
+                </Select>
+              </Panel>
+
+              <Panel
+                header="Lọc theo tình trạng nội thất"
+                key="3"
+                extra={<DownOutlined />}
+              >
+                <Select defaultValue="fullFurnished" style={{ width: "100%" }}>
+                  <Option value="premiumFurnished">Nội thất cao cấp</Option>
+                  <Option value="fullFurnished">Nội thất đầy đủ</Option>
+                  <Option value="empty">Nhà trống</Option>
+                </Select>
+              </Panel>
+
+              <Panel header="Lọc theo quận" key="4" extra={<DownOutlined />}>
+                <Select defaultValue="baDinh" style={{ width: "100%" }}>
+                  <Option value="baDinh">Quận Ba Đình</Option>
+                  <Option value="bacTuLiem">Quận Bắc Từ Liêm</Option>
+                  <Option value="cauGiay">Quận Cầu Giấy</Option>
+                  <Option value="dongDa">Quận Đống Đa</Option>
+                  <Option value="haDong">Quận Hà Đông</Option>
+                  <Option value="haiBaTrung">Quận Hai Bà Trưng</Option>
+                </Select>
+              </Panel>
+            </Collapse>
+          </Col>
+        </Row>
+      </Content>
+    </Layout>
+  );
+};
+
+export default HomePage;

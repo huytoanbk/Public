@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Input, Button, Form, notification } from "antd";
 import axios from "axios";
 
-const Profile = () => {
+const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const {
@@ -117,4 +117,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default UserProfile;
