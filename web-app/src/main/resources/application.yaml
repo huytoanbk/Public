@@ -1,0 +1,47 @@
+server:
+  port: 8888
+  address: 0.0.0.0
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  devtools:
+    restart:
+      enabled: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/room-for-rent
+    hikari:
+      username: root
+      password: Matkhau@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  application:
+    name: edu
+security:
+  jwt:
+    secret: 904fa20efd081b8df19c796f44ab15e935b8b6e5d1b30ca4642ab1f1ee5e6b4b
+    token-validity: 10000000
+    refresh-token: 100000000
+app:
+  image:
+    types:
+      - image/jpeg
+      - image/png
+      - image/gif
+      - image/bmp
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+
+
