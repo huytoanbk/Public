@@ -19,7 +19,6 @@ public class UsersController {
     private final UsersService usersService;
 
     @PostMapping("/register")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<AuthRes> register(@RequestBody UserCreateReq request) {
         return ResponseEntity.ok(usersService.register(request));
     }

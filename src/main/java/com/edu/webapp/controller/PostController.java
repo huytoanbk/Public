@@ -25,7 +25,7 @@ public class PostController {
         return ResponseEntity.ok("Post created successfully");
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<Page<PostRes>> getPosts(@RequestBody(required = false) FilterPostReq filterPostReq) {
         if (filterPostReq == null) filterPostReq = new FilterPostReq();
         return ResponseEntity.ok(postService.search(filterPostReq));

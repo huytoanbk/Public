@@ -19,6 +19,11 @@ public interface UserMapper {
 
     @Named("mapUserToAvatar")
     default String mapUserToAvatar(byte[] fileContent) {
-        return Base64.getEncoder().encodeToString(fileContent);
+        try {
+//            return Base64.getEncoder().encodeToString(fileContent);
+            return "https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg";
+        } catch (Exception e) {
+        }
+        return null;
     }
 }

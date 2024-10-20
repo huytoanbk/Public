@@ -31,7 +31,8 @@ public interface PostMapper {
 
         List<String> res = new ArrayList<>();
         for (Image image : images) {
-            res.add(Base64.getEncoder().encodeToString(image.getImage()));
+//            res.add(Base64.getEncoder().encodeToString(image.getImage()));
+            res.add("https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg");
         }
         return res;
     }
