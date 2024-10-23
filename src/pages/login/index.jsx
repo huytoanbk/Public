@@ -19,6 +19,7 @@ import {
 import axios from "axios";
 import { getUserInfo } from "../../utiils/get-user-info";
 import { useUser } from "../../context/UserContext";
+import baseAxios from "../../interceptor/baseAxios";
 
 const loginSchema = z.object({
   email: z
@@ -76,7 +77,7 @@ const Login = () => {
 
   const handleLogin = async (data) => {
     try {
-      const response = await axios.post(`${baseUrl}/auth/authenticate`, data);
+      const response = await baseAxios.post(`/auth/authenticate`, data);
       if (response.status === 200) {
         notification.success({
           message: "Login successful",
