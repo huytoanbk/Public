@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import { useForm, FormProvider } from "react-hook-form";
 import "swiper/css";
@@ -13,16 +13,27 @@ import PostManagement from "./pages/admin/post-management";
 import PostCreate from "./pages/admin/post-create";
 import AdsManagement from "./pages/admin/ads-management";
 import UserProfile from "./pages/profile";
-import UserPostCreate from "./pages/post-room";
 import AppHeader from "./components/Header";
 import Footer from "./components/Footer";
 import PostDetail from "./pages/post-detail";
 import NotFound from "./pages/not-found";
 import Breadcrumb from "./components/Breadcrumb";
+import CreatePostForm from "./pages/post-room";
+import { useUser } from "./context/UserContext";
+import { useEffect } from "react";
 
 function App() {
   const { pathname = "" } = useLocation();
   const methods = useForm();
+  const navigate = useNavigate();
+  const {updateUserInfo} = useUser();
+  useEffect(() => {
+    const token = localStorage.getItem("token") || '{}';
+    if (token) {
+      updateUserInfo(JSON.parse(token));
+    }
+  }, [navigate]);
+
   return (
     <div className="App">
       <FormProvider {...methods}>
@@ -40,10 +51,10 @@ function App() {
           />
           <Route path="/post/:id" element={<PostDetail />} />
           <Route
-            path="/post-room"
+            path="/create-post"
             element={
               <PrivateRoute>
-                <UserPostCreate />
+                <CreatePostForm />
               </PrivateRoute>
             }
           />

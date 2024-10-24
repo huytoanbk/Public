@@ -1,118 +1,89 @@
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Input, Button, Form, notification } from "antd";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Upload, Avatar, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import axios from 'axios';
+import axiosInstance from '../../interceptor';
 
 const UserProfile = () => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [user, setUser] = useState(null);
+  const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      username: "current_username",
-      email: "current_email@example.com",
-    },
-  });
+  useEffect(() => {
+    axiosInstance.get('http://localhost:8888/api/v1/users').then((response) => {
+      setUser(response.data);
+      setAvatar(response.data.avatar);
+    });
+  }, []);
 
-  const onSubmit = async (data) => {
+  const onFinish = (values) => {
+    axios.put(`http://localhost:8888/api/v1/users/${user.id}`, values)
+      .then(() => message.success("Cập nhật thông tin thành công"))
+      .catch(() => message.error("Cập nhật thất bại"));
+  };
+
+  const handleUpload = async ({ file }) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const response = await axios.put(
-        "https://jsonplaceholder.typicode.com/posts/1",
-        data
-      );
-      if (response.status === 200) {
-        notification.success({
-          message: "Profile updated successfully",
-        });
-        setIsEditing(false);
-      }
-    } catch (error) {
-      notification.error({
-        message: "Failed to update profile",
+      setLoading(true);
+      const response = await axios.post('http://localhost:8888/api/v1/users/upload-avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
+      setAvatar(response.data.url);
+      message.success('Tải lên avatar thành công!');
+    } catch (error) {
+      message.error('Tải lên avatar thất bại!');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-          User Profile
-        </h2>
-
+    <div className="container mx-auto p-4">
+      {user ? (
         <Form
           layout="vertical"
-          onFinish={handleSubmit(onSubmit)}
-          className="space-y-4"
+          initialValues={{
+            fullName: user.fullName,
+            email: user.email,
+            phone: user.phone,
+          }}
+          onFinish={onFinish}
         >
-          <Form.Item
-            label="Username"
-            validateStatus={errors.username ? "error" : ""}
-            help={errors.username?.message}
-          >
-            <Controller
-              name="username"
-              control={control}
-              rules={{ required: "Username is required" }}
-              render={({ field }) => <Input {...field} disabled={!isEditing} />}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Email"
-            validateStatus={errors.email ? "error" : ""}
-            help={errors.email?.message}
-          >
-            <Controller
-              name="email"
-              control={control}
-              rules={{
-                required: "Email is required",
-                pattern: {
-                  value: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
-                  message: "Invalid email address",
-                },
-              }}
-              render={({ field }) => <Input {...field} disabled={!isEditing} />}
-            />
-          </Form.Item>
-
-          {isEditing ? (
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full py-2 text-lg rounded-lg"
+          <div className="flex items-center mb-6">
+            <Avatar size={100} src={avatar} />
+            <Upload
+              customRequest={handleUpload}
+              showUploadList={false}
+              accept="image/*"
             >
-              Save Changes
-            </Button>
-          ) : (
-            <div>
-              <Button
-                type="primary"
-                htmlType="button"
-                className="w-full py-2 text-lg rounded-lg"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Profile
+              <Button icon={<UploadOutlined />} loading={loading}>
+                Thay đổi avatar
               </Button>
-              <Button hidden htmlType="submit"></Button>
-            </div>
-          )}
+            </Upload>
+          </div>
+          <Form.Item label="Tên đầy đủ" name="fullName">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Email" name="email">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Số điện thoại" name="phone">
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Lưu thay đổi
+            </Button>
+          </Form.Item>
         </Form>
-
-        {!isEditing && (
-          <Button
-            className="w-full py-2 mt-4 text-lg rounded-lg"
-            onClick={() => reset()}
-          >
-            Cancel
-          </Button>
-        )}
-      </div>
+      ) : (
+        <p>Đang tải thông tin người dùng...</p>
+      )}
     </div>
   );
 };

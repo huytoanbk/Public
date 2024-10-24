@@ -13,6 +13,9 @@ const AppHeader = () => {
   const navigate = useNavigate();
   const { pathname = "" } = useLocation();
   const handleMenuClick = ({ key }) => {
+    if(key === "my-account"){
+      navigate('/profile')
+    }
     if (key === "logout") {
       clearUserInfo();
     }
@@ -22,6 +25,7 @@ const AppHeader = () => {
     <Menu onClick={handleMenuClick}>
       {userInfo ? (
         <>
+          <Menu.Item key="my-account">Tài khoản của tôi</Menu.Item>
           <Menu.Item key="saved">Tin đã lưu</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
         </>
@@ -96,6 +100,7 @@ const AppHeader = () => {
               type="primary"
               icon={<PlusOutlined />}
               style={{ padding: "0 20px" }}
+              onClick={() => navigate('/create-post')}
             >
               Đăng tin
             </Button>
