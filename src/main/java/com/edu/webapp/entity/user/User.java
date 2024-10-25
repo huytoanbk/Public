@@ -1,6 +1,7 @@
 package com.edu.webapp.entity.user;
 
 import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.model.enums.NotiStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,6 +57,9 @@ public class User implements UserDetails, Serializable {
     @Column(name = "ACTIVE")
     private ActiveStatus active = ActiveStatus.ACTIVE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "NOTI_STATUS")
+    private NotiStatus notiStatus = NotiStatus.INACTIVE;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

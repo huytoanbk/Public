@@ -1,5 +1,5 @@
 package com.edu.webapp.model.enums;
 
-public enum RoomStatus {
+public enum NotiStatus {
     ACTIVE, INACTIVE;
 }

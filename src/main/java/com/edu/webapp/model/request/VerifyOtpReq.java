@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoleCreateReq {
-    private String name;
+public class VerifyOtpReq {
+    private String value;
+    private String otp;
 }

@@ -8,11 +8,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.Base64;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     User userCreateReqToUser(UserCreateReq userCreateReq);
-
 
     @Mapping(source = "avatar", target = "avatar", qualifiedByName  = "mapUserToAvatar")
     UserRes userToUserRes(User user);
@@ -26,4 +26,6 @@ public interface UserMapper {
         }
         return null;
     }
+
+    List<UserRes> listUserToUserRes(List<User> users);
 }
