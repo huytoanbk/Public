@@ -9,6 +9,13 @@ const Breadcrumb = () => {
   const [postTitle, setPostTitle] = useState('');
   const pathnames = location.pathname.split('/').filter(x => x);
 
+  const customNames = {
+    'create-post': 'Tạo bài viết',
+    'edit-post': 'Chỉnh sửa bài viết',
+    'posts': 'Danh sách bài viết',
+    'search': 'Tìm kiếm',
+  };
+
   useEffect(() => {
     const fetchPostTitle = async () => {
       if (id) {
@@ -32,12 +39,13 @@ const Breadcrumb = () => {
       {pathnames.map((pathname, index) => {
         const isLast = index === pathnames.length - 1;
         const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+        const displayName = customNames[pathname] || (isLast && postTitle) || pathname;
 
         return isLast ? (
-          <BreadcrumbAntd.Item key={to}>{postTitle || pathname}</BreadcrumbAntd.Item>
+          <BreadcrumbAntd.Item key={to}>{displayName}</BreadcrumbAntd.Item>
         ) : (
           <BreadcrumbAntd.Item key={to}>
-            <Link to={to}>{pathname}</Link>
+            <Link to={to}>{displayName}</Link>
           </BreadcrumbAntd.Item>
         );
       })}

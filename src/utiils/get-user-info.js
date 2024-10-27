@@ -7,5 +7,5 @@ export async function getUserInfo() {
     localStorage.setItem("userInfo", JSON.stringify(userInfo.data));
     return userInfo;
   }
-  return {};
+  return null;
 }

@@ -3,6 +3,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import baseAxios from "../../interceptor/baseAxios";
 import { Pagination, Navigation } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 const PostAdsSlider = () => {
   const [products, setProducts] = useState([]);
@@ -11,7 +15,7 @@ const PostAdsSlider = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await baseAxios.get("/posts/search");
+        const response = await baseAxios.post("/posts/search");
         setProducts(response.data.content);
       } catch (error) {
         console.error("Error fetching products", error);
@@ -24,18 +28,17 @@ const PostAdsSlider = () => {
   return (
     <div className="product-slider w-full max-w-6xl mx-auto relative">
       <Swiper
-        pagination={{
-          clickable: true,
-          renderBullet: (index, className) => {
-            return `<span class="${className}"></span>`;
-          },
+        pagination={{ clickable: true }}
+        navigation={{
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
         }}
-        navigation={true}
         modules={[Pagination, Navigation]}
         loop={true}
         spaceBetween={20}
         slidesPerView={3}
         className="mySwiper"
+        observer={true}
       >
         {products.map((product) => (
           <SwiperSlide key={product.id}>
@@ -60,8 +63,12 @@ const PostAdsSlider = () => {
             </div>
           </SwiperSlide>
         ))}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2">
-          <div className="swiper-pagination"></div>
+        <div className="swiper-pagination bottom-[-20px]"></div>
+        <div className="swiper-button-prev absolute left-2 top-1/2 transform -translate-y-1/2 z-10 text-gray-600 hover:text-gray-800">
+          <LeftOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="swiper-button-next absolute right-2 top-1/2 transform -translate-y-1/2 z-10 text-gray-600 hover:text-gray-800">
+          <RightOutlined style={{ fontSize: "20px" }} />
         </div>
       </Swiper>
     </div>

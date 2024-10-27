@@ -21,24 +21,51 @@ import Breadcrumb from "./components/Breadcrumb";
 import CreatePostForm from "./pages/post-room";
 import { useUser } from "./context/UserContext";
 import { useEffect } from "react";
+import axiosInstance from "./interceptor";
 
 function App() {
   const { pathname = "" } = useLocation();
   const methods = useForm();
   const navigate = useNavigate();
-  const {updateUserInfo} = useUser();
-  useEffect(() => {
-    const token = localStorage.getItem("token") || '{}';
-    if (token) {
-      updateUserInfo(JSON.parse(token));
+  const { updateUserInfo, clearUserInfo, userInfo } = useUser();
+
+  const handleCheckRole = async () => {
+    console.log('userInfo', userInfo);
+    console.log('pathname.includes("/admin") && Boolean(userInfo)', Boolean(userInfo));
+    if (pathname.includes("/admin") && Boolean(userInfo)) {
+      console.log('userInfo', userInfo);
+      const userInfoResponse = await axiosInstance.get(`/users`);
+      if(userInfoResponse && userInfoResponse.data) {
+        const isAdmin = userInfo.roles.find(
+          (roleItem) => roleItem.name === "ADMIN"
+        );
+        if (!isAdmin) {
+          navigate("/");
+        }
+      }
     }
-  }, [navigate]);
+  }
+  useEffect(() => {
+    const token = localStorage.getItem("token") || "null";
+    const userInfo = localStorage.getItem("userInfo") || "null";
+    if (token !== "null") {
+      const userToken = JSON.parse(token);
+      const userInfoData = JSON.parse(userInfo);
+      updateUserInfo({ ...userToken, ...userInfoData });
+      return;
+    }
+    clearUserInfo();
+  }, []);
+
+  useEffect(() => {
+    handleCheckRole();
+  }, [userInfo, pathname]);
 
   return (
     <div className="App">
       <FormProvider {...methods}>
         {!pathname.includes("/admin") && <AppHeader />}
-        <Breadcrumb />
+        {!pathname.includes("/admin") && <Breadcrumb />}
         <Routes>
           <Route index element={<Home />} />
           <Route
@@ -59,6 +86,7 @@ function App() {
             }
           />
           <Route path="/login" element={<Login />} />
+          <Route path="/search" element={<Home />} />
           <Route
             path="/admin/*"
             element={
@@ -72,6 +100,7 @@ function App() {
                     />
                     <Route path="ads-management" element={<AdsManagement />} />
                     <Route path="post-create" element={<PostCreate />} />
+                    {/* <Route path="create" element={<PostCreate />} /> */}
                     <Route path="profile" element={<Profile />} />{" "}
                   </Routes>
                 </AdminLayout>

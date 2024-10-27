@@ -42,7 +42,6 @@ const schema = z.object({
   province: z.string().min(1, "Vui lòng chọn tỉnh"),
   district: z.string().min(1, "Vui lòng chọn quận"),
   images: z.array(z.string()).min(1, "Vui lòng tải lên ít nhất một hình ảnh"),
-  description: z.string().min(1, "Vui lòng nhập mô tả"),
 });
 
 const CreatePostForm = () => {
@@ -77,7 +76,6 @@ const CreatePostForm = () => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
-    formData.append("description", data.description);
     formData.append("price", data.price);
     formData.append("deposit", data.deposit);
     formData.append("address", data.address);
@@ -217,19 +215,6 @@ const CreatePostForm = () => {
           >
             <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
           </Upload>
-
-          {/* <div className="mt-4">
-            {fileList.length > 0 && fileList.map((file) => (
-              <Image
-                key={file.uid}
-                src={file.url || file.response.url}
-                alt="preview"
-                width={100}
-                height={100}
-                style={{ marginRight: 8 }}
-              />
-            ))}
-          </div> */}
         </Form.Item>
 
         <Row gutter={16}>
@@ -261,8 +246,8 @@ const CreatePostForm = () => {
 
         <Form.Item
           label="Mô tả"
-          validateStatus={errors.description ? "error" : ""}
-          help={errors.description?.message}
+          validateStatus={errors.content ? "error" : ""}
+          help={errors.content?.message}
         >
           <Editor
             init={{
@@ -273,7 +258,7 @@ const CreatePostForm = () => {
                 "undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image | preview",
             }}
             apiKey="ylik8itoa2gw2jvfvwx4q8v83rd4o6ge4thrf1cpgonzjrul"
-            onEditorChange={(content) => setValue("description", content)}
+            onEditorChange={(content) => setValue("content", content)}
           />
         </Form.Item>
 

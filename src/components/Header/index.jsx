@@ -11,14 +11,34 @@ const { Option } = Select;
 const AppHeader = () => {
   const { clearUserInfo, userInfo } = useUser();
   const navigate = useNavigate();
-  const { pathname = "" } = useLocation();
+  const location = useLocation();
+  const { pathname = "" } = location;
   const handleMenuClick = ({ key }) => {
-    if(key === "my-account"){
-      navigate('/profile')
+    if (key === "my-account") {
+      navigate("/profile");
     }
     if (key === "logout") {
       clearUserInfo();
+      localStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
     }
+  };
+
+  const onSearch = (value) => {
+    navigate(`/search?q=${encodeURIComponent(value)}`);
+  };
+
+  const onChangeHandle = (e) => {
+    const value = e.target.value;
+    const params = new URLSearchParams(location.search);
+
+    if (value) {
+      params.set("p", value);
+    } else {
+      params.delete("p");
+    }
+
+    navigate({ search: params.toString() }, { replace: true });
   };
 
   const accountMenu = (
@@ -64,7 +84,7 @@ const AppHeader = () => {
               style={{ fontSize: "24px", fontWeight: "bold" }}
               className="h-[25px]"
             >
-             <Logo />
+              <Logo />
             </div>
           </Link>
         </Col>
@@ -77,6 +97,8 @@ const AppHeader = () => {
               placeholder="Tìm kiếm..."
               style={{ maxWidth: 600 }}
               enterButton
+              onSearch={onSearch}
+              onChange={onChangeHandle}
             />
           </Col>
         )}
@@ -100,50 +122,13 @@ const AppHeader = () => {
               type="primary"
               icon={<PlusOutlined />}
               style={{ padding: "0 20px" }}
-              onClick={() => navigate('/create-post')}
+              onClick={() => navigate("/create-post")}
             >
               Đăng tin
             </Button>
           </Col>
         )}
       </Row>
-      {pathname === "/" && (
-        <Row
-          justify="center"
-          align="middle"
-          style={{ marginTop: "10px", gap: "10px" }}
-        >
-          <span
-            style={{ fontSize: "16px", fontWeight: "bold", lineHeight: "24px" }}
-          >
-            Bộ lọc:
-          </span>
-          <Select defaultValue="Hà Nội" style={{ width: 120 }}>
-            <Option value="Hà Nội">Hà Nội</Option>
-            <Option value="TP.HCM">TP.HCM</Option>
-          </Select>
-
-          <Select defaultValue="Cho thuê" style={{ width: 120 }}>
-            <Option value="Cho thuê">Cho thuê</Option>
-            <Option value="Ở ghép">Ở ghép</Option>
-          </Select>
-
-          <Select defaultValue="1 triệu đ" style={{ width: 120 }}>
-            <Option value="1 triệu đ">1 triệu đ</Option>
-            <Option value="2 triệu đ">2 triệu đ</Option>
-          </Select>
-
-          <Select defaultValue="Diện tích" style={{ width: 120 }}>
-            <Option value="20m²">20m²</Option>
-            <Option value="30m²">30m²</Option>
-          </Select>
-
-          <Select defaultValue="Nội thất" style={{ width: 120 }}>
-            <Option value="Có nội thất">Có nội thất</Option>
-            <Option value="Không nội thất">Không nội thất</Option>
-          </Select>
-        </Row>
-      )}
     </Header>
   );
 };

@@ -60,7 +60,7 @@ const PostManagement = () => {
     <div>
       <div className="flex justify-between items-center">
         <h2>Danh sách tin đã đăng</h2>
-        <Link to="/admin/create">
+        <Link to="/admin/post-create">
           <Button type="primary" style={{ marginBottom: "16px" }}>
             Đăng tin mới
           </Button>

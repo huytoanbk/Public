@@ -157,12 +157,7 @@ const Login = () => {
             onSubmit={onSubmit}
           />
         ) : isRegister ? (
-          <RegisterForm
-            control={control}
-            errors={errors}
-            handleSubmit={handleSubmit}
-            onSubmit={onSubmit}
-          />
+          <RegisterForm />
         ) : (
           <LoginForm
             control={control}
@@ -173,12 +168,15 @@ const Login = () => {
         )}
 
         <div className="text-center">
-          <Button type="link" onClick={() => {
-            setIsRegister(!isRegister);
-            if(!isRegister) {
-              setIsForgotPassword(false);
-            }
-          }}>
+          <Button
+            type="link"
+            onClick={() => {
+              setIsRegister(!isRegister);
+              if (!isRegister) {
+                setIsForgotPassword(false);
+              }
+            }}
+          >
             {isRegister
               ? "Already have an account? Login"
               : "Don't have an account? Register"}
@@ -186,8 +184,8 @@ const Login = () => {
           <Button
             type="link"
             onClick={() => {
-              setIsForgotPassword(!isForgotPassword)
-              if(!isForgotPassword) {
+              setIsForgotPassword(!isForgotPassword);
+              if (!isForgotPassword) {
                 setIsRegister(false);
               }
             }}

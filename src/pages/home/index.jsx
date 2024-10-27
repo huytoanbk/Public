@@ -12,6 +12,7 @@ import {
   Pagination,
   Spin,
   Form,
+  Drawer
 } from "antd";
 import {
   AppstoreOutlined,
@@ -24,6 +25,7 @@ import { Link } from "react-router-dom";
 import { numberWithCommas } from "../../utiils/number-with-comma";
 import { Controller, useForm } from "react-hook-form";
 import PostAdsSlider from "../../components/PostAdsSlider";
+import SliderFilter from "../../components/SliderFilter";
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
@@ -32,6 +34,7 @@ const { Panel } = Collapse;
 
 const HomePage = () => {
   const [articles, setArticles] = useState([]);
+  const [paginationData, setPaginationData] = useState([]);
   const [viewMode, setViewMode] = useState("list");
   const [filter, setFilter] = useState({
     tab: "all",
@@ -39,10 +42,12 @@ const HomePage = () => {
   });
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 9,
+    pageSize: 10,
   });
   const [loading, setLoading] = useState(false);
   const { getValues, control } = useForm();
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -53,7 +58,9 @@ const HomePage = () => {
           tab: filter.tab,
           sort: filter.sort,
         });
-        setArticles(response.content);
+        const { content, ...paginationResponse } = response || {};
+        setArticles(content);
+        setPaginationData(paginationResponse);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -79,50 +86,47 @@ const HomePage = () => {
     setPagination({ current: page, pageSize });
   };
 
+  const toggleDrawer = () => {
+    setDrawerVisible(!drawerVisible);
+  };
+
   return (
     <Layout className="bg-[#f5f5f5] pt-5 homepage">
-      <Content className="px-4 max-w-[1100px] w-full mx-auto ">
-        <Row gutter={16} >
+      <Content className="px-4 max-w-[1100px] w-full mx-auto">
+        <Row gutter={30}>
           <PostAdsSlider />
         </Row>
-        <Row gutter={16} className="py-3 w-full flex-1">
-          <Col span={16} className="bg-white">
-            {/* <div> */}
-            <Header style={{ background: "white", padding: 0 }}>
-              <Row justify="space-between" align="middle">
-                <Col>
-                  <Tabs
-                    className="mb-0"
-                    defaultActiveKey="all"
-                    onChange={handleTabChange}
-                  >
-                    <TabPane tab="Tất cả" key="all"></TabPane>
-                    <TabPane tab="Cho thuê" key="rent"></TabPane>
-                    <TabPane tab="Ở ghép" key="share"></TabPane>
-                  </Tabs>
-                </Col>
+        <Row gutter={30} className="py-3 w-full flex-1 justify-center">
+          <Col span={16} className="bg-white" style={{ flex: "0 0 60%" }}>
+            <Header
+              style={{ background: "white", padding: 0 }}
+              className="flex justify-between items-center"
+            >
+              <Button className="md:hidden" onClick={toggleDrawer}>
+                Mở bộ lọc
+              </Button>
 
-                <Col>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Select
-                      defaultValue="newest"
-                      style={{ width: 150 }}
-                      onChange={handleSortChange}
-                    >
-                      <Option value="newest">Tin mới trước</Option>
-                      <Option value="priceLow">Giá thấp trước</Option>
-                      <Option value="priceHigh">Giá cao trước</Option>
-                    </Select>
-                    {/* <Button onClick={toggleViewMode}>
-                        {viewMode === "list" ? (
-                          <AppstoreOutlined />
-                        ) : (
-                          <UnorderedListOutlined />
-                        )}
-                      </Button> */}
-                  </div>
-                </Col>
-              </Row>
+              <Tabs
+                className="mb-0"
+                defaultActiveKey="all"
+                onChange={handleTabChange}
+              >
+                <TabPane tab="Tất cả" key="all"></TabPane>
+                <TabPane tab="Cho thuê" key="rent"></TabPane>
+                <TabPane tab="Ở ghép" key="share"></TabPane>
+              </Tabs>
+
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Select
+                  defaultValue="newest"
+                  style={{ width: 150 }}
+                  onChange={handleSortChange}
+                >
+                  <Option value="newest">Tin mới trước</Option>
+                  <Option value="priceLow">Giá thấp trước</Option>
+                  <Option value="priceHigh">Giá cao trước</Option>
+                </Select>
+              </div>
             </Header>
 
             {loading ? (
@@ -183,7 +187,7 @@ const HomePage = () => {
                 <Pagination
                   current={pagination.current}
                   pageSize={pagination.pageSize}
-                  total={articles.length}
+                  total={paginationData.totalElements}
                   onChange={handlePageChange}
                   showSizeChanger={false}
                 />
@@ -191,69 +195,190 @@ const HomePage = () => {
             ) : (
               <p>No data</p>
             )}
-            {/* </div> */}
           </Col>
 
-          <Col span={6} className="bg-white">
-            <Collapse accordion>
-              <Panel header="Lọc theo khoảng giá" key="1">
-                <Form.Item>
-                  <Controller
-                    name="price"
-                    control={control}
-                    render={(field) => (
-                      <Select
-                        defaultValue="under1m"
-                        style={{ width: "100%" }}
-                        onChange={() => {
-                          console.log("getValues", getValues("header-search"));
-                        }}
-                        {...field}
-                      >
-                        <Option value="under1m">Giá dưới 1 triệu</Option>
-                        <Option value="1to2m">Giá 1 - 2 triệu</Option>
-                        <Option value="2to3m">Giá 2 - 3 triệu</Option>
-                        <Option value="3to5m">Giá 3 - 5 triệu</Option>
-                        <Option value="5to7m">Giá 5 - 7 triệu</Option>
-                        <Option value="above7m">Giá trên 7 triệu</Option>
-                      </Select>
-                    )}
+          <Col span={6} className="bg-white p-4 hidden md:block" style={{ flex: "0 0 30%" }}>
+            <span className="text-lg font-bold">Bộ lọc</span>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">Khu vực</label>
+              <Controller
+                name="region"
+                control={control}
+                defaultValue="Hà Nội"
+                render={({ field }) => (
+                  <Select {...field} style={{ width: "100%" }}>
+                    <Option value="Hà Nội">Hà Nội</Option>
+                    <Option value="TP.HCM">TP.HCM</Option>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">
+                Loại hình
+              </label>
+              <Controller
+                name="type"
+                control={control}
+                defaultValue="Cho thuê"
+                render={({ field }) => (
+                  <Select {...field} style={{ width: "100%" }}>
+                    <Option value="Cho thuê">Cho thuê</Option>
+                    <Option value="Ở ghép">Ở ghép</Option>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="mt-4">
+              <Controller
+                name="priceRange"
+                control={control}
+                render={({ field }) => (
+                  <SliderFilter
+                    {...field}
+                    label="Giá (VND)"
+                    min={0}
+                    max={10000000}
+                    step={500000}
+                    onChange={field.onChange}
+                    value={field.value}
+                    unit="VND"
                   />
-                </Form.Item>
-              </Panel>
+                )}
+              />
+            </div>
 
-              <Panel header="Lọc theo diện tích" key="2">
-                <Select defaultValue="under20sqm" style={{ width: "100%" }}>
-                  <Option value="under20sqm">Dưới 20 m²</Option>
-                  <Option value="20to30sqm">20 - 30 m²</Option>
-                  <Option value="30to40sqm">30 - 40 m²</Option>
-                  <Option value="40to50sqm">40 - 50 m²</Option>
-                  <Option value="above50sqm">Trên 50 m²</Option>
-                </Select>
-              </Panel>
+            <div className="mt-4">
+              <Controller
+                name="areaRange"
+                control={control}
+                render={({ field }) => (
+                  <SliderFilter
+                    {...field}
+                    label="Diện tích (m²)"
+                    min={0}
+                    max={100}
+                    step={5}
+                    onChange={field.onChange}
+                    value={field.value}
+                    unit="m²"
+                  />
+                )}
+              />
+            </div>
 
-              <Panel header="Lọc theo tình trạng nội thất" key="3">
-                <Select defaultValue="fullFurnished" style={{ width: "100%" }}>
-                  <Option value="premiumFurnished">Nội thất cao cấp</Option>
-                  <Option value="fullFurnished">Nội thất đầy đủ</Option>
-                  <Option value="empty">Nhà trống</Option>
-                </Select>
-              </Panel>
-
-              <Panel header="Lọc theo quận" key="4">
-                <Select defaultValue="baDinh" style={{ width: "100%" }}>
-                  <Option value="baDinh">Quận Ba Đình</Option>
-                  <Option value="bacTuLiem">Quận Bắc Từ Liêm</Option>
-                  <Option value="cauGiay">Quận Cầu Giấy</Option>
-                  <Option value="dongDa">Quận Đống Đa</Option>
-                  <Option value="haDong">Quận Hà Đông</Option>
-                  <Option value="haiBaTrung">Quận Hai Bà Trưng</Option>
-                </Select>
-              </Panel>
-            </Collapse>
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">Nội thất</label>
+              <Controller
+                name="furniture"
+                control={control}
+                defaultValue="Có nội thất"
+                render={({ field }) => (
+                  <Select {...field} style={{ width: "100%" }}>
+                    <Option value="Có nội thất">Có nội thất</Option>
+                    <Option value="Không nội thất">Không nội thất</Option>
+                  </Select>
+                )}
+              />
+            </div>
           </Col>
         </Row>
       </Content>
+
+      <Drawer
+        title="Bộ lọc"
+        placement="right"
+        onClose={toggleDrawer}
+        open={drawerVisible}
+      >
+        <Col span={16} className="bg-white" >
+          <div className="">
+            <label className="block text-sm font-medium mb-1">Khu vực</label>
+            <Controller
+              name="region"
+              control={control}
+              defaultValue="Hà Nội"
+              render={({ field }) => (
+                <Select {...field} style={{ width: "100%" }}>
+                  <Option value="Hà Nội">Hà Nội</Option>
+                  <Option value="TP.HCM">TP.HCM</Option>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">Loại hình</label>
+            <Controller
+              name="type"
+              control={control}
+              defaultValue="Cho thuê"
+              render={({ field }) => (
+                <Select {...field} style={{ width: "100%" }}>
+                  <Option value="Cho thuê">Cho thuê</Option>
+                  <Option value="Ở ghép">Ở ghép</Option>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div className="mt-4">
+            <Controller
+              name="priceRange"
+              control={control}
+              render={({ field }) => (
+                <SliderFilter
+                  {...field}
+                  label="Giá (VND)"
+                  min={0}
+                  max={10000000}
+                  step={500000}
+                  onChange={field.onChange}
+                  value={field.value}
+                  unit="VND"
+                />
+              )}
+            />
+          </div>
+
+          <div className="mt-4">
+            <Controller
+              name="areaRange"
+              control={control}
+              render={({ field }) => (
+                <SliderFilter
+                  {...field}
+                  label="Diện tích (m²)"
+                  min={0}
+                  max={100}
+                  step={5}
+                  onChange={field.onChange}
+                  value={field.value}
+                  unit="m²"
+                />
+              )}
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">Nội thất</label>
+            <Controller
+              name="furniture"
+              control={control}
+              defaultValue="Có nội thất"
+              render={({ field }) => (
+                <Select {...field} style={{ width: "100%" }}>
+                  <Option value="Có nội thất">Có nội thất</Option>
+                  <Option value="Không nội thất">Không nội thất</Option>
+                </Select>
+              )}
+            />
+          </div>
+        </Col>
+      </Drawer>
     </Layout>
   );
 };
