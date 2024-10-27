@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -12,44 +12,35 @@ import {
   notification,
   Row,
   Col,
-  Image,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import axios from "axios";
 import { Editor } from "@tinymce/tinymce-react";
 import axiosInstance from "../../interceptor";
 
 const schema = z.object({
-  title: z.string().min(1, "Vui lòng nhập tiêu đề"),
-  content: z.string().min(1, "Vui lòng nhập nội dung"),
-  price: z
-    .number({ invalid_type_error: "Giá phải là số" })
-    .positive("Giá phải lớn hơn 0")
-    .refine((value) => value > 0, { message: "Giá phải lớn hơn 0" }),
-  deposit: z
-    .number({ invalid_type_error: "Đặt cọc phải là số" })
-    .positive("Đặt cọc phải lớn hơn 0")
-    .refine((value) => value > 0, { message: "Đặt cọc phải lớn hơn 0" }),
-  address: z.string().min(1, "Vui lòng nhập địa chỉ"),
-  acreage: z
-    .number({ invalid_type_error: "Diện tích phải là số" })
-    .positive("Diện tích phải lớn hơn 0")
-    .refine((value) => value > 0, { message: "Diện tích phải lớn hơn 0" }),
-  contact: z.string().email("Vui lòng nhập email hợp lệ"),
+  title: z.string().min(1, { message: "Vui lòng nhập tiêu đề" }),
+  content: z.string().min(1, { message: "Vui lòng nhập nội dung" }),
+  price: z.number().positive({ message: "Giá phải lớn hơn 0" }),
+  deposit: z.number().positive({ message: "Đặt cọc phải lớn hơn 0" }),
+  address: z.string().min(1, { message: "Vui lòng nhập địa chỉ" }),
+  acreage: z.number().positive({ message: "Diện tích phải lớn hơn 0" }),
+  contact: z.string().email({ message: "Vui lòng nhập email hợp lệ" }),
   expirationDate: z.date().refine((date) => date > new Date(), {
     message: "Ngày hết hạn phải sau ngày hiện tại",
   }),
-  province: z.string().min(1, "Vui lòng chọn tỉnh"),
-  district: z.string().min(1, "Vui lòng chọn quận"),
-  images: z.array(z.string()).min(1, "Vui lòng tải lên ít nhất một hình ảnh"),
+  province: z.string().min(1, { message: "Vui lòng chọn tỉnh" }),
+  district: z.string().min(1, { message: "Vui lòng chọn quận" }),
+  images: z.array(z.string()).min(1, { message: "Vui lòng tải lên hình ảnh" }),
+  description: z.string().min(1, { message: "Vui lòng nhập mô tả" }),
 });
 
 const CreatePostForm = () => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [districts, setDistricts] = useState([]);
   const {
     handleSubmit,
-    register,
+    control, // Thay đổi từ register sang control
     formState: { errors },
     setValue,
   } = useForm({
@@ -63,6 +54,7 @@ const CreatePostForm = () => {
     for (const file of files) {
       if (file.status === "done") {
         uploadedUrls.push(file.response.url);
+        notification.success({ message: "Tải lên hình ảnh thành công" });
       } else if (file.status === "error") {
         notification.error({ message: "Tải lên hình ảnh thất bại" });
       }
@@ -92,15 +84,11 @@ const CreatePostForm = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        "http://localhost:8888/api/v1/posts",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer YOUR_TOKEN_HERE`,
-          },
-        }
-      );
+      const response = await axiosInstance.post("/posts", formData, {
+        headers: {
+          Authorization: "Bearer",
+        },
+      });
       notification.success({ message: "Tạo bài viết thành công!" });
     } catch (error) {
       notification.error({
@@ -111,59 +99,91 @@ const CreatePostForm = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const response = await axiosInstance.get("/api/v1/province");
+        const districtData = response.data.flatMap(province => province.district);
+        setDistricts(districtData);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách quận:", error);
+      }
+    };
 
+    fetchDistricts();
+  }, []);
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8" style={{ maxWidth: 800 }}>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Tiêu đề"
               validateStatus={errors.title ? "error" : ""}
               help={errors.title?.message}
             >
-              <Input {...register("title")} placeholder="Nhập tiêu đề" />
+              <Controller
+                name="title" // Thay đổi từ register sang Controller
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Nhập tiêu đề" />
+                )}
+              />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Giá"
               validateStatus={errors.price ? "error" : ""}
               help={errors.price?.message}
             >
-              <Input
-                type="number"
-                {...register("price")}
-                placeholder="Nhập giá"
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <Input type="number" {...field} placeholder="Nhập giá" />
+                )}
               />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Đặt cọc"
               validateStatus={errors.deposit ? "error" : ""}
               help={errors.deposit?.message}
             >
-              <Input
-                type="number"
-                {...register("deposit")}
-                placeholder="Nhập số tiền đặt cọc"
+              <Controller
+                name="deposit"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    placeholder="Nhập số tiền đặt cọc"
+                  />
+                )}
               />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Diện tích"
               validateStatus={errors.acreage ? "error" : ""}
               help={errors.acreage?.message}
             >
-              <Input
-                type="number"
-                {...register("acreage")}
-                placeholder="Nhập diện tích (m²)"
+              <Controller
+                name="acreage"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    placeholder="Nhập diện tích (m²)"
+                  />
+                )}
               />
             </Form.Item>
           </Col>
@@ -174,7 +194,13 @@ const CreatePostForm = () => {
           validateStatus={errors.address ? "error" : ""}
           help={errors.address?.message}
         >
-          <Input {...register("address")} placeholder="Nhập địa chỉ" />
+          <Controller
+            name="address"
+            control={control}
+            render={({ field }) => (
+              <Input {...field} placeholder="Nhập địa chỉ" />
+            )}
+          />
         </Form.Item>
 
         <Form.Item
@@ -182,25 +208,29 @@ const CreatePostForm = () => {
           validateStatus={errors.expirationDate ? "error" : ""}
           help={errors.expirationDate?.message}
         >
-          <DatePicker
-            {...register("expirationDate")}
-            style={{ width: "100%" }}
+          <Controller
+            name="expirationDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker {...field} style={{ width: "100%" }} />
+            )}
           />
         </Form.Item>
 
         <Form.Item label="Hình ảnh">
           <Upload
             multiple
+            accept="image/jpeg,image/png,image/gif"
             customRequest={async ({ file, onSuccess, onError }) => {
               const formData = new FormData();
-              formData.append("image", file);
+              formData.append("file", file);
               try {
                 const response = await axiosInstance.post(
                   "/users/upload-avatar",
                   formData,
                   {
                     headers: {
-                      Authorization: `Bearer `,
+                      Authorization: "Bearer",
                     },
                   }
                 );
@@ -217,29 +247,47 @@ const CreatePostForm = () => {
           </Upload>
         </Form.Item>
 
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Tỉnh"
               validateStatus={errors.province ? "error" : ""}
               help={errors.province?.message}
             >
-              <Select {...register("province")} placeholder="Chọn tỉnh">
-                <Select.Option value="Hà Nội">Hà Nội</Select.Option>
-                <Select.Option value="TP.HCM">TP.HCM</Select.Option>
-              </Select>
+              <Controller
+                name="province"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Chọn tỉnh">
+                    <Select.Option value="Hà Nội">Hà Nội</Select.Option>
+                    <Select.Option value="TP.HCM">TP.HCM</Select.Option>
+                  </Select>
+                )}
+              />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Quận"
               validateStatus={errors.district ? "error" : ""}
               help={errors.district?.message}
             >
-              <Select {...register("district")} placeholder="Chọn quận">
-                <Select.Option value="Hà Đông">Hà Đông</Select.Option>
-                <Select.Option value="Cầu Giấy">Cầu Giấy</Select.Option>
-              </Select>
+              <Controller
+                name="district"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Chọn quận">
+                    {districts.map((district) => (
+                      <Select.Option
+                        key={district.id}
+                        value={district.districtName}
+                      >
+                        {district.districtName}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -249,16 +297,22 @@ const CreatePostForm = () => {
           validateStatus={errors.content ? "error" : ""}
           help={errors.content?.message}
         >
-          <Editor
-            init={{
-              height: 300,
-              menubar: false,
-              plugins: "lists link image preview",
-              toolbar:
-                "undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image | preview",
-            }}
-            apiKey="ylik8itoa2gw2jvfvwx4q8v83rd4o6ge4thrf1cpgonzjrul"
-            onEditorChange={(content) => setValue("content", content)}
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => (
+              <Editor
+                init={{
+                  height: 300,
+                  menubar: false,
+                  plugins: "lists link image preview",
+                  toolbar:
+                    "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | preview",
+                }}
+                apiKey="ylik8itoa2gw2jvfvwx4q8v83rd4o6ge4thrf1cpgonzjrul"
+                onEditorChange={(content) => setValue("content", content)} // Cập nhật giá trị
+              />
+            )}
           />
         </Form.Item>
 

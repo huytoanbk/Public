@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { message } from "antd";
+import { message, notification } from "antd";
 import { useForm, FormProvider } from "react-hook-form";
 import axios from "axios";
 
@@ -62,21 +62,24 @@ const RegisterForm = () => {
       const payload = {
         ...data,
         ...(isPhone ? { phone: contactValue } : { email: contactValue }),
-        phone: ''
       };
       const response = await baseAxios.post("/users/register", payload);
       if (response.status === 200) {
-        message.success({
-          message: "Registration successful",
-        });
+        message.success("Registration successful");
         await handleAfterGetToken(response.data);
       } else {
         message.error({
           message: response.data.message,
         });
       }
-    } catch {
-      message.error("Đăng ký thất bại!");
+    } catch(error) {
+      const messageError = error?.response?.data?.message || "Đăng ký thất bại!"
+      notification.error({
+        message: messageError
+      })
+      // message.error({
+      //   message: 
+      // });
     }
   };
 

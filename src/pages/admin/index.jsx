@@ -21,11 +21,11 @@ const navItems = [
     label: "Quản lý quảng cáo",
     path: "/admin/ads-management",
   },
-  // {
-  //   key: "/admin/post-create",
-  //   label: "Đăng tin cho thuê phòng trọ",
-  //   path: "/admin/post-create",
-  // },
+  {
+    key: "/admin/user-management",
+    label: "Quản lý user",
+    path: "/admin/user-management",
+  },
 ];
 
 const AdminLayout = ({ children }) => {

@@ -39,6 +39,7 @@ const PostAdsSlider = () => {
         slidesPerView={3}
         className="mySwiper"
         observer={true}
+        parallax={true}
       >
         {products.map((product) => (
           <SwiperSlide key={product.id}>
