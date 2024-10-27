@@ -36,6 +36,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/users/register").permitAll()
                                 .requestMatchers("/api/v1/users/email-send-otp").permitAll()
                                 .requestMatchers("/api/v1/users/phone-send-otp").permitAll()
+                                .requestMatchers("/api/v1/users/verify-otp").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)

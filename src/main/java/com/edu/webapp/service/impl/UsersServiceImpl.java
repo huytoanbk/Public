@@ -125,6 +125,7 @@ public class UsersServiceImpl implements UsersService {
     public void sendOtpEmail(String email) {
         try {
             String otp = OTPGenerator.generateOTP();
+            System.out.println(otp);
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             helper.setTo(email);
