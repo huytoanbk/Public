@@ -150,7 +150,7 @@ const HomePage = () => {
                             </Col>
 
                             <Col span={16} className="product-info-col">
-                              <Link to={`/product/${item.id}`}>
+                              <Link to={`/post/${item.id}`}>
                                 <h3 className="product-title">{item.title}</h3>
                               </Link>
 
