@@ -16,6 +16,7 @@ import {
 import { UploadOutlined } from "@ant-design/icons";
 import { Editor } from "@tinymce/tinymce-react";
 import axiosInstance from "../../interceptor";
+import LocationPicker from "../../components/LocationPicker";
 
 const schema = z.object({
   title: z.string().min(1, { message: "Vui lòng nhập tiêu đề" }),
@@ -32,15 +33,19 @@ const schema = z.object({
   district: z.string().min(1, { message: "Vui lòng chọn quận" }),
   images: z.array(z.string()).min(1, { message: "Vui lòng tải lên hình ảnh" }),
   description: z.string().min(1, { message: "Vui lòng nhập mô tả" }),
+  location: z
+    .string()
+    .min(1, { message: "Vui lòng lựa chọn địa điểm chính xác" }),
 });
 
 const CreatePostForm = () => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [location, setLocation] = useState(null);
   const {
     handleSubmit,
-    control, // Thay đổi từ register sang control
+    control,
     formState: { errors },
     setValue,
   } = useForm({
@@ -64,7 +69,13 @@ const CreatePostForm = () => {
     setValue("images", uploadedUrls);
   };
 
+  const handleLocationSelect = (coordinates) => {
+    console.log("coordinates", coordinates);
+    setLocation(coordinates);
+  };
+
   const onSubmit = async (data) => {
+    console.log("location", location);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
@@ -103,7 +114,9 @@ const CreatePostForm = () => {
     const fetchDistricts = async () => {
       try {
         const response = await axiosInstance.get("/api/v1/province");
-        const districtData = response.data.flatMap(province => province.district);
+        const districtData = response.data.flatMap(
+          (province) => province.district
+        );
         setDistricts(districtData);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách quận:", error);
@@ -123,7 +136,7 @@ const CreatePostForm = () => {
               help={errors.title?.message}
             >
               <Controller
-                name="title" // Thay đổi từ register sang Controller
+                name="title"
                 control={control}
                 render={({ field }) => (
                   <Input {...field} placeholder="Nhập tiêu đề" />
@@ -291,6 +304,12 @@ const CreatePostForm = () => {
             </Form.Item>
           </Col>
         </Row>
+        <Form.Item label="Chọn địa điểm">
+          <LocationPicker
+            initLocation={[21.0283334, 105.854041]}
+            onLocationSelect={handleLocationSelect}
+          />
+        </Form.Item>
 
         <Form.Item
           label="Mô tả"
@@ -310,7 +329,7 @@ const CreatePostForm = () => {
                     "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | preview",
                 }}
                 apiKey="ylik8itoa2gw2jvfvwx4q8v83rd4o6ge4thrf1cpgonzjrul"
-                onEditorChange={(content) => setValue("content", content)} // Cập nhật giá trị
+                onEditorChange={(content) => setValue("content", content)}
               />
             )}
           />

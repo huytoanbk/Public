@@ -3,6 +3,7 @@ import "./App.css";
 import { useForm, FormProvider } from "react-hook-form";
 import "swiper/css";
 import "swiper/css/pagination";
+import 'leaflet/dist/leaflet.css';
 import Home from "./pages/home";
 import Login from "./pages/login";
 import AdminLayout from "./pages/admin";
@@ -22,6 +23,7 @@ import CreatePostForm from "./pages/post-room";
 import { useUser } from "./context/UserContext";
 import { useEffect } from "react";
 import axiosInstance from "./interceptor";
+import UserManagement from "./pages/admin/user-management";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -36,12 +38,12 @@ function App() {
       console.log('userInfo', userInfo);
       const userInfoResponse = await axiosInstance.get(`/users`);
       if(userInfoResponse && userInfoResponse.data) {
-        const isAdmin = userInfo.roles.find(
-          (roleItem) => roleItem.name === "ADMIN"
-        );
-        if (!isAdmin) {
-          navigate("/");
-        }
+        // const isAdmin = userInfo.roles.find(
+        //   (roleItem) => roleItem.name === "ADMIN"
+        // );
+        // if (!isAdmin) {
+        //   navigate("/");
+        // }
       }
     }
   }
@@ -97,6 +99,10 @@ function App() {
                     <Route
                       path="post-management"
                       element={<PostManagement />}
+                    />
+                    <Route
+                      path="user-management"
+                      element={<UserManagement />}
                     />
                     <Route path="ads-management" element={<AdsManagement />} />
                     <Route path="post-create" element={<PostCreate />} />
