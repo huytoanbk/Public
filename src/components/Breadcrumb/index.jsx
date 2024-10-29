@@ -14,6 +14,8 @@ const Breadcrumb = () => {
     'edit-post': 'Chỉnh sửa bài viết',
     'posts': 'Danh sách bài viết',
     'search': 'Tìm kiếm',
+    'profile': 'Trang cá nhân',
+    'post': 'Bài viết',
   };
 
   useEffect(() => {

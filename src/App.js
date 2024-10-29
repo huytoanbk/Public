@@ -106,7 +106,6 @@ function App() {
                     />
                     <Route path="ads-management" element={<AdsManagement />} />
                     <Route path="post-create" element={<PostCreate />} />
-                    {/* <Route path="create" element={<PostCreate />} /> */}
                     <Route path="profile" element={<Profile />} />{" "}
                   </Routes>
                 </AdminLayout>
