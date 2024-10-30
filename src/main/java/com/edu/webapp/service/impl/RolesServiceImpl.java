@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -34,7 +35,8 @@ public class RolesServiceImpl implements RolesService {
     }
 
     @Override
-    public Page<RoleRes> getRoles() {
-        return null;
+    public List<RoleRes> getRoles() {
+        List<Role> roles = roleRepository.findAll();
+        return roleMapper.rolesToRoleResList(roles);
     }
 }

@@ -14,7 +14,8 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class CacheLocalConfig {
     private final RoleRepository roleRepository;
-    private LoadingCache<String, Role> cacheRole = CacheBuilder
+
+    private final LoadingCache<String, Role> cacheRole = CacheBuilder
             .newBuilder()
             .expireAfterAccess(1, TimeUnit.HOURS)
             .maximumSize(20)

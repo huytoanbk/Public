@@ -1,5 +1,6 @@
 package com.edu.webapp.model.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,8 +23,10 @@ public class PostRes {
     private double acreage;
     private String statusRoom;
     private String contact;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime createdAt;
     private String createdBy;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private OffsetDateTime updatedAt;
     private String updatedBy;
     private OffsetDateTime expirationDate;
@@ -34,4 +37,5 @@ public class PostRes {
     private String map;
     private String active;
     private String type;
+
 }

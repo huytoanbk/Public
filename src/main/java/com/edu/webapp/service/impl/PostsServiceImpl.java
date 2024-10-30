@@ -6,9 +6,12 @@ import com.edu.webapp.entity.post.Post;
 import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.PostMapper;
+import com.edu.webapp.model.request.CommentReq;
 import com.edu.webapp.model.request.FilterPostReq;
 import com.edu.webapp.model.request.PostCreateReq;
+import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
+import com.edu.webapp.repository.CommentRepository;
 import com.edu.webapp.repository.ImageRepository;
 import com.edu.webapp.repository.PostRepository;
 import com.edu.webapp.security.JwtCommon;
@@ -32,6 +35,7 @@ public class PostsServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
     private final ImageConfig imageConfig;
     private final JwtCommon jwtCommon;
 
@@ -74,5 +78,10 @@ public class PostsServiceImpl implements PostService {
         post.setView(post.getView() + 1);
         postRepository.save(post);
         return postMapper.postToPostRes(post);
+    }
+
+    @Override
+    public CommentRes createComment(CommentReq commentReq) {
+        return null;
     }
 }

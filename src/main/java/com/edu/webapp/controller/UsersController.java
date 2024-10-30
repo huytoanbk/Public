@@ -1,10 +1,7 @@
 package com.edu.webapp.controller;
 
 import com.edu.webapp.model.enums.NotiStatus;
-import com.edu.webapp.model.request.PasswordChangeReq;
-import com.edu.webapp.model.request.UserChangeReq;
-import com.edu.webapp.model.request.UserCreateReq;
-import com.edu.webapp.model.request.VerifyOtpReq;
+import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.AuthRes;
 import com.edu.webapp.model.response.UserRes;
 import com.edu.webapp.service.UsersService;
@@ -13,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
@@ -78,5 +73,15 @@ public class UsersController {
     public ResponseEntity<?> changeNoti(@RequestParam NotiStatus notiStatus) {
         usersService.changeNoti(notiStatus);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserRes> getUser(@PathVariable String id) {
+        return ResponseEntity.ok(usersService.getUser(id));
+    }
+
+    @PostMapping("/set-roles")
+    public ResponseEntity<UserRes> setRoles(@RequestBody UserRoleReq userRoleReq){
+        return ResponseEntity.ok(usersService.setRoles(userRoleReq));
     }
 }

@@ -3,19 +3,18 @@ package com.edu.webapp.service.impl;
 import com.edu.webapp.config.CacheLocalConfig;
 import com.edu.webapp.config.ImageConfig;
 import com.edu.webapp.entity.user.Otp;
+import com.edu.webapp.entity.user.Role;
 import com.edu.webapp.entity.user.User;
 import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.UserMapper;
 import com.edu.webapp.model.enums.NotiStatus;
-import com.edu.webapp.model.request.PasswordChangeReq;
-import com.edu.webapp.model.request.UserChangeReq;
-import com.edu.webapp.model.request.UserCreateReq;
-import com.edu.webapp.model.request.VerifyOtpReq;
+import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.AuthRes;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.UserRes;
 import com.edu.webapp.repository.OtpRepository;
+import com.edu.webapp.repository.RoleRepository;
 import com.edu.webapp.repository.UserRepository;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.UsersService;
@@ -32,10 +31,12 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -52,7 +53,6 @@ public class UsersServiceImpl implements UsersService {
     private final CacheLocalConfig cacheLocalConfig;
     private final JavaMailSender mailSender;
     private final OtpRepository otpRepository;
-
 
     @Override
     public AuthRes register(UserCreateReq userCreateReq) {
@@ -182,5 +182,27 @@ public class UsersServiceImpl implements UsersService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
         user.setNotiStatus(notiStatus);
         userRepository.save(user);
+    }
+
+    @Override
+    public UserRes getUser(String id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        return userMapper.userToUserRes(user);
+    }
+
+    @Override
+    @Transactional
+    public UserRes setRoles(UserRoleReq userRoleReq) {
+        User user = userRepository.findById(userRoleReq.getId()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        List<Role> roles = new ArrayList<>();
+        for (String role : userRoleReq.getRoles()) {
+            Role roleEntity = cacheLocalConfig.getRoleByName(role);
+            if (roleEntity == null)
+                throw new ValidateException(ErrorCodes.PERMISSION_NOT_EXIST);
+            roles.add(roleEntity);
+        }
+        user.setRoles(roles);
+        userRepository.save(user);
+        return userMapper.userToUserRes(user);
     }
 }

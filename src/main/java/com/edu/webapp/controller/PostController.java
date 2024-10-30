@@ -1,8 +1,10 @@
 package com.edu.webapp.controller;
 
 import com.edu.webapp.entity.post.Post;
+import com.edu.webapp.model.request.CommentReq;
 import com.edu.webapp.model.request.FilterPostReq;
 import com.edu.webapp.model.request.PostCreateReq;
+import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +36,10 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponseEntity<PostRes> getPost(@PathVariable String id) {
         return ResponseEntity.ok(postService.getPostById(id));
+    }
+
+    @PostMapping("/comment")
+    public ResponseEntity<CommentRes> commentPost(@RequestBody CommentReq commentReq) {
+        return ResponseEntity.ok(postService.createComment(commentReq));
     }
 }

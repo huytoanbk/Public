@@ -1,10 +1,7 @@
 package com.edu.webapp.service;
 
 import com.edu.webapp.model.enums.NotiStatus;
-import com.edu.webapp.model.request.PasswordChangeReq;
-import com.edu.webapp.model.request.UserChangeReq;
-import com.edu.webapp.model.request.UserCreateReq;
-import com.edu.webapp.model.request.VerifyOtpReq;
+import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.AuthRes;
 import com.edu.webapp.model.response.UserRes;
 import jakarta.mail.MessagingException;
@@ -34,4 +31,8 @@ public interface UsersService {
     Page<UserRes> getAllUser(Integer page, Integer size, String key);
 
     void changeNoti(NotiStatus notiStatus);
+
+    UserRes getUser(String id);
+
+    UserRes setRoles(UserRoleReq userRoleReq);
 }
