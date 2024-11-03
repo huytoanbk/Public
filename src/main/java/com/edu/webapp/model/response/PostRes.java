@@ -38,7 +38,7 @@ public class PostRes {
     private String map;
     private String active;
     private String type;
-
+    private UserPostRes userPostRes;
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder

@@ -81,7 +81,7 @@ public class PostsServiceImpl implements PostService {
         post.setView(post.getView() + 1);
         postRepository.save(post);
         PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
-        User user = userRepository.findById(jwtCommon.extractUsername()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        User user = userRepository.findByEmail(post.getCreatedBy()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
         userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
         userPostRes.setId(user.getId());
         userPostRes.setFullName(user.getFullName());
@@ -89,7 +89,9 @@ public class PostsServiceImpl implements PostService {
         userPostRes.setEmail(user.getEmail());
         userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
         userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
-        return postMapper.postToPostRes(post);
+        PostRes postRes =  postMapper.postToPostRes(post);
+        postRes.setUserPostRes(userPostRes);
+        return postRes;
     }
 
     @Override
