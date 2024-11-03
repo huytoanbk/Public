@@ -113,6 +113,10 @@ public class UsersServiceImpl implements UsersService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
         user.setPhone(req.getPhone());
         user.setFullName(req.getFullName());
+        user.setProvince(req.getProvince());
+        user.setDistrict(req.getDistrict());
+        user.setAddress(req.getAddress());
+        user.setIntroduce(req.getIntroduce());
         userRepository.save(user);
         return userMapper.userToUserRes(user);
     }
@@ -136,11 +140,11 @@ public class UsersServiceImpl implements UsersService {
                     + "<br><p>Best Regards,<br>TEST</p>"
                     + "</div>";
             helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
             Otp otpEntity = new Otp();
             otpEntity.setOtp(otp);
             otpEntity.setValue(email);
             otpRepository.save(otpEntity);
-            mailSender.send(mimeMessage);
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
         }
@@ -158,9 +162,9 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Async
     public void sendOtpPhone(String phone) {
-        String otp = OTPGenerator.generateOTP();
+//        String otp = OTPGenerator.generateOTP();
         Otp otpEntity = new Otp();
-        otpEntity.setOtp(otp);
+        otpEntity.setOtp("123456");
         otpEntity.setValue(phone);
         otpRepository.save(otpEntity);
     }

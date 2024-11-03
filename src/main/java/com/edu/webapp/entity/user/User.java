@@ -42,7 +42,7 @@ public class User implements UserDetails, Serializable {
     private String password;
 
     @Lob
-    @Column(name = "AVATAR",columnDefinition = "LONGBLOB")
+    @Column(name = "AVATAR", columnDefinition = "LONGBLOB")
     private byte[] avatar;
 
     @Column(name = "CREATED_AT")
@@ -61,6 +61,20 @@ public class User implements UserDetails, Serializable {
     @Column(name = "NOTI_STATUS")
     private NotiStatus notiStatus = NotiStatus.INACTIVE;
 
+    @Column(name = "PROVINCE")
+    private String province;
+
+    @Column(name = "DISTRICT")
+    private String district;
+
+    @Column(name = "ADDRESS")
+    private String address;
+
+    @Column(name = "INTRODUCE", columnDefinition = "TEXT")
+    private String introduce;
+
+    @Column(name = "UPTIME")
+    private OffsetDateTime Uptime;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
