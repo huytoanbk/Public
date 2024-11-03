@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostRepository extends JpaRepository<Post, String> {
     Page<Post> findByCreatedByAndContentContaining(String createdBy, String key, Pageable pageable);
+
+    Integer countByCreatedBy(String createdBy);
 }

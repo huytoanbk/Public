@@ -48,6 +48,4 @@ public class PostController {
                                                            @RequestParam(name = "key", defaultValue = "") String key) {
         return ResponseEntity.ok(postService.searchPostUser(page, size, key));
     }
-
-    //like post
 }

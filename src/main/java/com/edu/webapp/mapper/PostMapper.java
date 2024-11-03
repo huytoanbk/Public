@@ -2,6 +2,7 @@ package com.edu.webapp.mapper;
 
 import com.edu.webapp.entity.post.Image;
 import com.edu.webapp.entity.post.Post;
+import com.edu.webapp.entity.user.User;
 import com.edu.webapp.model.request.PostCreateReq;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.PostUserRes;

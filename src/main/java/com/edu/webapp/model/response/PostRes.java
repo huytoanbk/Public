@@ -43,7 +43,13 @@ public class PostRes {
     @NoArgsConstructor
     @Builder
     @Data
-    static class UserPostRes {
+    public static class UserPostRes {
         private String id;
+        private String fullName;
+        private String email;
+        private String phone;
+        private Integer totalPost;
+        private String uptime;
+        private String dateOfJoin;
     }
 }

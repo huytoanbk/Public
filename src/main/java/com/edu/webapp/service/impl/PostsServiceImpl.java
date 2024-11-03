@@ -3,6 +3,7 @@ package com.edu.webapp.service.impl;
 import com.edu.webapp.config.ImageConfig;
 import com.edu.webapp.entity.post.Image;
 import com.edu.webapp.entity.post.Post;
+import com.edu.webapp.entity.user.User;
 import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.PostMapper;
@@ -15,6 +16,7 @@ import com.edu.webapp.model.response.PostUserRes;
 import com.edu.webapp.repository.CommentRepository;
 import com.edu.webapp.repository.ImageRepository;
 import com.edu.webapp.repository.PostRepository;
+import com.edu.webapp.repository.UserRepository;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.PostService;
 import jakarta.transaction.Transactional;
@@ -36,6 +38,7 @@ public class PostsServiceImpl implements PostService {
     private final CommentRepository commentRepository;
     private final ImageConfig imageConfig;
     private final JwtCommon jwtCommon;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
@@ -75,6 +78,9 @@ public class PostsServiceImpl implements PostService {
         Post post = postRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
         post.setView(post.getView() + 1);
         postRepository.save(post);
+        PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
+        User user = userRepository.findById(jwtCommon.extractUsername()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+//        userPostRes.setTotalPost();
         return postMapper.postToPostRes(post);
     }
 
@@ -91,4 +97,6 @@ public class PostsServiceImpl implements PostService {
         List<PostUserRes> postUserResList = postMapper.postsToPostsUsers(posts.getContent());
         return new PageImpl<>(postUserResList, pageable, posts.getTotalElements());
     }
+
+
 }
