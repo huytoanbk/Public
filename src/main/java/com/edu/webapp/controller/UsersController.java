@@ -32,7 +32,8 @@ public class UsersController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyEmail(@RequestBody VerifyOtpReq verifyOtpReq) {
-        return ResponseEntity.ok(usersService.verifyOTP(verifyOtpReq));
+        usersService.verifyOTP(verifyOtpReq);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
