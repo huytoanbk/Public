@@ -7,6 +7,10 @@ import java.time.Period;
 public class TimeUtils {
 
     public static String formatTimeDifference(OffsetDateTime startTime, OffsetDateTime endTime) {
+        if (startTime == null || endTime == null) {
+            startTime = OffsetDateTime.now();
+            endTime = OffsetDateTime.now();
+        }
         Duration duration = Duration.between(startTime, endTime);
         long hours = duration.toHours();
 
