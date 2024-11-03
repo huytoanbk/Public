@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+
 @Data
 
 @AllArgsConstructor
@@ -38,4 +39,11 @@ public class PostRes {
     private String active;
     private String type;
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    @Data
+    static class UserPostRes {
+        private String id;
+    }
 }

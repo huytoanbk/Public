@@ -63,7 +63,7 @@ public class UsersController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<UserRes>> getAllUsers(@RequestParam(required = false) String key,
+    public ResponseEntity<Page<UserRes>> getAllUsers(@RequestParam(required = false, defaultValue = "") String key,
                                                      @RequestParam(required = false, defaultValue = "0") Integer page,
                                                      @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity.ok(usersService.getAllUser(page, size, key));
@@ -81,7 +81,7 @@ public class UsersController {
     }
 
     @PostMapping("/set-roles")
-    public ResponseEntity<UserRes> setRoles(@RequestBody UserRoleReq userRoleReq){
+    public ResponseEntity<UserRes> setRoles(@RequestBody UserRoleReq userRoleReq) {
         return ResponseEntity.ok(usersService.setRoles(userRoleReq));
     }
 }

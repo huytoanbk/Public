@@ -42,4 +42,8 @@ public class PostController {
     public ResponseEntity<CommentRes> commentPost(@RequestBody CommentReq commentReq) {
         return ResponseEntity.ok(postService.createComment(commentReq));
     }
+
+    //list post by id user
+
+    //like post
 }
