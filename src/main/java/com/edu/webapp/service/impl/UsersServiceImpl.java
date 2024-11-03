@@ -98,9 +98,9 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void changePassword(PasswordChangeReq request) {
         String email = jwtCommon.extractUsername();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
-        String oldPasswordEd = passwordEncoder.encode(request.getOldPassword());
-        if (!Objects.equals(oldPasswordEd, user.getPassword())) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new ValidateException(ErrorCodes.PASSWORD_OLD_VALID);
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
