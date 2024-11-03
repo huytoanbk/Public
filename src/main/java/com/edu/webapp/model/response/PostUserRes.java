@@ -1,6 +1,5 @@
 package com.edu.webapp.model.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,13 +11,14 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommentRes {
+public class PostUserRes {
     private String id;
-    private String avatar;
-    private String userId;
-    private String email;
-    private String fullName;
-    private String comment;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy'T'HH:mm:ssXXX")
+    private String title;
+    private String statusRoom;
     private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime expirationDate;
+    private Long view = 0L;
+    private String active;
+    private String type;
 }

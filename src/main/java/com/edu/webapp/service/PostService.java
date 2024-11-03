@@ -5,6 +5,7 @@ import com.edu.webapp.model.request.FilterPostReq;
 import com.edu.webapp.model.request.PostCreateReq;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
+import com.edu.webapp.model.response.PostUserRes;
 import org.springframework.data.domain.Page;
 
 public interface PostService {
@@ -15,4 +16,6 @@ public interface PostService {
     PostRes getPostById(String id);
 
     CommentRes createComment(CommentReq commentReq);
+
+    Page<PostUserRes> searchPostUser(Integer page, Integer size, String key);
 }

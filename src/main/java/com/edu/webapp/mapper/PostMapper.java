@@ -4,6 +4,7 @@ import com.edu.webapp.entity.post.Image;
 import com.edu.webapp.entity.post.Post;
 import com.edu.webapp.model.request.PostCreateReq;
 import com.edu.webapp.model.response.PostRes;
+import com.edu.webapp.model.response.PostUserRes;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -22,6 +23,10 @@ public interface PostMapper {
 
     @Mapping(source = "images", target = "images", qualifiedByName = "convertImages")
     PostRes postToPostRes(Post post);
+
+    List<PostUserRes> postsToPostsUsers(List<Post> posts);
+
+    PostUserRes postToPostUserRes(Post post);
 
     @Named("convertImages")
     default List<String> convertImages(List<Image> images) {

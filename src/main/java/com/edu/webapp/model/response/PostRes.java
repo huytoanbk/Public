@@ -10,7 +10,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -24,12 +23,13 @@ public class PostRes {
     private double acreage;
     private String statusRoom;
     private String contact;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy'T'HH:mm:ssXXX")
     private OffsetDateTime createdAt;
     private String createdBy;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy'T'HH:mm:ssXXX")
     private OffsetDateTime updatedAt;
     private String updatedBy;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy'T'HH:mm:ssXXX")
     private OffsetDateTime expirationDate;
     private List<String> images;
     private String province;

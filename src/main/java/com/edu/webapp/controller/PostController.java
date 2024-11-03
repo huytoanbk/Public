@@ -1,19 +1,17 @@
 package com.edu.webapp.controller;
 
-import com.edu.webapp.entity.post.Post;
 import com.edu.webapp.model.request.CommentReq;
 import com.edu.webapp.model.request.FilterPostReq;
 import com.edu.webapp.model.request.PostCreateReq;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
+import com.edu.webapp.model.response.PostUserRes;
 import com.edu.webapp.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -44,6 +42,12 @@ public class PostController {
     }
 
     //list post by id user
+    @GetMapping("/search-user-post")
+    public ResponseEntity<Page<PostUserRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                                                           @RequestParam(name = "size", defaultValue = "30") Integer size,
+                                                           @RequestParam(name = "key", defaultValue = "") String key) {
+        return ResponseEntity.ok(postService.searchPostUser(page, size, key));
+    }
 
     //like post
 }

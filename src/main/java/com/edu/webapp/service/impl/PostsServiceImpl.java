@@ -11,6 +11,7 @@ import com.edu.webapp.model.request.FilterPostReq;
 import com.edu.webapp.model.request.PostCreateReq;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
+import com.edu.webapp.model.response.PostUserRes;
 import com.edu.webapp.repository.CommentRepository;
 import com.edu.webapp.repository.ImageRepository;
 import com.edu.webapp.repository.PostRepository;
@@ -19,10 +20,7 @@ import com.edu.webapp.service.PostService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -83,5 +81,14 @@ public class PostsServiceImpl implements PostService {
     @Override
     public CommentRes createComment(CommentReq commentReq) {
         return null;
+    }
+
+    @Override
+    public Page<PostUserRes> searchPostUser(Integer page, Integer size, String key) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
+        String username = jwtCommon.extractUsername();
+        Page<Post> posts = postRepository.findByCreatedByAndContentContaining(username, key, pageable);
+        List<PostUserRes> postUserResList = postMapper.postsToPostsUsers(posts.getContent());
+        return new PageImpl<>(postUserResList, pageable, posts.getTotalElements());
     }
 }
