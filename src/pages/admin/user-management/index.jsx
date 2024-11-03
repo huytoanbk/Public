@@ -26,58 +26,7 @@ const UserManagement = () => {
   const fetchUsers = async (page = 1, size = 10) => {
     setLoading(true);
     try {
-      const response = {
-        data: {
-          content: [
-            {
-              id: 1,
-              fullName: "John Doe",
-              email: "johndoe@example.com",
-              phone: "123456789",
-              active: "active",
-              roles: [
-                {
-                  id: 1,
-                  name: "Admin",
-                  createdAt: "2024-10-27T09:07:34.171Z",
-                  updatedAt: "2024-10-27T09:07:34.171Z",
-                  active: "active",
-                },
-                {
-                  id: 2,
-                  name: "User",
-                  createdAt: "2024-10-27T09:07:34.171Z",
-                  updatedAt: "2024-10-27T09:07:34.171Z",
-                  active: "active",
-                },
-              ],
-            },
-            {
-              id: 2,
-              fullName: "Jane Smith",
-              email: "janesmith@example.com",
-              phone: "987654321",
-              active: "inactive",
-              roles: [
-                {
-                  id: 2,
-                  name: "User",
-                  createdAt: "2024-10-27T09:07:34.171Z",
-                  updatedAt: "2024-10-27T09:07:34.171Z",
-                  active: "active",
-                },
-              ],
-            },
-          ],
-          totalElements: 2,
-          totalPages: 1,
-          size: 10,
-          number: 0,
-          first: true,
-          last: true,
-          numberOfElements: 2,
-        },
-      };
+      const response = await axiosInstance.get('/users/all');
       setData(response.data.content || []);
       setTotal(response.data.totalElements || 0);
     } catch (error) {
@@ -102,9 +51,9 @@ const UserManagement = () => {
     try {
       const response = {
         data: {
-          /* dữ liệu chi tiết người dùng giả lập */
+         
         },
-      }; // Dữ liệu giả lập chi tiết
+      };
       setSelectedUser(response.data);
       setIsModalVisible(true);
     } catch (error) {
@@ -183,7 +132,7 @@ const UserManagement = () => {
         loading={loading}
         pagination={false}
         onRow={(record) => ({
-          onClick: () => handleRowClick(record),
+          // onClick: () => handleRowClick(record),
         })}
       />
       <div className="flex justify-end mt-4">

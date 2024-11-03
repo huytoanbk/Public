@@ -24,6 +24,7 @@ import baseAxios from "../../interceptor/baseAxios";
 const Login = () => {
   const [params] = useSearchParams();
   const { updateUserInfo, userInfo } = useUser();
+  console.log("userInfo", userInfo);
   const [isRegister, setIsRegister] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const navigate = useNavigate();
@@ -48,9 +49,6 @@ const Login = () => {
     try {
       const response = await baseAxios.post("/auth/authenticate", data);
       if (response.status === 200) {
-        notification.success({
-          message: "Login successful",
-        });
         await handleAfterGetToken(response.data);
       }
     } catch (error) {
@@ -67,7 +65,7 @@ const Login = () => {
       const response = await axios.post(`${baseUrl}/users/register`, data);
       if (response.status === 200) {
         notification.success({
-          message: "Registration successful",
+          message: "Đăng ký thành công",
         });
         await handleAfterGetToken(response.data);
         reset();
@@ -78,7 +76,7 @@ const Login = () => {
         });
       }
     } catch (error) {
-      const message = error?.response?.data?.message || "Registration failed";
+      const message = error?.response?.data?.message || "Đăng ký thất bại";
       notification.error({
         message: message,
       });
@@ -136,17 +134,17 @@ const Login = () => {
     if (userInfo) {
       navigate("/");
     }
-  }, []);
+  }, [userInfo]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
+    <div className="min-h-[600px] bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
         <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
           {isRegister
-            ? "Create Account"
+            ? "Đăng ký"
             : isForgotPassword
-            ? "Forgot Password"
-            : "Welcome Back"}
+            ? "Quên mật khẩu"
+            : "Đăng nhập"}
         </h2>
 
         {isForgotPassword ? (
@@ -167,7 +165,7 @@ const Login = () => {
           />
         )}
 
-        <div className="text-center">
+        <div className="text-center flex justify-between mt-3">
           <Button
             type="link"
             onClick={() => {
@@ -178,8 +176,8 @@ const Login = () => {
             }}
           >
             {isRegister
-              ? "Already have an account? Login"
-              : "Don't have an account? Register"}
+              ? "Đã có tài khoản? Đăng nhập"
+              : "Chưa có tài khoản? Đăng ký"}
           </Button>
           <Button
             type="link"
@@ -190,7 +188,7 @@ const Login = () => {
               }
             }}
           >
-            {isForgotPassword ? "Back to Login" : "Forgot Password?"}
+            {isForgotPassword ? "Về đăng nhập" : "Quên mật khẩu?"}
           </Button>
         </div>
       </div>

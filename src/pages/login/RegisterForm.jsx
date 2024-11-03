@@ -57,29 +57,28 @@ const RegisterForm = () => {
 
   const onSubmitForm = async (formData) => {
     try {
-      const {confirmPassword, ...data} = formData;
-      const isPhone = /^\d+$/.test(contactValue);
+      const { confirmPassword, contact, ...data } = formData;
+      // const isPhone = /^\d+$/.test(contactValue);
       const payload = {
         ...data,
-        ...(isPhone ? { phone: contactValue } : { email: contactValue }),
+        // ...(isPhone ? { phone: contactValue } : { email: contactValue }),
+        email: contactValue,
       };
       const response = await baseAxios.post("/users/register", payload);
       if (response.status === 200) {
-        message.success("Registration successful");
+        message.success("Đăng ký thành công");
         await handleAfterGetToken(response.data);
       } else {
         message.error({
           message: response.data.message,
         });
       }
-    } catch(error) {
-      const messageError = error?.response?.data?.message || "Đăng ký thất bại!"
+    } catch (error) {
+      const messageError =
+        error?.response?.data?.message || "Đăng ký thất bại!";
       notification.error({
-        message: messageError
-      })
-      // message.error({
-      //   message: 
-      // });
+        message: messageError,
+      });
     }
   };
 
@@ -106,7 +105,7 @@ const RegisterForm = () => {
 
   return (
     <FormProvider {...methods}>
-      <div className="container mx-auto p-4">
+      <div className="">
         {step === 1 && <ContactForm onSubmit={onSubmitContact} />}
         {step === 2 && (
           <OTPVerification

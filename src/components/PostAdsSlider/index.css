@@ -1,0 +1,40 @@
+.swiper-button-next-custom,
+.swiper-button-prev-custom {
+  width: 32px;
+  height: 32px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.swiper-button-next-custom:hover,
+.swiper-button-prev-custom:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.swiper-button-next-custom::after,
+.swiper-button-prev-custom::after {
+  font-family: "Swiper Icons";
+  font-size: 12px;
+}
+
+.swiper-button-next-custom::after {
+  content: "→";
+}
+
+.swiper-button-prev-custom::after {
+  content: "←";
+}
+
+.swiper-wrapper {
+  margin-bottom: 40px;
+}
+
+.swiper-pagination {
+  bottom: 0 !important;
+}

@@ -7,6 +7,7 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import "./index.css";
 
 const PostAdsSlider = () => {
   const [products, setProducts] = useState([]);
@@ -26,12 +27,12 @@ const PostAdsSlider = () => {
   }, []);
 
   return (
-    <div className="product-slider w-full max-w-6xl mx-auto relative">
+    <div className="product-slider mb-8 w-full max-w-6xl mx-auto relative">
       <Swiper
         pagination={{ clickable: true }}
         navigation={{
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
+          nextEl: ".swiper-button-next-custom",
+          prevEl: ".swiper-button-prev-custom",
         }}
         modules={[Pagination, Navigation]}
         loop={true}
@@ -65,12 +66,8 @@ const PostAdsSlider = () => {
           </SwiperSlide>
         ))}
         <div className="swiper-pagination bottom-[-20px]"></div>
-        <div className="swiper-button-prev absolute left-2 top-1/2 transform -translate-y-1/2 z-10 text-gray-600 hover:text-gray-800">
-          <LeftOutlined style={{ fontSize: "20px" }} />
-        </div>
-        <div className="swiper-button-next absolute right-2 top-1/2 transform -translate-y-1/2 z-10 text-gray-600 hover:text-gray-800">
-          <RightOutlined style={{ fontSize: "20px" }} />
-        </div>
+        <div className="swiper-button-prev-custom swiper-button-prev absolute left-2 top-1/2 transform -translate-y-1/2 z-10 text-gray-600"></div>
+        <div className="swiper-button-next-custom swiper-button-next absolute right-2 top-1/2 transform -translate-y-1/2 z-10 text-gray-600"></div>
       </Swiper>
     </div>
   );

@@ -12,7 +12,7 @@ import {
   Pagination,
   Spin,
   Form,
-  Drawer
+  Drawer,
 } from "antd";
 import {
   AppstoreOutlined,
@@ -26,6 +26,7 @@ import { numberWithCommas } from "../../utiils/number-with-comma";
 import { Controller, useForm } from "react-hook-form";
 import PostAdsSlider from "../../components/PostAdsSlider";
 import SliderFilter from "../../components/SliderFilter";
+import baseAxios from "../../interceptor/baseAxios";
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
@@ -35,6 +36,8 @@ const { Panel } = Collapse;
 const HomePage = () => {
   const [articles, setArticles] = useState([]);
   const [paginationData, setPaginationData] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
   const [viewMode, setViewMode] = useState("list");
   const [filter, setFilter] = useState({
     tab: "all",
@@ -45,8 +48,14 @@ const HomePage = () => {
     pageSize: 10,
   });
   const [loading, setLoading] = useState(false);
-  const { getValues, control } = useForm();
+  const { control, watch, setValue } = useForm();
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const region = watch("region");
+  const priceRange = watch("priceRange");
+  const areaRange = watch("areaRange");
+  const furniture = watch("furniture");
+  const province = watch("province");
+  const district = watch("district");
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -55,8 +64,26 @@ const HomePage = () => {
         const response = await getListPost({
           page: pagination.current - 1,
           size: pagination.pageSize,
-          tab: filter.tab,
+          roomType: filter.tab,
           sort: filter.sort,
+          ...(priceRange && {
+            price: {
+              from: priceRange[0],
+              to: priceRange[1],
+            },
+          }),
+          ...(areaRange && {
+            acreage: {
+              from: areaRange[0],
+              to: areaRange[1],
+            },
+          }),
+          ...(province && {
+            province,
+          }),
+          ...(district && {
+            district,
+          }),
         });
         const { content, ...paginationResponse } = response || {};
         setArticles(content);
@@ -68,7 +95,38 @@ const HomePage = () => {
       }
     };
     fetchArticles();
-  }, [filter, pagination]);
+  }, [
+    filter,
+    pagination,
+    region,
+    areaRange,
+    furniture,
+    priceRange,
+    province,
+    district,
+  ]);
+  const selectedProvinceId = watch("province");
+  useEffect(() => {
+    if (selectedProvinceId) {
+      const selectedProvince = provinces.find(
+        (province) => province.name === selectedProvinceId
+      );
+      setDistricts(selectedProvince ? selectedProvince.district : []);
+      setValue("district", undefined);
+    }
+  }, [selectedProvinceId, provinces, setValue]);
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const response = await baseAxios.get("/province");
+        setProvinces(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách quận:", error);
+      }
+    };
+
+    fetchDistricts();
+  }, []);
 
   const handleTabChange = (key) => {
     setFilter({ ...filter, tab: key });
@@ -91,13 +149,16 @@ const HomePage = () => {
   };
 
   return (
-    <Layout className="bg-[#f5f5f5] pt-5 homepage">
-      <Content className="px-4 max-w-[1100px] w-full mx-auto">
+    <Layout className="bg-white pt-2 homepage">
+      <Content className="w-full mx-auto mb-20">
         <Row gutter={30}>
           <PostAdsSlider />
         </Row>
-        <Row gutter={30} className="py-3 w-full flex-1 justify-center">
-          <Col span={16} className="bg-white" style={{ flex: "0 0 60%" }}>
+        <Row
+          gutter={30}
+          className="py-3 px-3 w-full flex-1 justify-between gap-x-5"
+        >
+          <Col span={16} className="bg-white">
             <Header
               style={{ background: "white", padding: 0 }}
               className="flex justify-between items-center"
@@ -112,8 +173,8 @@ const HomePage = () => {
                 onChange={handleTabChange}
               >
                 <TabPane tab="Tất cả" key="all"></TabPane>
-                <TabPane tab="Cho thuê" key="rent"></TabPane>
-                <TabPane tab="Ở ghép" key="share"></TabPane>
+                <TabPane tab="Cho thuê" key="RENT"></TabPane>
+                <TabPane tab="Ở ghép" key="GRAFT"></TabPane>
               </Tabs>
 
               <div style={{ display: "flex", alignItems: "center" }}>
@@ -184,49 +245,83 @@ const HomePage = () => {
                     ))}
                   </Row>
                 )}
-                <Pagination
-                  current={pagination.current}
-                  pageSize={pagination.pageSize}
-                  total={paginationData.totalElements}
-                  onChange={handlePageChange}
-                  showSizeChanger={false}
-                />
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "20px",
+                  }}
+                >
+                  <Pagination
+                    current={pagination.current}
+                    pageSize={pagination.pageSize}
+                    total={paginationData.totalElements}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                  />
+                </div>
               </div>
             ) : (
               <p>No data</p>
             )}
           </Col>
-
-          <Col span={6} className="bg-white p-4 hidden md:block" style={{ flex: "0 0 30%" }}>
+          <Col
+            span={6}
+            className="bg-white hidden md:block"
+            style={{ flex: "0 0 30%" }}
+          >
             <span className="text-lg font-bold">Bộ lọc</span>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium mb-1">Khu vực</label>
+              <label className="block text-sm font-medium mb-1">
+                Tỉnh / Thành phố
+              </label>
               <Controller
-                name="region"
+                name="province"
                 control={control}
-                defaultValue="Hà Nội"
+                className="w-full"
                 render={({ field }) => (
-                  <Select {...field} style={{ width: "100%" }}>
-                    <Option value="Hà Nội">Hà Nội</Option>
-                    <Option value="TP.HCM">TP.HCM</Option>
+                  <Select
+                    {...field}
+                    placeholder="Chọn tỉnh"
+                    className="w-full"
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    {provinces.map((province) => (
+                      <Select.Option key={province.name} value={province.name}>
+                        {province.name}
+                      </Select.Option>
+                    ))}
                   </Select>
                 )}
               />
             </div>
-
             <div className="mt-4">
-              <label className="block text-sm font-medium mb-1">
-                Loại hình
-              </label>
+              <label className="block text-sm font-medium mb-1">Quận</label>
               <Controller
-                name="type"
+                name="district"
                 control={control}
-                defaultValue="Cho thuê"
+                className="w-full"
                 render={({ field }) => (
-                  <Select {...field} style={{ width: "100%" }}>
-                    <Option value="Cho thuê">Cho thuê</Option>
-                    <Option value="Ở ghép">Ở ghép</Option>
+                  <Select
+                    {...field}
+                    placeholder="Chọn quận"
+                    disabled={!districts.length}
+                    className="w-full"
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    {districts.map((district) => (
+                      <Select.Option
+                        key={district.id}
+                        value={district.districtName}
+                      >
+                        {district.districtName}
+                      </Select.Option>
+                    ))}
                   </Select>
                 )}
               />
@@ -269,21 +364,6 @@ const HomePage = () => {
                 )}
               />
             </div>
-
-            <div className="mt-4">
-              <label className="block text-sm font-medium mb-1">Nội thất</label>
-              <Controller
-                name="furniture"
-                control={control}
-                defaultValue="Có nội thất"
-                render={({ field }) => (
-                  <Select {...field} style={{ width: "100%" }}>
-                    <Option value="Có nội thất">Có nội thất</Option>
-                    <Option value="Không nội thất">Không nội thất</Option>
-                  </Select>
-                )}
-              />
-            </div>
           </Col>
         </Row>
       </Content>
@@ -294,7 +374,7 @@ const HomePage = () => {
         onClose={toggleDrawer}
         open={drawerVisible}
       >
-        <Col span={16} className="bg-white" >
+        <Col span={16} className="bg-white">
           <div className="">
             <label className="block text-sm font-medium mb-1">Khu vực</label>
             <Controller
@@ -363,7 +443,7 @@ const HomePage = () => {
             />
           </div>
 
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <label className="block text-sm font-medium mb-1">Nội thất</label>
             <Controller
               name="furniture"
@@ -376,7 +456,7 @@ const HomePage = () => {
                 </Select>
               )}
             />
-          </div>
+          </div> */}
         </Col>
       </Drawer>
     </Layout>

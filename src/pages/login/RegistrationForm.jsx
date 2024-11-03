@@ -6,9 +6,9 @@ import { z } from "zod";
 
 const registrationSchema = z.object({
   fullName: z.string().min(1, { message: 'Vui lòng nhập họ tên' }),
-  phone: z.string()
-    .min(1, { message: 'Vui lòng nhập số điện thoại' })
-    .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, { message: 'Số điện thoại không hợp lệ' }),
+  // phone: z.string()
+  //   .min(1, { message: 'Vui lòng nhập số điện thoại' })
+  //   .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, { message: 'Số điện thoại không hợp lệ' }),
   password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
   confirmPassword: z.string().min(6, { message: 'Xác nhận mật khẩu phải có ít nhất 6 ký tự' }),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -38,7 +38,7 @@ const RegistrationForm = ({ onSubmit }) => {
           )}
         />
       </Form.Item>
-      <Form.Item
+      {/* <Form.Item
         validateStatus={errors?.phone ? "error" : ""}
         help={errors?.phone?.message}
       >
@@ -54,7 +54,7 @@ const RegistrationForm = ({ onSubmit }) => {
             />
           )}
         />
-      </Form.Item>
+      </Form.Item> */}
       <Form.Item
         validateStatus={errors?.password ? "error" : ""}
         help={errors?.password?.message}

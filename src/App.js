@@ -32,8 +32,6 @@ function App() {
   const { updateUserInfo, clearUserInfo, userInfo } = useUser();
 
   const handleCheckRole = async () => {
-    console.log('userInfo', userInfo);
-    console.log('pathname.includes("/admin") && Boolean(userInfo)', Boolean(userInfo));
     if (pathname.includes("/admin") && Boolean(userInfo)) {
       console.log('userInfo', userInfo);
       const userInfoResponse = await axiosInstance.get(`/users`);
@@ -67,7 +65,7 @@ function App() {
     <div className="App">
       <FormProvider {...methods}>
         {!pathname.includes("/admin") && <AppHeader />}
-        {!pathname.includes("/admin") && <Breadcrumb />}
+        {!pathname.includes("/admin") || !pathname.includes("/login") && <Breadcrumb />}
         <Routes>
           <Route index element={<Home />} />
           <Route

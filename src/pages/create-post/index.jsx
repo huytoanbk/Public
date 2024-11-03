@@ -17,6 +17,7 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
+import axiosInstance from "../../interceptor";
 
 const schema = z.object({
   title: z.string().nonempty("Vui lòng nhập tiêu đề"),
@@ -62,7 +63,7 @@ const CreatePostForm = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post("localhost:8888/api/v1/posts", formData, {
+      const response = await axiosInstance.post("/posts", formData, {
         headers: {
           Authorization: `Bearer YOUR_TOKEN_HERE`,
         },

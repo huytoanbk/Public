@@ -27,7 +27,6 @@ axiosInstance.interceptors.response.use(
 
     if (error.response && error.response.status === 401) {
       try {
-
         const tokenStorage = localStorage.getItem("token");
         const { refreshToken = "" } = JSON.parse(tokenStorage) || {};
 
@@ -56,6 +55,8 @@ axiosInstance.interceptors.response.use(
         window.location.href = "/";
       }
     }
+    const errorMessage = error?.response?.data?.message;
+    error["errorMessage"] = errorMessage;
     return Promise.reject(error);
   }
 );

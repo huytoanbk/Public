@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Thumbs } from "swiper/modules";
 import baseAxios from "../../interceptor/baseAxios";
@@ -7,13 +7,17 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input, Typography, message } from "antd";
+import { useUser } from "../../context/UserContext";
 const commentSchema = z.object({
-  content: z.string().min(1, "Nội dung bình luận là bắt buộc"),
+  comment: z
+    .string({ required_error: "Nội dung bình luận là bắt buộc" })
+    .min(1, "Nội dung bình luận là bắt buộc"),
 });
 const { Title } = Typography;
 
 const PostDetail = () => {
   const { id } = useParams();
+  const { userInfo } = useUser();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,7 +50,7 @@ const PostDetail = () => {
     };
     const fetchComments = async () => {
       try {
-        const response = await baseAxios.get(`/api/v1/posts/${id}/comment`);
+        const response = await baseAxios.get(`/posts/${id}/comment`);
         setComments(response.data.comments);
         setCommentCount(response.data.totalCount);
         setShowMore(response.data.totalCount > 10);
@@ -61,15 +65,20 @@ const PostDetail = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await baseAxios.post(`/api/v1/posts/${id}/comment`, {
-        content: data.content,
+      const { userId } = userInfo;
+      const response = await baseAxios.post(`/posts/${id}/comment`, {
+        comment: data.comment,
+        postId: id,
+        userId,
+        userTo: "",
       });
       setComments([response.data, ...comments]);
       reset();
       message.success("Đã gửi bình luận thành công!");
     } catch (error) {
+      const { errorMessage = "Có lỗi xảy ra khi gửi bình luận." } = error;
       console.error("Error submitting comment:", error);
-      message.error("Có lỗi xảy ra khi gửi bình luận.");
+      message.error(errorMessage);
     }
   };
 
@@ -98,7 +107,7 @@ const PostDetail = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4  max-w-6xl">
+    <div className="container mx-auto py-8 px-4  max-w-6xl bg-[#F4F4F4]">
       <div className="flex mb-10">
         <div className="w-full md:w-3/4 pr-4">
           <Swiper
@@ -133,36 +142,37 @@ const PostDetail = () => {
               </SwiperSlide>
             ))}
           </Swiper>
-
-          <h1 className="text-3xl font-bold mt-4">{post.title}</h1>
-          <div className="mt-4">
-            <p className="text-xl font-semibold">
-              Giá:{" "}
-              <span className="text-red-500">
-                {post.price.toLocaleString()} VNĐ
+          <div className="bg-white rounded-lg shadow-md p-6 mx-auto">
+            <Title level={2}>{post.title}</Title>
+            <div className="text-lg">
+              <span className="text-red-500 font-bold">
+                {(post.price / 1000000).toLocaleString("vi-VN", {
+                  minimumFractionDigits: 1,
+                }) + " VND/tháng"}
               </span>
-            </p>
-            <p>
-              <strong>Đặt cọc:</strong> {post.deposit.toLocaleString()} VNĐ
-            </p>
-            <p>
-              <strong>Diện tích:</strong> {post.acreage} m²
-            </p>
-            <p>
-              <strong>Địa chỉ:</strong> {post.address}, {post.district},{" "}
-              {post.province}
-            </p>
-            <p>
-              <strong>Liên hệ:</strong> {post.contact}
-            </p>
-            <p>
-              <strong>Được đăng bởi:</strong> {post.createdBy}
-            </p>
-            <p>
-              <strong>Ngày đăng:</strong>{" "}
-              {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              <span className="mx-2">•</span>
+              <span className="text-black">{post.acreage} m²</span>
+            </div>
+            <div className="mt-4">
+              <p>
+                <strong>Đặt cọc:</strong> {post.deposit.toLocaleString()} VNĐ
+              </p>
+              <p>
+                <strong>Địa chỉ:</strong> {post.address}, {post.district},{" "}
+                {post.province}
+              </p>
+              <p>
+                <strong>Liên hệ:</strong> {post.contact}
+              </p>
+              <p>
+                <strong>Được đăng bởi:</strong> {post.createdBy}
+              </p>
+              <p>
+                <strong>Ngày đăng:</strong>{" "}
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            </div>
           </div>
         </div>
 
@@ -173,11 +183,24 @@ const PostDetail = () => {
               alt="User Avatar"
               className="w-16 h-16 rounded-full mb-4"
             />
-            <h2 className="text-lg font-bold">Tên người dùng</h2>
-            <p className="text-sm">Số bài viết: 10</p>
-            <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+            <h2 className="text-lg font-bold">
+              {post?.userPostRes?.fullName || "User"}
+            </h2>
+            <p className="text-sm">
+              {post?.userPostRes?.totalPost || "1"} Tin đăng
+            </p>
+            <p className="text-sm">
+              Hoạt động {post?.userPostRes?.uptime || "1 giờ trước"}
+            </p>
+            <p className="text-sm">
+              Tham gia {post?.userPostRes?.dateOfJoin || "1 giờ trước"}
+            </p>
+            <a
+              href={`tel:${post?.userPostRes?.phone}`}
+              className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded inline-block"
+            >
               Gọi điện
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -209,20 +232,29 @@ const PostDetail = () => {
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
           <Input.TextArea
-            {...register("content")}
             rows={3}
             placeholder="Nhập bình luận của bạn..."
             className={`border rounded w-full p-2 ${
-              errors.content ? "border-red-500" : ""
+              errors.comment ? "border-red-500" : ""
             }`}
-            required
+            {...register("comment")}
           />
-          {errors.content && (
-            <p className="text-red-500">{errors.content.message}</p>
+          {errors.comment && (
+            <p className="text-red-500">{errors.comment.message}</p>
           )}
-          <Button type="primary" htmlType="submit" className="mt-2">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="mt-2"
+            disabled={Boolean(!userInfo)}
+          >
             Gửi bình luận
           </Button>
+          {!userInfo && (
+            <span>
+              Vui lòng <Link to={"/login"}>đăng nhập</Link> để bình luận
+            </span>
+          )}
         </form>
       </div>
     </div>

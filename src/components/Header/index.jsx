@@ -1,15 +1,29 @@
-import { useState } from "react";
-import { Layout, Input, Button, Dropdown, Menu, Select, Row, Col } from "antd";
+import { useEffect, useState } from "react";
+import {
+  Layout,
+  Input,
+  Button,
+  Dropdown,
+  Menu,
+  Select,
+  Row,
+  Col,
+  Switch,
+  notification,
+} from "antd";
 import { UserOutlined, PlusOutlined, MenuOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import Logo from "../Icon/logo";
+import baseAxios from "../../interceptor/baseAxios";
+import axiosInstance from "../../interceptor";
 
 const { Header } = Layout;
 const { Option } = Select;
 
 const AppHeader = () => {
   const { clearUserInfo, userInfo } = useUser();
+  const [notiStatus, setNotiStatus] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { pathname = "" } = location;
@@ -41,11 +55,52 @@ const AppHeader = () => {
     navigate({ search: params.toString() }, { replace: true });
   };
 
+  const toggleNotiStatus = async (checked) => {
+    const status = checked ? "ACTIVE" : "INACTIVE";
+    try {
+      await axiosInstance.post(`/users/change-noti?notiStatus=${status}`);
+      setNotiStatus(checked);
+      notification.success({
+        message: `Đã ${
+          checked ? "bật" : "tắt"
+        } tính năng gửi mail tự động thành công`,
+        description: "Khi có bài viết mới, email sẽ tự động gửi đến bạn",
+      });
+    } catch (error) {
+      const messageDisplay =
+        error?.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau";
+      notification.error({
+        message: "Cập nhật tính năng gửi mail tự động thất bại",
+        description: messageDisplay,
+      });
+      console.error("Error updating notification status:", error);
+    }
+  };
+
+  useEffect(() => {
+    if(userInfo) {
+      const { notiStatus = null } = userInfo;
+      if (notiStatus === "ACTIVE") {
+        setNotiStatus(true);
+      } else {
+        setNotiStatus(false);
+      }
+    }
+  }, [userInfo]);
+
   const accountMenu = (
     <Menu onClick={handleMenuClick}>
       {userInfo ? (
         <>
           <Menu.Item key="my-account">Tài khoản của tôi</Menu.Item>
+          <Menu.Item key="turn-on-noti">
+            Nhận mail khi có bài viết mới{" "}
+            <Switch
+              checked={notiStatus}
+              onChange={toggleNotiStatus}
+              style={{ marginLeft: 8 }}
+            />
+          </Menu.Item>
           <Menu.Item key="saved">Tin đã lưu</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
         </>

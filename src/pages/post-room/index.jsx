@@ -17,51 +17,73 @@ import { UploadOutlined } from "@ant-design/icons";
 import { Editor } from "@tinymce/tinymce-react";
 import axiosInstance from "../../interceptor";
 import LocationPicker from "../../components/LocationPicker";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
-  title: z.string().min(1, { message: "Vui lòng nhập tiêu đề" }),
-  content: z.string().min(1, { message: "Vui lòng nhập nội dung" }),
-  price: z.number().positive({ message: "Giá phải lớn hơn 0" }),
-  deposit: z.number().positive({ message: "Đặt cọc phải lớn hơn 0" }),
-  address: z.string().min(1, { message: "Vui lòng nhập địa chỉ" }),
-  acreage: z.number().positive({ message: "Diện tích phải lớn hơn 0" }),
-  contact: z.string().email({ message: "Vui lòng nhập email hợp lệ" }),
-  expirationDate: z.date().refine((date) => date > new Date(), {
-    message: "Ngày hết hạn phải sau ngày hiện tại",
-  }),
-  province: z.string().min(1, { message: "Vui lòng chọn tỉnh" }),
-  district: z.string().min(1, { message: "Vui lòng chọn quận" }),
-  images: z.array(z.string()).min(1, { message: "Vui lòng tải lên hình ảnh" }),
-  description: z.string().min(1, { message: "Vui lòng nhập mô tả" }),
-  location: z
-    .string()
-    .min(1, { message: "Vui lòng lựa chọn địa điểm chính xác" }),
+  title: z
+    .string({ required_error: "Vui lòng nhập tiêu đề" })
+    .min(1, { message: "Tiêu đề phải có ít nhất 1 ký tự" }),
+  content: z
+    .string({ required_error: "Vui lòng nhập nội dung" })
+    .min(1, { message: "Vui lòng nhập nội dung" }),
+  price: z
+    .number({ required_error: "Vui lòng nhập giá" })
+    .positive({ message: "Giá phải lớn hơn 0" }),
+  deposit: z
+    .number({ required_error: "Vui lòng nhập số tiền đặt cọc" })
+    .positive({ message: "Đặt cọc phải lớn hơn 0" }),
+  address: z
+    .string({ required_error: "Vui lòng nhập địa chỉ" })
+    .min(1, { message: "Vui lòng nhập địa chỉ" }),
+  acreage: z
+    .number({ required_error: "Vui lòng nhập diện tích" })
+    .positive({ message: "Diện tích phải lớn hơn 0" }),
+  expirationDate: z
+    .string({ required_error: "Vui lòng chọn ngày" })
+    .min(1, { message: "Vui lòng chọn ngày" }),
+  province: z
+    .string({ required_error: "Vui lòng chọn tỉnh" })
+    .min(1, { message: "Vui lòng chọn tỉnh" }),
+  district: z
+    .string({ required_error: "Vui lòng chọn quận" })
+    .min(1, { message: "Vui lòng chọn quận" }),
+  images: z
+    .array(z.string(), { required_error: "Vui lòng tải lên hình ảnh" })
+    .min(1, { message: "Vui lòng tải lên hình ảnh" }),
+
+  // location: z
+  //   .string({ required_error: "Vui lòng chọn địa điểm" })
+  //   .min(1, { message: "Vui lòng lựa chọn địa điểm chính xác" }),
 });
 
 const CreatePostForm = () => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
-  const [districts, setDistricts] = useState([]);
   const [location, setLocation] = useState(null);
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const navigate = useNavigate();
   const {
     handleSubmit,
     control,
+    register,
+    watch,
+    clearErrors,
+    setError,
     formState: { errors },
     setValue,
   } = useForm({
+    shouldFocusError: false,
     resolver: zodResolver(schema),
   });
 
   const handleUploadChange = async (info) => {
     const files = info.fileList;
     const uploadedUrls = [];
-
     for (const file of files) {
       if (file.status === "done") {
-        uploadedUrls.push(file.response.url);
-        notification.success({ message: "Tải lên hình ảnh thành công" });
+        uploadedUrls.push(file.url || file.thumbUrl);
       } else if (file.status === "error") {
-        notification.error({ message: "Tải lên hình ảnh thất bại" });
       }
     }
 
@@ -70,12 +92,15 @@ const CreatePostForm = () => {
   };
 
   const handleLocationSelect = (coordinates) => {
-    console.log("coordinates", coordinates);
     setLocation(coordinates);
   };
 
+  const onError = (errors) => {
+    console.log("Errors:", errors);
+  };
+
   const onSubmit = async (data) => {
-    console.log("location", location);
+    console.log("location", data);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
@@ -85,22 +110,21 @@ const CreatePostForm = () => {
     formData.append("acreage", data.acreage);
     formData.append("statusRoom", "ACTIVE");
     formData.append("contact", data.contact);
-    formData.append("expirationDate", data.expirationDate.toISOString());
+    formData.append("expirationDate", data.expirationDate);
     formData.append("province", data.province);
     formData.append("district", data.district);
-
-    data.images.forEach((url) => {
-      formData.append("images", url);
-    });
+    if(data.location) formData.append("location", data.location);
+    if (data.images && Array.isArray(data.images)) {
+      data.images.forEach((file) => {
+        formData.append("images", file);
+      });
+    }
 
     try {
       setLoading(true);
-      const response = await axiosInstance.post("/posts", formData, {
-        headers: {
-          Authorization: "Bearer",
-        },
-      });
+      const response = await axiosInstance.post("/posts", formData);
       notification.success({ message: "Tạo bài viết thành công!" });
+      // navigate('/my-post');
     } catch (error) {
       notification.error({
         message: "Có lỗi xảy ra",
@@ -113,11 +137,8 @@ const CreatePostForm = () => {
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
-        const response = await axiosInstance.get("/api/v1/province");
-        const districtData = response.data.flatMap(
-          (province) => province.district
-        );
-        setDistricts(districtData);
+        const response = await axiosInstance.get("/province");
+        setProvinces(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách quận:", error);
       }
@@ -125,9 +146,20 @@ const CreatePostForm = () => {
 
     fetchDistricts();
   }, []);
+
+  const selectedProvinceId = watch("province");
+  useEffect(() => {
+    if (selectedProvinceId) {
+      const selectedProvince = provinces.find(
+        (province) => province.name === selectedProvinceId
+      );
+      setDistricts(selectedProvince ? selectedProvince.district : []);
+      setValue("district", undefined);
+    }
+  }, [selectedProvinceId, provinces, setValue]);
   return (
     <div className="container mx-auto py-8" style={{ maxWidth: 800 }}>
-      <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
+      <Form layout="vertical" onFinish={handleSubmit(onSubmit, onError)}>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12}>
             <Form.Item
@@ -154,7 +186,16 @@ const CreatePostForm = () => {
                 name="price"
                 control={control}
                 render={({ field }) => (
-                  <Input type="number" {...field} placeholder="Nhập giá" />
+                  <Input
+                    {...field}
+                    placeholder="Nhập giá"
+                    onChange={(event) => {
+                      const parseValue = Number(event.target.value)
+                        ? Number(event.target.value)
+                        : 0;
+                      field.onChange(parseValue);
+                    }}
+                  />
                 )}
               />
             </Form.Item>
@@ -173,9 +214,14 @@ const CreatePostForm = () => {
                 control={control}
                 render={({ field }) => (
                   <Input
-                    type="number"
                     {...field}
                     placeholder="Nhập số tiền đặt cọc"
+                    onChange={(event) => {
+                      const parseValue = Number(event.target.value)
+                        ? Number(event.target.value)
+                        : 0;
+                      field.onChange(parseValue);
+                    }}
                   />
                 )}
               />
@@ -195,6 +241,12 @@ const CreatePostForm = () => {
                     type="number"
                     {...field}
                     placeholder="Nhập diện tích (m²)"
+                    onChange={(event) => {
+                      const parseValue = Number(event.target.value)
+                        ? Number(event.target.value)
+                        : 0;
+                      field.onChange(parseValue);
+                    }}
                   />
                 )}
               />
@@ -215,49 +267,91 @@ const CreatePostForm = () => {
             )}
           />
         </Form.Item>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Ngày hết hạn"
+              validateStatus={errors.expirationDate ? "error" : ""}
+              help={errors.expirationDate?.message}
+              validateTrigger={["onChange", "onBlur"]}
+              rules={[
+                {
+                  validator: (_, value) => {
+                    if (value && value > new Date()) {
+                      return Promise.reject(
+                        new Error("Ngày hết hạn không hợp lệ")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <input
+                type="date"
+                {...register("expirationDate")}
+                className="custom-date-input"
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="Liên hệ"
+              validateStatus={errors.contact ? "error" : ""}
+              help={errors.contact?.message}
+            >
+              <Controller
+                name="contact"
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Nhập số điện thoại liên hệ" />
+                )}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Form.Item
-          label="Ngày hết hạn"
-          validateStatus={errors.expirationDate ? "error" : ""}
-          help={errors.expirationDate?.message}
+          label="Hình ảnh"
+          validateStatus={errors.images ? "error" : ""}
+          help={errors.images?.message}
         >
           <Controller
-            name="expirationDate"
+            name="images"
             control={control}
             render={({ field }) => (
-              <DatePicker {...field} style={{ width: "100%" }} />
+              <Upload
+                {...field}
+                multiple
+                accept="image/jpeg,image/png,image/gif"
+                customRequest={async ({ file, onSuccess, onError }) => {
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  try {
+                    const response = await axiosInstance.post(
+                      "/users/upload-avatar",
+                      formData
+                    );
+                    if (response.status === 200) {
+                      notification.success({
+                        message: "Tải lên hình ảnh thành công",
+                      });
+                    }
+                    onSuccess(response.data);
+                    clearErrors("images");
+                  } catch (error) {
+                    onError(error);
+                    setError("images", { message: "Tải lên không thành công" });
+                  }
+                }}
+                onChange={handleUploadChange}
+                listType="picture"
+                showUploadList={true}
+              >
+                <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
+              </Upload>
             )}
           />
-        </Form.Item>
-
-        <Form.Item label="Hình ảnh">
-          <Upload
-            multiple
-            accept="image/jpeg,image/png,image/gif"
-            customRequest={async ({ file, onSuccess, onError }) => {
-              const formData = new FormData();
-              formData.append("file", file);
-              try {
-                const response = await axiosInstance.post(
-                  "/users/upload-avatar",
-                  formData,
-                  {
-                    headers: {
-                      Authorization: "Bearer",
-                    },
-                  }
-                );
-                onSuccess(response.data);
-              } catch (error) {
-                onError(error);
-              }
-            }}
-            onChange={handleUploadChange}
-            listType="picture"
-            showUploadList={true}
-          >
-            <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
-          </Upload>
         </Form.Item>
 
         <Row gutter={[24, 24]}>
@@ -271,9 +365,18 @@ const CreatePostForm = () => {
                 name="province"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} placeholder="Chọn tỉnh">
-                    <Select.Option value="Hà Nội">Hà Nội</Select.Option>
-                    <Select.Option value="TP.HCM">TP.HCM</Select.Option>
+                  <Select
+                    {...field}
+                    placeholder="Chọn tỉnh / thành phố"
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    {provinces.map((province) => (
+                      <Select.Option key={province.name} value={province.name}>
+                        {province.name}
+                      </Select.Option>
+                    ))}
                   </Select>
                 )}
               />
@@ -289,7 +392,14 @@ const CreatePostForm = () => {
                 name="district"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} placeholder="Chọn quận">
+                  <Select
+                    {...field}
+                    placeholder="Chọn quận"
+                    disabled={!districts.length}
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
                     {districts.map((district) => (
                       <Select.Option
                         key={district.id}
@@ -306,7 +416,7 @@ const CreatePostForm = () => {
         </Row>
         <Form.Item label="Chọn địa điểm">
           <LocationPicker
-            initLocation={[21.0283334, 105.854041]}
+            // initLocation={[21.0283334, 105.854041]}
             onLocationSelect={handleLocationSelect}
           />
         </Form.Item>
@@ -329,7 +439,14 @@ const CreatePostForm = () => {
                     "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | preview",
                 }}
                 apiKey="ylik8itoa2gw2jvfvwx4q8v83rd4o6ge4thrf1cpgonzjrul"
-                onEditorChange={(content) => setValue("content", content)}
+                onEditorChange={(content) => {
+                  if (content) {
+                    clearErrors("content");
+                    setValue("content", content);
+                  } else {
+                    setError("content", { message: "Vui lòng nhập nội dung" });
+                  }
+                }}
               />
             )}
           />

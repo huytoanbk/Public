@@ -38,8 +38,8 @@ const LoginForm = ({ control, errors, handleSubmit, onSubmit }) => (
       />
     </Form.Item>
     <Form.Item>
-      <Button type="primary" htmlType="submit" className="w-full py-2 text-lg rounded-lg">
-        Login
+      <Button type="primary" htmlType="submit" className="w-full py-2 text-lg rounded-lg mb-4">
+        Đăng nhập
       </Button>
     </Form.Item>
   </Form>

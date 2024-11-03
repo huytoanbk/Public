@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb as BreadcrumbAntd } from 'antd';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams  } from 'react-router-dom';
 import baseAxios from '../../interceptor/baseAxios';
 
-const Breadcrumb = () => {
+const Breadcrumb = ({match }) => {
   const location = useLocation();
-  const { id } = useParams();
   const [postTitle, setPostTitle] = useState('');
   const pathnames = location.pathname.split('/').filter(x => x);
 
@@ -16,10 +15,11 @@ const Breadcrumb = () => {
     'search': 'Tìm kiếm',
     'profile': 'Trang cá nhân',
     'post': 'Bài viết',
+    'login': 'Đăng nhập'
   };
 
   useEffect(() => {
-    const fetchPostTitle = async () => {
+    const fetchPostTitle = async (id) => {
       if (id) {
         try {
           const response = await baseAxios.get(`/posts/${id}`);
@@ -30,11 +30,15 @@ const Breadcrumb = () => {
       }
     };
 
-    fetchPostTitle();
-  }, [id]);
+    if (location.pathname.includes("post/")) {
+      const id = location.pathname.split("post/")[1].split("/")[0];
+      if(id) fetchPostTitle(id);
+    }
+  }, [location.pathname]);
 
   return (
-    <BreadcrumbAntd>
+   <div className='max-w-[1200px] w-full my-0 mx-auto p-5'>
+ <BreadcrumbAntd>
       <BreadcrumbAntd.Item>
         <Link to="/">Trang chủ</Link>
       </BreadcrumbAntd.Item>
@@ -52,6 +56,8 @@ const Breadcrumb = () => {
         );
       })}
     </BreadcrumbAntd>
+
+   </div>
   );
 };
 

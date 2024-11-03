@@ -17,14 +17,14 @@ const ContactForm = ({ onSubmit }) => {
           render={({ field }) => (
             <Input
               {...field}
-              placeholder="Nhập số điện thoại hoặc email"
+              placeholder="Nhập email"
               size="large"
             />
           )}
         />
       </Form.Item>
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
+      <Form.Item className="text-center">
+        <Button type="primary" htmlType="submit" className="mx-auto my-0">
           Gửi OTP
         </Button>
       </Form.Item>

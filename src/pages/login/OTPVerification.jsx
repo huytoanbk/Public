@@ -1,16 +1,22 @@
 import React from "react";
-import { Button, message } from "antd";
+import { Button, message, Typography } from "antd";
 import OTPInput from "react-otp-input";
+
+const {Title} = Typography
 
 const OTPVerification = ({ otp, setOtp, onSubmit, onChangeContact, onResendOtp }) => {
   return (
     <div>
-      <h3>Nhập mã OTP</h3>
+      <Title level={4} className="text-center !mb-5">Nhập mã OTP</Title>
       <OTPInput
         value={otp}
+        containerStyle={{
+          columnGap: '2rem'
+        }}
         onChange={setOtp}
         numInputs={6}
-        separator={<span>-</span>}
+        shouldAutoFocus={true}
+        separator={<div><span>-</span></div>}
         inputStyle={{
           width: "2.5rem",
           height: "2.5rem",
@@ -23,12 +29,12 @@ const OTPVerification = ({ otp, setOtp, onSubmit, onChangeContact, onResendOtp }
       <Button
         type="primary"
         onClick={onSubmit}
-        className="mt-4"
+        className="mt-4 mx-auto block"
         disabled={otp.length !== 6}
       >
         Xác thực OTP
       </Button>
-      <div className="flex mt-4 space-x-4">
+      <div className="flex mt-4 space-x-4 justify-between">
         <Button type="link" onClick={onChangeContact}>
           Đổi số điện thoại/email
         </Button>
