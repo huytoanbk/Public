@@ -7,8 +7,11 @@ import java.time.Period;
 public class TimeUtils {
 
     public static String formatTimeDifference(OffsetDateTime startTime, OffsetDateTime endTime) {
-        if (startTime == null || endTime == null) {
+        if (startTime == null) {
             startTime = OffsetDateTime.now();
+
+        }
+        if (endTime == null) {
             endTime = OffsetDateTime.now();
         }
         Duration duration = Duration.between(startTime, endTime);
