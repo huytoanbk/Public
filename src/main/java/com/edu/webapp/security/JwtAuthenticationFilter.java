@@ -1,5 +1,7 @@
 package com.edu.webapp.security;
 
+import com.edu.webapp.entity.user.User;
+import com.edu.webapp.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     private final JwtCommon jwtCommon;
+
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -47,6 +52,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("Successfully authenticated user: {}", username);
+                User user = (User) userDetails;
+                user.setUptime(OffsetDateTime.now());
+                userRepository.save(user);
             } else {
                 log.warn("Invalid JWT token for user: {}", username);
             }

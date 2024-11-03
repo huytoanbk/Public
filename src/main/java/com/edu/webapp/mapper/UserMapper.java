@@ -7,21 +7,20 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.util.Base64;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     User userCreateReqToUser(UserCreateReq userCreateReq);
 
-    @Mapping(source = "avatar", target = "avatar", qualifiedByName  = "mapUserToAvatar")
+    @Mapping(source = "avatar", target = "avatar", qualifiedByName = "mapUserToAvatar")
     UserRes userToUserRes(User user);
 
     @Named("mapUserToAvatar")
     default String mapUserToAvatar(byte[] fileContent) {
         try {
 //            return Base64.getEncoder().encodeToString(fileContent);
-            return "https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg";
+            if (fileContent != null) return "https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg";
         } catch (Exception e) {
         }
         return null;

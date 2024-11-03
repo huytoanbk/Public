@@ -74,7 +74,7 @@ public class User implements UserDetails, Serializable {
     private String introduce;
 
     @Column(name = "UPTIME")
-    private OffsetDateTime Uptime;
+    private OffsetDateTime uptime;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

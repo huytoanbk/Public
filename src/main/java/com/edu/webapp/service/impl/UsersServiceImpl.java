@@ -111,6 +111,9 @@ public class UsersServiceImpl implements UsersService {
     public UserRes updateInfo(UserChangeReq req) {
         String email = jwtCommon.extractUsername();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        if (userRepository.existsByPhone(req.getPhone())) {
+            throw new ValidateException(ErrorCodes.PHONE_EXIST);
+        }
         user.setPhone(req.getPhone());
         user.setFullName(req.getFullName());
         user.setProvince(req.getProvince());
