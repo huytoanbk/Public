@@ -24,7 +24,7 @@ public interface UsersService {
 
     void sendOtpEmail(String email);
 
-    boolean verifyOTP(VerifyOtpReq verifyOtpReq);
+    void verifyOTP(VerifyOtpReq verifyOtpReq);
 
     void sendOtpPhone(String phone);
 

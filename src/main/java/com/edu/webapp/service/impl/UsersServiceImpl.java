@@ -154,12 +154,11 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public boolean verifyOTP(VerifyOtpReq verifyOtpReq) {
-        Otp otpEntity = otpRepository.findTop1ByValueOrderByCreatedAtDesc(verifyOtpReq.getValue()).orElse(null);
-        if (otpEntity == null) {
-            return false;
+    public void verifyOTP(VerifyOtpReq verifyOtpReq) {
+        Otp otpEntity = otpRepository.findTop1ByValueOrderByCreatedAtDesc(verifyOtpReq.getValue()).orElseThrow(() -> new ValidateException(ErrorCodes.OTP_IS_INCORRECT));
+        if (!otpEntity.getOtp().equals(verifyOtpReq.getOtp()) && OffsetDateTime.now().isAfter(otpEntity.getCreatedAt())) {
+            throw new ValidateException(ErrorCodes.OTP_IS_INCORRECT);
         }
-        return otpEntity.getOtp().equals(verifyOtpReq.getOtp()) && OffsetDateTime.now().isAfter(otpEntity.getCreatedAt());
     }
 
     @Override
