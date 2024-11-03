@@ -7,7 +7,6 @@ import java.time.Period;
 public class TimeUtils {
 
     public static String formatTimeDifference(OffsetDateTime startTime, OffsetDateTime endTime) {
-        // Tính khoảng cách thời gian bằng Duration
         Duration duration = Duration.between(startTime, endTime);
         long hours = duration.toHours();
 

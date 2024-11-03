@@ -19,6 +19,7 @@ import com.edu.webapp.repository.PostRepository;
 import com.edu.webapp.repository.UserRepository;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.PostService;
+import com.edu.webapp.utils.TimeUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -80,7 +82,13 @@ public class PostsServiceImpl implements PostService {
         postRepository.save(post);
         PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
         User user = userRepository.findById(jwtCommon.extractUsername()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
-//        userPostRes.setTotalPost();
+        userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
+        userPostRes.setId(user.getId());
+        userPostRes.setFullName(user.getFullName());
+        userPostRes.setPhone(user.getPhone());
+        userPostRes.setEmail(user.getEmail());
+        userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
+        userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
         return postMapper.postToPostRes(post);
     }
 
@@ -97,6 +105,4 @@ public class PostsServiceImpl implements PostService {
         List<PostUserRes> postUserResList = postMapper.postsToPostsUsers(posts.getContent());
         return new PageImpl<>(postUserResList, pageable, posts.getTotalElements());
     }
-
-
 }
