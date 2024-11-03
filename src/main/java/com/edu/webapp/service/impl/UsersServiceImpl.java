@@ -60,9 +60,6 @@ public class UsersServiceImpl implements UsersService {
         if (userRepository.existsByEmail(userCreateReq.getEmail())) {
             throw new ValidateException(ErrorCodes.EMAIL_EXIST);
         }
-        if (userRepository.existsByPhone(userCreateReq.getPhone())) {
-            throw new ValidateException(ErrorCodes.PHONE_EXIST);
-        }
         User user = userMapper.userCreateReqToUser(userCreateReq);
         user.setPassword(passwordEncoder.encode(userCreateReq.getPassword()));
         user.setRoles(Collections.singletonList(cacheLocalConfig.getRoleByName("USER")));

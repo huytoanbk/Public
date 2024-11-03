@@ -17,7 +17,5 @@ public class UserCreateReq {
 
     private String email;
 
-    private String phone;
-
     private String password;
 }
