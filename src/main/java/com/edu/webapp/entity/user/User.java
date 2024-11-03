@@ -61,9 +61,6 @@ public class User implements UserDetails, Serializable {
     @Column(name = "NOTI_STATUS")
     private NotiStatus notiStatus = NotiStatus.INACTIVE;
 
-    @Column(name = "UPDATED_AT")
-    @UpdateTimestamp
-    private OffsetDateTime last;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
