@@ -3,6 +3,7 @@ package com.edu.webapp.model.request;
 import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.enums.RoomStatus;
 import com.edu.webapp.model.enums.TypeRoom;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,11 +29,13 @@ public class PostCreateReq {
     private double acreage;
     private RoomStatus statusRoom;
     private String contact;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private OffsetDateTime expirationDate;
     private List<MultipartFile> images;
     private String province;
     private String district;
-    private String map;
+    private String longitude;
+    private String latitude;
     private ActiveStatus active;
     private TypeRoom type;
 }

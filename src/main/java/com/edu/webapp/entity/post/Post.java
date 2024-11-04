@@ -77,12 +77,14 @@ public class Post {
     @Column(name = "DISTRICT")
     private String district;
 
-
     @Column(name = "VIEW")
     private Long view = 0L;
 
-    @Column(name = "MAP")
-    private String map;
+    @Column(name = "LONGITUDE")
+    private String longitude;
+
+    @Column(name = "LATITUDE")
+    private String latitude;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ACTIVE")

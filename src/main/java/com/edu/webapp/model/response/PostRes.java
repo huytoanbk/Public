@@ -35,7 +35,8 @@ public class PostRes {
     private String province;
     private String district;
     private Long view = 0L;
-    private String map;
+    private String longitude;
+    private String latitude;
     private String active;
     private String type;
     private UserPostRes userPostRes;
