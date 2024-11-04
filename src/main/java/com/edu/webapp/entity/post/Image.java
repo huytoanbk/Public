@@ -16,9 +16,8 @@ public class Image {
     @Column(name = "ID", updatable = false, nullable = false)
     private String id;
 
-    @Lob
-    @Column(name = "IMAGE",columnDefinition = "LONGBLOB")
-    private byte[] image;
+    @Column(name = "IMAGE")
+    private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")

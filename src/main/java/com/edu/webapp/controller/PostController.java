@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     private final PostService postService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> createPost(@ModelAttribute PostCreateReq postCreateRequest) {
+    @PostMapping()
+    public ResponseEntity<String> createPost(@RequestBody PostCreateReq postCreateRequest) {
         postService.createPost(postCreateRequest);
         return ResponseEntity.ok("Post created successfully");
     }

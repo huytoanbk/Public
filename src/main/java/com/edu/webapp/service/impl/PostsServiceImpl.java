@@ -50,20 +50,11 @@ public class PostsServiceImpl implements PostService {
         post.setCreatedBy(username);
         post.setUpdatedBy(username);
         postRepository.save(post);
-        for (MultipartFile file : postCreateReq.getImages()) {
-            if (file.isEmpty()) throw new ValidateException(ErrorCodes.IMAGE_VALID);
-            String contentType = file.getContentType();
-            if (!imageConfig.isAllowedImageType(contentType)) {
-                throw new ValidateException(ErrorCodes.IMAGE_VALID);
-            }
-            try {
-                Image image = new Image();
-                image.setImage(file.getBytes());
-                image.setPost(post);
-                imageRepository.save(image);
-            } catch (Exception e) {
-                throw new ValidateException(ErrorCodes.INTERNAL_SERVER_ERROR);
-            }
+        for (String file : postCreateReq.getImages()) {
+            Image image = new Image();
+            image.setImage(file);
+            image.setPost(post);
+            imageRepository.save(image);
         }
     }
 
@@ -90,7 +81,7 @@ public class PostsServiceImpl implements PostService {
         userPostRes.setEmail(user.getEmail());
         userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
         userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
-        PostRes postRes =  postMapper.postToPostRes(post);
+        PostRes postRes = postMapper.postToPostRes(post);
         postRes.setUserPostRes(userPostRes);
         return postRes;
     }

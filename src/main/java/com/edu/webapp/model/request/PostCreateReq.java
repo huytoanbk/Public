@@ -31,7 +31,7 @@ public class PostCreateReq {
     private String contact;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private OffsetDateTime expirationDate;
-    private List<MultipartFile> images;
+    private List<String> images;
     private String province;
     private String district;
     private String longitude;

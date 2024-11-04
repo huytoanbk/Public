@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -42,10 +43,10 @@ public class ImageServiceImpl implements ImageService {
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID()+ Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().lastIndexOf("."));
             Path filePath = Paths.get(UPLOAD_DIR + fileName);
             Files.write(filePath, file.getBytes());
-            return new URI("http://localhost:8888" + fileName).toASCIIString();
+            return new URI("http://localhost:8888/" + fileName).toASCIIString();
         } catch (IOException | URISyntaxException e) {
             throw new ValidateException(ErrorCodes.UPLOAD_IMAGE_ERROR);
         }
