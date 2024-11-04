@@ -39,6 +39,7 @@ public class PostRes {
     private String active;
     private String type;
     private UserPostRes userPostRes;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
@@ -46,6 +47,7 @@ public class PostRes {
     public static class UserPostRes {
         private String id;
         private String fullName;
+        private String avatar;
         private String email;
         private String phone;
         private Integer totalPost;
