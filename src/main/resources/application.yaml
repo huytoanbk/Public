@@ -2,6 +2,9 @@ server:
   port: 8888
   address: 0.0.0.0
 spring:
+  web:
+    resources:
+      static-locations: file:./uploads/
   mail:
     host: smtp.gmail.com
     port: 587

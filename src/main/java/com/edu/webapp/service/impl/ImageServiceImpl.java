@@ -43,7 +43,7 @@ public class ImageServiceImpl implements ImageService {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(UPLOAD_DIR + fileName);
             Files.write(filePath, file.getBytes());
-            return fileName;
+            return "localhost:8888/" + fileName;
         } catch (IOException e) {
             throw new ValidateException(ErrorCodes.UPLOAD_IMAGE_ERROR);
         }
