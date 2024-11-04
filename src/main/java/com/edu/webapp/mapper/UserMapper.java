@@ -13,18 +13,7 @@ import java.util.List;
 public interface UserMapper {
     User userCreateReqToUser(UserCreateReq userCreateReq);
 
-    @Mapping(source = "avatar", target = "avatar", qualifiedByName = "mapUserToAvatar")
     UserRes userToUserRes(User user);
-
-    @Named("mapUserToAvatar")
-    default String mapUserToAvatar(byte[] fileContent) {
-        try {
-//            return Base64.getEncoder().encodeToString(fileContent);
-            if (fileContent != null) return "https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg";
-        } catch (Exception e) {
-        }
-        return null;
-    }
 
     List<UserRes> listUserToUserRes(List<User> users);
 }

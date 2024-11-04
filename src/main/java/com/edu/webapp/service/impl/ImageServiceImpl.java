@@ -1,8 +1,10 @@
 package com.edu.webapp.service.impl;
 
+import com.edu.webapp.config.ImageConfig;
 import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.service.ImageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,15 +19,21 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
 
     @Value("${app.image.upload-dir}")
     private String UPLOAD_DIR;
+    private final ImageConfig imageConfig;
 
     @Override
     public String upload(MultipartFile file) {
         if (file.isEmpty()) {
             throw new ValidateException(ErrorCodes.IMAGE_EMPTY);
+        }
+        String contentType = file.getContentType();
+        if (!imageConfig.isAllowedImageType(contentType)) {
+            throw new ValidateException(ErrorCodes.IMAGE_VALID);
         }
         try {
             File uploadDir = new File(UPLOAD_DIR);

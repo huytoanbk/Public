@@ -41,9 +41,8 @@ public class User implements UserDetails, Serializable {
     @Column(name = "PASSWORD")
     private String password;
 
-    @Lob
-    @Column(name = "AVATAR", columnDefinition = "LONGBLOB")
-    private byte[] avatar;
+    @Column(name = "AVATAR")
+    private String avatar;
 
     @Column(name = "CREATED_AT")
     @CreationTimestamp

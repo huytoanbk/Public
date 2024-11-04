@@ -14,6 +14,8 @@ public class UserChangeReq {
 
     private String phone;
 
+    private String avatar;
+
     private String province;
 
     private String district;

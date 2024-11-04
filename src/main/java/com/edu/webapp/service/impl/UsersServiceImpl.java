@@ -71,30 +71,6 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public String uploadAvatar(MultipartFile avatar) {
-        if (avatar.isEmpty()) throw new ValidateException(ErrorCodes.IMAGE_VALID);
-        String contentType = avatar.getContentType();
-        if (!imageConfig.isAllowedImageType(contentType)) {
-            throw new ValidateException(ErrorCodes.IMAGE_VALID);
-        }
-        String email = jwtCommon.extractUsername();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
-        try {
-            user.setAvatar(avatar.getBytes());
-            userRepository.save(user);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ValidateException(ErrorCodes.INTERNAL_SERVER_ERROR);
-        }
-        try {
-//            return Base64.getEncoder().encodeToString(fileContent);
-            if (user.getAvatar() != null) return "https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg";
-        } catch (Exception e) {
-        }
-        return null;
-    }
-
-    @Override
     public UserRes getInfoUser() {
         String email = jwtCommon.extractUsername();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
@@ -125,6 +101,7 @@ public class UsersServiceImpl implements UsersService {
         user.setProvince(req.getProvince());
         user.setDistrict(req.getDistrict());
         user.setAddress(req.getAddress());
+        user.setAvatar(req.getAvatar());
         user.setIntroduce(req.getIntroduce());
         userRepository.save(user);
         return userMapper.userToUserRes(user);
