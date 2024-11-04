@@ -14,7 +14,7 @@ import java.util.List;
 public interface UsersService {
     AuthRes register(UserCreateReq userCreateReq);
 
-    void uploadAvatar(MultipartFile avatar);
+    String  uploadAvatar(MultipartFile avatar);
 
     UserRes getInfoUser();
 

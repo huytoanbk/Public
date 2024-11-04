@@ -43,8 +43,7 @@ public class UsersController {
 
     @PostMapping("/upload-avatar")
     public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile avatar) {
-        usersService.uploadAvatar(avatar);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(usersService.uploadAvatar(avatar));
     }
 
     @PostMapping("/change-password")

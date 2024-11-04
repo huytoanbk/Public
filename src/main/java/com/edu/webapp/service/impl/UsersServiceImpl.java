@@ -71,7 +71,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public void uploadAvatar(MultipartFile avatar) {
+    public String uploadAvatar(MultipartFile avatar) {
         if (avatar.isEmpty()) throw new ValidateException(ErrorCodes.IMAGE_VALID);
         String contentType = avatar.getContentType();
         if (!imageConfig.isAllowedImageType(contentType)) {
@@ -86,6 +86,12 @@ public class UsersServiceImpl implements UsersService {
             log.error(e.getMessage(), e);
             throw new ValidateException(ErrorCodes.INTERNAL_SERVER_ERROR);
         }
+        try {
+//            return Base64.getEncoder().encodeToString(fileContent);
+            if (user.getAvatar() != null) return "https://www.anhngumshoa.com/uploads/images/userfiles/banner_web3.jpg";
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     @Override
