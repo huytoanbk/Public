@@ -7,12 +7,12 @@ const customMarkerIcon = new L.Icon({
   iconAnchor: [20, 40],
   popupAnchor: [0, -40],
 });
-const LocationPicker = ({onLocationSelect, initLocation}) => {
+const LocationPicker = ({onLocationSelect, initLocation, isDefaultValue }) => {
   const [markerPosition, setMarkerPosition] = useState(initLocation || [21.037611288678807, 105.84295463547278]);
   const MapClickHandler = () => {
     useMapEvents({
       click(e) {
-        if(!initLocation) {
+        if(isDefaultValue) {
           setMarkerPosition([e.latlng.lat, e.latlng.lng]);
           onLocationSelect([e.latlng.lat, e.latlng.lng])
         }

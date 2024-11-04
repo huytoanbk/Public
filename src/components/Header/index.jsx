@@ -36,6 +36,9 @@ const AppHeader = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
     }
+    if(key === "my-post") {
+      navigate("/my-post")
+    }
   };
 
   const onSearch = (value) => {
@@ -102,6 +105,7 @@ const AppHeader = () => {
             />
           </Menu.Item>
           <Menu.Item key="saved">Tin đã lưu</Menu.Item>
+          <Menu.Item key="my-post">Tin đã lưu</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
         </>
       ) : (
@@ -157,12 +161,11 @@ const AppHeader = () => {
             />
           </Col>
         )}
-
-        {!pathname.includes("/login") && (
+        {/* {!pathname.includes("/login") && (
           <Col>
             <Button icon={<MenuOutlined />}>Quản lý tin</Button>
           </Col>
-        )}
+        )} */}
 
         <Col>
           <Dropdown overlay={accountMenu} trigger={["click"]}>

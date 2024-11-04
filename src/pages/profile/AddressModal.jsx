@@ -4,7 +4,7 @@ import baseAxios from "../../interceptor/baseAxios";
 
 const { Option } = Select;
 
-const AddressModal = ({ visible, onClose, onAddressSelected }) => {
+const AddressModal = ({ visible, onClose, onAddressSelected, initValue }) => {
   const [form] = Form.useForm();
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -22,6 +22,16 @@ const AddressModal = ({ visible, onClose, onAddressSelected }) => {
     fetchProvinces();
   }, []);
 
+  useEffect(() => {
+    if (initValue && initValue.province && initValue.district) {
+      form.setFieldsValue({ province: initValue.province });
+      form.setFieldsValue({ district: initValue.district });
+      const fullAddress = initValue.address.split(`, ${initValue.district}, ${initValue.province}`);
+      form.setFieldsValue({ specificAddress: fullAddress });
+      findListDistrict(initValue.province);
+    }
+  }, [initValue]);
+
   const handleOk = () => {
     form
       .validateFields()
@@ -29,16 +39,22 @@ const AddressModal = ({ visible, onClose, onAddressSelected }) => {
         const fullAddress = `${values.specificAddress}, ${values.district}, ${values.province}`;
         onAddressSelected({
           ...values,
-          fullAddress
+          fullAddress,
         });
         onClose();
       })
       .catch((info) => {});
   };
 
-  const handleProvinceChange = (value) => {
-    const selectedProvince = provinces.find(province => province.name === value);
+  const findListDistrict = (provinceName) => {
+    const selectedProvince = provinces.find(
+      (province) => province.name === provinceName
+    );
     setDistricts(selectedProvince ? selectedProvince.district : []);
+  };
+
+  const handleProvinceChange = (value) => {
+    findListDistrict(value);
     form.setFieldsValue({ district: undefined });
   };
 
@@ -80,7 +96,7 @@ const AddressModal = ({ visible, onClose, onAddressSelected }) => {
         >
           <Select
             placeholder="Chọn quận"
-            disabled={!districts.length}
+            disabled={!districts.length && !initValue?.district}
           >
             {districts.map((district) => (
               <Option key={district.id} value={district.districtName}>

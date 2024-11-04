@@ -18,6 +18,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import axiosInstance from "../../interceptor";
 import LocationPicker from "../../components/LocationPicker";
 import { useNavigate } from "react-router-dom";
+import Title from "antd/es/typography/Title";
 
 const schema = z.object({
   title: z
@@ -86,7 +87,6 @@ const CreatePostForm = () => {
       } else if (file.status === "error") {
       }
     }
-
     setFileList(files);
     setValue("images", uploadedUrls);
   };
@@ -100,7 +100,6 @@ const CreatePostForm = () => {
   };
 
   const onSubmit = async (data) => {
-    console.log("location", data);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
@@ -126,9 +125,9 @@ const CreatePostForm = () => {
       notification.success({ message: "Tạo bài viết thành công!" });
       // navigate('/my-post');
     } catch (error) {
+      const {errorMessage = "Có lỗi xảy ra"} = error;
       notification.error({
-        message: "Có lỗi xảy ra",
-        description: error.message,
+        message: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -157,8 +156,10 @@ const CreatePostForm = () => {
       setValue("district", undefined);
     }
   }, [selectedProvinceId, provinces, setValue]);
+
   return (
     <div className="container mx-auto py-8" style={{ maxWidth: 800 }}>
+      <Title level={4} className="!mb-7">Đăng tin cho thuê phòng/ ở ghép</Title>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit, onError)}>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12}>
@@ -310,7 +311,6 @@ const CreatePostForm = () => {
             </Form.Item>
           </Col>
         </Row>
-
         <Form.Item
           label="Hình ảnh"
           validateStatus={errors.images ? "error" : ""}
@@ -329,7 +329,7 @@ const CreatePostForm = () => {
                   formData.append("file", file);
                   try {
                     const response = await axiosInstance.post(
-                      "/users/upload-avatar",
+                      "/images",
                       formData
                     );
                     if (response.status === 200) {
@@ -416,7 +416,8 @@ const CreatePostForm = () => {
         </Row>
         <Form.Item label="Chọn địa điểm">
           <LocationPicker
-            // initLocation={[21.0283334, 105.854041]}
+            initLocation={[21.0283334, 105.854041]}
+            isDefaultValue={true}
             onLocationSelect={handleLocationSelect}
           />
         </Form.Item>

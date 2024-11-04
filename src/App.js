@@ -24,6 +24,7 @@ import { useUser } from "./context/UserContext";
 import { useEffect } from "react";
 import axiosInstance from "./interceptor";
 import UserManagement from "./pages/admin/user-management";
+import MyPost from "./pages/my-post";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -65,7 +66,7 @@ function App() {
     <div className="App">
       <FormProvider {...methods}>
         {!pathname.includes("/admin") && <AppHeader />}
-        {!pathname.includes("/admin") || !pathname.includes("/login") && <Breadcrumb />}
+        {(!pathname.includes("/admin") && !pathname.includes("/login")) && <Breadcrumb />}
         <Routes>
           <Route index element={<Home />} />
           <Route
@@ -82,6 +83,14 @@ function App() {
             element={
               <PrivateRoute>
                 <CreatePostForm />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-post"
+            element={
+              <PrivateRoute>
+                <MyPost />
               </PrivateRoute>
             }
           />

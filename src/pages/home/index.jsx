@@ -13,6 +13,7 @@ import {
   Spin,
   Form,
   Drawer,
+  Skeleton,
 } from "antd";
 import {
   AppstoreOutlined,
@@ -191,7 +192,51 @@ const HomePage = () => {
             </Header>
 
             {loading ? (
-              <Spin size="large" />
+              <>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <List.Item key={index}>
+                    <Card className="product-card mb-5">
+                      <Row gutter={10}>
+                        <Col span={8} className="product-image-col">
+                          <Skeleton.Image
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              minHeight: 90,
+                            }}
+                          />
+                        </Col>
+                        <Col span={16} className="product-info-col">
+                          <Skeleton.Input
+                            active
+                            style={{
+                              width: "80%",
+                              height: 16,
+                              marginBottom: 6,
+                            }}
+                          />
+                          <Skeleton.Input
+                            active
+                            style={{
+                              width: "60%",
+                              height: 16,
+                              marginBottom: 6,
+                            }}
+                          />
+                          <Skeleton.Input
+                            active
+                            style={{
+                              width: "70%",
+                              height: 16,
+                              marginBottom: 6,
+                            }}
+                          />
+                        </Col>
+                      </Row>
+                    </Card>
+                  </List.Item>
+                ))}
+              </>
             ) : articles ? (
               <div>
                 {viewMode === "list" ? (

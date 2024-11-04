@@ -19,6 +19,7 @@ const AccountSettingsModal = ({ visible, onClose }) => {
           });
           message.success({ content: "Thay đổi mật khẩu thành công!" });
           onClose();
+          form.resetFields(["newPassword", "oldPassword", "confirmPassword"]);
         } catch (error) {
           const { errorMessage = "Có lỗi xảy ra. Vui lòng thử lại." } = error;
           message.error({ content: errorMessage });

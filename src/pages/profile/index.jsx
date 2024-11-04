@@ -16,7 +16,7 @@ import PhoneVerificationModal from "./PhoneModal";
 import AddressModal from "./AddressModal";
 import AccountSettingsModal from "./AccountSettingsModal";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const UserProfile = () => {
   const [form] = Form.useForm();
@@ -26,6 +26,7 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalPasswordVisible, setIsModalPassswordVisible] = useState(false);
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
 
   useEffect(() => {
@@ -40,8 +41,10 @@ const UserProfile = () => {
   };
 
   const handleAddressSelected = (selectedAddress) => {
-    const {district = '', province = '', fullAddress}  = selectedAddress;
-    form.setFieldsValue({ address: selectedAddress, fullAddress });
+    const { district = "", province = "", fullAddress } = selectedAddress;
+    form.setFieldsValue({ address: fullAddress });
+    form.setFieldsValue({ district });
+    form.setFieldsValue({ province });
   };
 
   const onFinish = (values) => {
@@ -50,6 +53,7 @@ const UserProfile = () => {
     const formatData = {
       ...restUser,
       ...values,
+      avatar
     };
     axiosInstance
       .post(`/users`, formatData)
@@ -70,7 +74,7 @@ const UserProfile = () => {
     try {
       setLoading(true);
       const response = await axiosInstance.post(
-        "/users/upload-avatar",
+        "/images",
         formData,
         {
           headers: {
@@ -78,10 +82,11 @@ const UserProfile = () => {
           },
         }
       );
-      setAvatar(response.data.url);
+      setAvatar(response.data);
       message.success("Tải lên avatar thành công!");
     } catch (error) {
-      message.error("Tải lên avatar thất bại!");
+      const {errorMessage = "Tải lên avatar thất bại!"} = error;
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -102,11 +107,7 @@ const UserProfile = () => {
           form={form}
           layout="vertical"
           initialValues={{
-            fullName: user.fullName,
-            email: user.email,
-            phone: user.phone,
-            address: user.address,
-            introduce: user.introduce,
+            ...user,
           }}
           onFinish={onFinish}
         >
@@ -128,7 +129,7 @@ const UserProfile = () => {
               </div>
               <Button
                 type="default"
-                onClick={() => setIsModalVisible(true)}
+                onClick={() => setIsModalPassswordVisible(true)}
                 className="mt-2 mx-auto block"
               >
                 Cài đặt tài khoản
@@ -185,6 +186,12 @@ const UserProfile = () => {
                   disabled={!editing}
                 />
               </Form.Item>
+              <Form.Item label="Quận" name="district" hidden>
+                <Input />
+              </Form.Item>
+              <Form.Item label="Tỉnh/thành phố" name="province" hidden>
+                <Input />
+              </Form.Item>
             </Col>
           </Row>
         </Form>
@@ -200,10 +207,11 @@ const UserProfile = () => {
         visible={isAddressModalVisible}
         onClose={() => setIsAddressModalVisible(false)}
         onAddressSelected={handleAddressSelected}
+        initValue={user}
       />
       <AccountSettingsModal
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        visible={isModalPasswordVisible}
+        onClose={() => setIsModalPassswordVisible(false)}
       />
     </div>
   );
