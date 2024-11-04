@@ -75,7 +75,7 @@ public class PostsServiceImpl implements PostService {
         User user = userRepository.findByEmail(post.getCreatedBy()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
         userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
         userPostRes.setId(user.getId());
-        userPostRes.setAvatar("https://kenh14cdn.com/2020/7/17/brvn-15950048783381206275371.jpg");
+        userPostRes.setAvatar(user.getAvatar());
         userPostRes.setFullName(user.getFullName());
         userPostRes.setPhone(user.getPhone());
         userPostRes.setEmail(user.getEmail());
