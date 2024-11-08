@@ -28,7 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,6 +64,33 @@ public class PostsServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(filterPostReq.getPage(), filterPostReq.getSize());
         Page<Post> posts = postRepository.findAll(pageable);
         List<PostRes> postRes = postMapper.postsToPosts(posts.getContent());
+        Map<String, Integer> mapCount = new HashMap<>();
+        Set<String> emails = postRes.stream()
+                .map(PostRes::getCreatedBy)
+                .collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
+                .stream()
+                .collect(Collectors.toMap(User::getEmail, user -> user));
+
+        emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
+        postRes.forEach(post -> {
+            PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
+            User user = userMap.get(post.getCreatedBy());
+            if (user == null) {
+                throw new ValidateException(ErrorCodes.USER_NOT_EXIST);
+            }
+            userPostRes.setTotalPost(mapCount.getOrDefault(user.getEmail(), 0));
+            userPostRes.setId(user.getId());
+            userPostRes.setAvatar(user.getAvatar());
+            userPostRes.setFullName(user.getFullName());
+            userPostRes.setPhone(user.getPhone());
+            userPostRes.setEmail(user.getEmail());
+            userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
+            userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
+            post.setUserPostRes(userPostRes);
+            post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
+            post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
+        });
         return new PageImpl<>(postRes, pageable, posts.getTotalElements());
     }
 
@@ -83,6 +111,8 @@ public class PostsServiceImpl implements PostService {
         userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
         PostRes postRes = postMapper.postToPostRes(post);
         postRes.setUserPostRes(userPostRes);
+        postRes.setUptime(TimeUtils.formatTimeDifference(postRes.getUpdatedAt(), OffsetDateTime.now()));
+        postRes.setDateOfJoin(TimeUtils.formatTimeDifference(postRes.getCreatedAt(), OffsetDateTime.now()));
         return postRes;
     }
 

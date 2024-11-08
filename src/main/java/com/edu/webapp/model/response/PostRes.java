@@ -40,6 +40,8 @@ public class PostRes {
     private String active;
     private String type;
     private UserPostRes userPostRes;
+    private String uptime;
+    private String dateOfJoin;
 
     @AllArgsConstructor
     @NoArgsConstructor
