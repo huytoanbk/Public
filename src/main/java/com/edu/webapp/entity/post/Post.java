@@ -1,6 +1,5 @@
 package com.edu.webapp.entity.post;
 
-import com.edu.webapp.entity.user.Role;
 import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.enums.RoomStatus;
 import com.edu.webapp.model.enums.TypeRoom;
@@ -45,7 +44,7 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS_ROOM")
-    private RoomStatus statusRoom = RoomStatus.ACTIVE;
+    private RoomStatus statusRoom = RoomStatus.EMPTY;
 
     @Column(name = "CONTACT")
     private String contact;

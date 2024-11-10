@@ -24,8 +24,6 @@ public class Comment {
     private String comment;
     @Column(name = "USER_ID")
     private String userId;
-    @Column(name = "USER_TO")
-    private String userTo;
     @Column(name = "CREATED_AT")
     @CreationTimestamp
     private OffsetDateTime createdAt;

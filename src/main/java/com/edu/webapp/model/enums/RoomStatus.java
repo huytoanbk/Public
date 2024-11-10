@@ -1,5 +1,5 @@
 package com.edu.webapp.model.enums;
 
 public enum RoomStatus {
-    ACTIVE, INACTIVE;
+    LUXURY_FURNITURE, FULLY_FURNISHED, EMPTY
 }
