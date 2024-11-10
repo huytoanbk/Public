@@ -2,7 +2,7 @@ package com.edu.webapp.utils;
 
 import java.security.SecureRandom;
 
-public class OTPGenerator {
+public class OtpGenerator {
 
     private static final SecureRandom random = new SecureRandom();
     private static final int OTP_LENGTH = 6;

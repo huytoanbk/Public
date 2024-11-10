@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 @Builder
 public class CommentRes {
     private String id;
+    private String postId;
     private String avatar;
     private String userId;
     private String email;

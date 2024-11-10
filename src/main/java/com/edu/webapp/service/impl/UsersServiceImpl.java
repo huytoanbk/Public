@@ -11,14 +11,12 @@ import com.edu.webapp.mapper.UserMapper;
 import com.edu.webapp.model.enums.NotiStatus;
 import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.AuthRes;
-import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.UserRes;
 import com.edu.webapp.repository.OtpRepository;
-import com.edu.webapp.repository.RoleRepository;
 import com.edu.webapp.repository.UserRepository;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.UsersService;
-import com.edu.webapp.utils.OTPGenerator;
+import com.edu.webapp.utils.OtpGenerator;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +30,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -111,7 +106,7 @@ public class UsersServiceImpl implements UsersService {
     @Async(value = "taskExecutorSendOtp")
     public void sendOtpEmail(String email) {
         try {
-            String otp = OTPGenerator.generateOTP();
+            String otp = OtpGenerator.generateOTP();
             System.out.println(otp);
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");

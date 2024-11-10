@@ -1,5 +1,6 @@
 package com.edu.webapp.controller;
 
+import com.edu.webapp.model.request.CommentPostSearchReq;
 import com.edu.webapp.model.request.CommentReq;
 import com.edu.webapp.model.request.FilterPostReq;
 import com.edu.webapp.model.request.PostCreateReq;
@@ -41,7 +42,11 @@ public class PostController {
         return ResponseEntity.ok(postService.createComment(commentReq));
     }
 
-    //list post by id user
+    @PostMapping("/list-comment")
+    public ResponseEntity<Page<CommentRes>> getComments(@RequestBody CommentPostSearchReq commentPostSearchReq) {
+        return ResponseEntity.ok(postService.getListCommentPost(commentPostSearchReq));
+    }
+
     @GetMapping("/search-user-post")
     public ResponseEntity<Page<PostUserRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
                                                            @RequestParam(name = "size", defaultValue = "30") Integer size,

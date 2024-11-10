@@ -34,10 +34,10 @@ public interface PostMapper {
     default String convertType(TypeRoom typeRoom) {
         switch (typeRoom) {
             case RENT -> {
-                return "Ở ghép";
+                return "Cho thuê";
             }
             case GRAFT -> {
-                return "Cho thuê";
+                return "Ở ghép";
             }
             default -> {
                 return null;
