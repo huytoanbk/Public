@@ -23,15 +23,15 @@ public interface PostMapper {
     List<PostRes> postsToPosts(List<Post> posts);
 
     @Mapping(source = "images", target = "images", qualifiedByName = "convertImages")
-    @Mapping(source = "statusRoom", target = "statusRoom", qualifiedByName = "convertStatusRoom")
-    @Mapping(source = "type", target = "type", qualifiedByName = "convertType")
+//    @Mapping(source = "statusRoom", target = "statusRoom", qualifiedByName = "convertStatusRoom")
+//    @Mapping(source = "type", target = "type", qualifiedByName = "convertType")
     PostRes postToPostRes(Post post);
 
     List<PostUserRes> postsToPostsUsers(List<Post> posts);
 
     PostUserRes postToPostUserRes(Post post);
 
-    @Named("convertType")
+    @Named("convertTypeconvertType")
     default String convertType(TypeRoom typeRoom) {
         if (typeRoom == null) return null;
         switch (typeRoom) {
