@@ -30,8 +30,10 @@ public interface PostMapper {
     List<PostUserRes> postsToPostsUsers(List<Post> posts);
 
     PostUserRes postToPostUserRes(Post post);
+
     @Named("convertType")
     default String convertType(TypeRoom typeRoom) {
+        if (typeRoom == null) return null;
         switch (typeRoom) {
             case RENT -> {
                 return "Cho thuê";
@@ -60,6 +62,7 @@ public interface PostMapper {
 
     @Named("convertStatusRoom")
     default String convertStatusRoom(RoomStatus statusRoom) {
+        if (statusRoom == null) return null;
         switch (statusRoom) {
             case EMPTY -> {
                 return "Nhà trống";
