@@ -19,6 +19,7 @@ import axiosInstance from "../../interceptor";
 import LocationPicker from "../../components/LocationPicker";
 import { useNavigate } from "react-router-dom";
 import Title from "antd/es/typography/Title";
+import "./post-room.css";
 
 const schema = z.object({
   title: z
@@ -39,9 +40,18 @@ const schema = z.object({
   acreage: z
     .number({ required_error: "Vui lòng nhập diện tích" })
     .positive({ message: "Diện tích phải lớn hơn 0" }),
-  expirationDate: z
-    .string({ required_error: "Vui lòng chọn ngày" })
-    .min(1, { message: "Vui lòng chọn ngày" }),
+  contact: z
+    .string({ required_error: "Vui lòng nhập số điện thoại liên hệ" })
+    .regex(/^0\d{9}$/, {
+      message:
+        "Số điện thoại không hợp lệ. Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.",
+    }),
+  type: z
+    .string({ required_error: "Vui lòng chọn loại phòng" })
+    .min(1, { message: "Vui lòng chọn loại phòng" }),
+  statusRoom: z
+    .string({ required_error: "Vui lòng chọn trạng thái phòng" })
+    .min(1, { message: "Vui lòng chọn trạng thái phòng" }),
   province: z
     .string({ required_error: "Vui lòng chọn tỉnh" })
     .min(1, { message: "Vui lòng chọn tỉnh" }),
@@ -51,11 +61,24 @@ const schema = z.object({
   images: z
     .array(z.string(), { required_error: "Vui lòng tải lên hình ảnh" })
     .min(1, { message: "Vui lòng tải lên hình ảnh" }),
-
-  // location: z
-  //   .string({ required_error: "Vui lòng chọn địa điểm" })
-  //   .min(1, { message: "Vui lòng lựa chọn địa điểm chính xác" }),
 });
+
+const statusRoomOptions = [
+  { value: "EMPTY", label: "Nhà trống" },
+  { value: "FULLY_FURNISHED", label: "Nội thất đầy đủ" },
+  { value: "LUXURY_FURNITURE", label: "Nội thất cao cấp" },
+];
+
+const roomTypeOtions = [
+  {
+    label: "Cho thuê",
+    value: "RENT",
+  },
+  {
+    label: "Ở ghép",
+    value: "GRAFT",
+  },
+];
 
 const CreatePostForm = () => {
   const [loading, setLoading] = useState(false);
@@ -74,20 +97,15 @@ const CreatePostForm = () => {
     formState: { errors },
     setValue,
   } = useForm({
-    shouldFocusError: false,
+    shouldFocusError: true,
     resolver: zodResolver(schema),
   });
 
   const handleUploadChange = async (info) => {
-    const files = info.fileList;
-    const uploadedUrls = [];
-    for (const file of files) {
-      if (file.status === "done") {
-        uploadedUrls.push(file.url || file.thumbUrl);
-      } else if (file.status === "error") {
-      }
-    }
-    setFileList(files);
+    const uploadedUrls = info.fileList
+      .filter((file) => file.status === "done")
+      .map((file) => file.response || file.thumbUrl);
+    setFileList(info.fileList);
     setValue("images", uploadedUrls);
   };
 
@@ -100,32 +118,29 @@ const CreatePostForm = () => {
   };
 
   const onSubmit = async (data) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("content", data.content);
-    formData.append("price", data.price);
-    formData.append("deposit", data.deposit);
-    formData.append("address", data.address);
-    formData.append("acreage", data.acreage);
-    formData.append("statusRoom", "ACTIVE");
-    formData.append("contact", data.contact);
-    formData.append("expirationDate", data.expirationDate);
-    formData.append("province", data.province);
-    formData.append("district", data.district);
-    if(data.location) formData.append("location", data.location);
-    if (data.images && Array.isArray(data.images)) {
-      data.images.forEach((file) => {
-        formData.append("images", file);
-      });
-    }
+    const payload = {
+      title: data.title,
+      content: data.content,
+      price: data.price,
+      deposit: data.deposit,
+      address: `${data.address}, ${data.district}, ${data.province}`,
+      acreage: data.acreage,
+      statusRoom: data.statusRoom,
+      contact: data.contact,
+      province: data.province,
+      district: data.district,
+      images: data.images,
+      type: data.type,
+      ...(location && { latitude: location[0], longitude: location[1] }),
+    };
 
     try {
       setLoading(true);
-      const response = await axiosInstance.post("/posts", formData);
+      const response = await axiosInstance.post("/posts", payload);
       notification.success({ message: "Tạo bài viết thành công!" });
-      // navigate('/my-post');
+      navigate("/my-post");
     } catch (error) {
-      const {errorMessage = "Có lỗi xảy ra"} = error;
+      const { errorMessage = "Có lỗi xảy ra" } = error;
       notification.error({
         message: errorMessage,
       });
@@ -158,8 +173,13 @@ const CreatePostForm = () => {
   }, [selectedProvinceId, provinces, setValue]);
 
   return (
-    <div className="container mx-auto py-8" style={{ maxWidth: 800 }}>
-      <Title level={4} className="!mb-7">Đăng tin cho thuê phòng/ ở ghép</Title>
+    <div
+      className="container mx-auto pt-3 pb-8 px-5"
+      style={{ maxWidth: 1000 }}
+    >
+      <Title level={4} className="!mb-7">
+        Đăng tin cho thuê phòng/ ở ghép
+      </Title>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit, onError)}>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12}>
@@ -254,108 +274,8 @@ const CreatePostForm = () => {
             </Form.Item>
           </Col>
         </Row>
-
-        <Form.Item
-          label="Địa chỉ"
-          validateStatus={errors.address ? "error" : ""}
-          help={errors.address?.message}
-        >
-          <Controller
-            name="address"
-            control={control}
-            render={({ field }) => (
-              <Input {...field} placeholder="Nhập địa chỉ" />
-            )}
-          />
-        </Form.Item>
         <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12}>
-            <Form.Item
-              label="Ngày hết hạn"
-              validateStatus={errors.expirationDate ? "error" : ""}
-              help={errors.expirationDate?.message}
-              validateTrigger={["onChange", "onBlur"]}
-              rules={[
-                {
-                  validator: (_, value) => {
-                    if (value && value > new Date()) {
-                      return Promise.reject(
-                        new Error("Ngày hết hạn không hợp lệ")
-                      );
-                    }
-                    return Promise.resolve();
-                  },
-                },
-              ]}
-            >
-              <input
-                type="date"
-                {...register("expirationDate")}
-                className="custom-date-input"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12}>
-            <Form.Item
-              label="Liên hệ"
-              validateStatus={errors.contact ? "error" : ""}
-              help={errors.contact?.message}
-            >
-              <Controller
-                name="contact"
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} placeholder="Nhập số điện thoại liên hệ" />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item
-          label="Hình ảnh"
-          validateStatus={errors.images ? "error" : ""}
-          help={errors.images?.message}
-        >
-          <Controller
-            name="images"
-            control={control}
-            render={({ field }) => (
-              <Upload
-                {...field}
-                multiple
-                accept="image/jpeg,image/png,image/gif"
-                customRequest={async ({ file, onSuccess, onError }) => {
-                  const formData = new FormData();
-                  formData.append("file", file);
-                  try {
-                    const response = await axiosInstance.post(
-                      "/images",
-                      formData
-                    );
-                    if (response.status === 200) {
-                      notification.success({
-                        message: "Tải lên hình ảnh thành công",
-                      });
-                    }
-                    onSuccess(response.data);
-                    clearErrors("images");
-                  } catch (error) {
-                    onError(error);
-                    setError("images", { message: "Tải lên không thành công" });
-                  }
-                }}
-                onChange={handleUploadChange}
-                listType="picture"
-                showUploadList={true}
-              >
-                <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
-              </Upload>
-            )}
-          />
-        </Form.Item>
-
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={8}>
             <Form.Item
               label="Tỉnh"
               validateStatus={errors.province ? "error" : ""}
@@ -382,7 +302,7 @@ const CreatePostForm = () => {
               />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={8}>
             <Form.Item
               label="Quận"
               validateStatus={errors.district ? "error" : ""}
@@ -413,7 +333,135 @@ const CreatePostForm = () => {
               />
             </Form.Item>
           </Col>
+          <Col xs={24} sm={8}>
+            <Form.Item
+              label="Địa chỉ"
+              validateStatus={errors.address ? "error" : ""}
+              help={errors.address?.message}
+            >
+              <Controller
+                name="address"
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Nhập địa chỉ cụ thể" />
+                )}
+              />
+            </Form.Item>
+          </Col>
         </Row>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={8}>
+            <Form.Item
+              label="Liên hệ"
+              validateStatus={errors.contact ? "error" : ""}
+              help={errors.contact?.message}
+            >
+              <Controller
+                name="contact"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    placeholder="Nhập số điện thoại liên hệ"
+                    maxLength={10}
+                    onBlur={() => {
+                      field.onBlur();
+                    }}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, "");
+                      field.onChange(value);
+                    }}
+                  />
+                )}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Form.Item
+              label="Loại phòng"
+              validateStatus={errors.type ? "error" : ""}
+              help={errors.type?.message}
+            >
+              <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    placeholder="Chọn loại phòng"
+                    options={roomTypeOtions}
+                  ></Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Form.Item
+              label="Trạng thái phòng"
+              validateStatus={errors.statusRoom ? "error" : ""}
+              help={errors.statusRoom?.message}
+            >
+              <Controller
+                name="statusRoom"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    placeholder="Trạng thái phòng"
+                    options={statusRoomOptions}
+                  ></Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item
+          label="Hình ảnh"
+          validateStatus={errors.images ? "error" : ""}
+          help={errors.images?.message}
+        >
+          <Controller
+            name="images"
+            control={control}
+            render={({ field }) => (
+              <Upload
+                {...field}
+                fileList={fileList}
+                multiple
+                className="upload-list-grid"
+                accept="image/jpeg,image/png,image/gif"
+                customRequest={async ({ file, onSuccess, onError }) => {
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  try {
+                    const response = await axiosInstance.post(
+                      "/images",
+                      formData
+                    );
+                    if (response.status === 200) {
+                      notification.success({
+                        message: "Tải lên hình ảnh thành công",
+                      });
+                      onSuccess(response.data);
+                      clearErrors("images");
+                    }
+                  } catch (error) {
+                    onError(error);
+                    setError("images", {
+                      message: "Tải lên không thành công",
+                    });
+                  }
+                }}
+                onChange={handleUploadChange}
+                listType="picture"
+                showUploadList={true}
+              >
+                <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
+              </Upload>
+            )}
+          />
+        </Form.Item>
+
         <Form.Item label="Chọn địa điểm">
           <LocationPicker
             initLocation={[21.0283334, 105.854041]}

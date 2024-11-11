@@ -61,12 +61,11 @@ function App() {
   useEffect(() => {
     handleCheckRole();
   }, [userInfo, pathname]);
-
   return (
-    <div className="App">
+    <div className={`App ${pathname.includes("/post") ? "post-detail" : ""}`}>
       <FormProvider {...methods}>
         {!pathname.includes("/admin") && <AppHeader />}
-        {(!pathname.includes("/admin") && !pathname.includes("/login")) && <Breadcrumb />}
+        {(!pathname.includes("/admin") && !pathname.includes("/login") ) && <Breadcrumb />}
         <Routes>
           <Route index element={<Home />} />
           <Route

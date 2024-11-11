@@ -14,27 +14,28 @@ import {
   Form,
   Drawer,
   Skeleton,
+  Avatar,
+  Typography,
 } from "antd";
-import {
-  AppstoreOutlined,
-  UnorderedListOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
 import { getListPost } from "../../services/get-list-post";
 import "../../styles/home.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { numberWithCommas } from "../../utiils/number-with-comma";
 import { Controller, useForm } from "react-hook-form";
 import PostAdsSlider from "../../components/PostAdsSlider";
 import SliderFilter from "../../components/SliderFilter";
 import baseAxios from "../../interceptor/baseAxios";
+import moment from "moment";
+import "./home.css";
+import CardHorizontal from "../../components/CardItem/CardHorizontal";
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
 const { Option } = Select;
-const { Panel } = Collapse;
+const { Title } = Typography;
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
   const [paginationData, setPaginationData] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -151,13 +152,14 @@ const HomePage = () => {
 
   return (
     <Layout className="bg-white pt-2 homepage">
-      <Content className="w-full mx-auto mb-20">
+      <Content className="w-full mx-auto mb-20 max-w-6xl px-5">
         <Row gutter={30}>
+          <Title className="" level={3}>Phòng mới ưu đãi</Title>
           <PostAdsSlider />
         </Row>
         <Row
           gutter={30}
-          className="py-3 px-3 w-full flex-1 justify-between gap-x-5"
+          className="py-3 px-3 max-w-6xl w-full flex-1 justify-between gap-x-4 mx-auto"
         >
           <Col span={16} className="bg-white">
             <Header
@@ -172,6 +174,7 @@ const HomePage = () => {
                 className="mb-0"
                 defaultActiveKey="all"
                 onChange={handleTabChange}
+                type="card"
               >
                 <TabPane tab="Tất cả" key="all"></TabPane>
                 <TabPane tab="Cho thuê" key="RENT"></TabPane>
@@ -243,42 +246,8 @@ const HomePage = () => {
                   <List
                     itemLayout="vertical"
                     dataSource={articles}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <Card className="product-card">
-                          <Row gutter={10}>
-                            <Col span={8} className="product-image-col">
-                              <img
-                                src={item.images[0]}
-                                alt={item.title}
-                                className="product-image"
-                              />
-                            </Col>
-
-                            <Col span={16} className="product-info-col">
-                              <Link to={`/post/${item.id}`}>
-                                <h3 className="product-title">{item.title}</h3>
-                              </Link>
-
-                              <p className="product-price">
-                                {numberWithCommas(item.price)} triệu/tháng{" "}
-                                <span className="dot">·</span>{" "}
-                                {numberWithCommas(item.acreage)} m²
-                              </p>
-
-                              <p className="product-location">
-                                {item.district} <span className="dot">·</span>{" "}
-                                {new Date(item.createdAt).toLocaleDateString()}
-                              </p>
-
-                              <div className="product-owner">
-                                {item.ownerInfo}
-                              </div>
-                            </Col>
-                          </Row>
-                        </Card>
-                      </List.Item>
-                    )}
+                    loading={loading}
+                    renderItem={(item) => <CardHorizontal item={item} />}
                     pagination={false}
                   />
                 ) : (
@@ -311,7 +280,7 @@ const HomePage = () => {
             )}
           </Col>
           <Col
-            span={6}
+            span={8}
             className="bg-white hidden md:block"
             style={{ flex: "0 0 30%" }}
           >

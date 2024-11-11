@@ -11,6 +11,7 @@ import {
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import axiosInstance from "../../../interceptor";
+import { getAvatar } from "../../../utiils/format-info-room";
 
 const UserManagement = () => {
   const [data, setData] = useState([]);
@@ -153,7 +154,7 @@ const UserManagement = () => {
       >
         {selectedUser && (
           <div>
-            <Avatar src={selectedUser.avatar} size={80} className="mb-4" />
+            <Avatar src={getAvatar(selectedUser.avatar)} size={80} className="mb-4" />
             <Descriptions column={1} bordered>
               <Descriptions.Item label="ID" labelStyle={{ width: "100px" }}>
                 {selectedUser.id}

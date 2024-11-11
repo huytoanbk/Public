@@ -15,6 +15,7 @@ import axiosInstance from "../../interceptor";
 import PhoneVerificationModal from "./PhoneModal";
 import AddressModal from "./AddressModal";
 import AccountSettingsModal from "./AccountSettingsModal";
+import { getAvatar } from "../../utiils/format-info-room";
 
 const { Title } = Typography;
 
@@ -32,7 +33,7 @@ const UserProfile = () => {
   useEffect(() => {
     axiosInstance.get("/users").then((response) => {
       setUser(response.data);
-      setAvatar(response.data.avatar);
+      setAvatar(getAvatar(response.data.avatar));
     });
   }, []);
 
@@ -70,7 +71,6 @@ const UserProfile = () => {
   const handleUpload = async ({ file }) => {
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       setLoading(true);
       const response = await axiosInstance.post(

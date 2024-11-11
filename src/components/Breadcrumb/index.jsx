@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Breadcrumb as BreadcrumbAntd } from 'antd';
-import { Link, useLocation, useParams  } from 'react-router-dom';
-import baseAxios from '../../interceptor/baseAxios';
+import React, { useEffect, useState } from "react";
+import { Breadcrumb as BreadcrumbAntd } from "antd";
+import { Link, useLocation, useParams } from "react-router-dom";
+import baseAxios from "../../interceptor/baseAxios";
 
-const Breadcrumb = ({match }) => {
+const Breadcrumb = ({ match }) => {
   const location = useLocation();
-  const [postTitle, setPostTitle] = useState('');
-  const pathnames = location.pathname.split('/').filter(x => x);
+  const [postTitle, setPostTitle] = useState("");
+  const pathnames = location.pathname.split("/").filter((x) => x);
 
   const customNames = {
-    'create-post': 'Tạo bài viết',
-    'edit-post': 'Chỉnh sửa bài viết',
-    'posts': 'Danh sách bài viết',
-    'search': 'Tìm kiếm',
-    'profile': 'Trang cá nhân',
-    'post': 'Bài viết',
-    'login': 'Đăng nhập'
+    "create-post": "Tạo bài viết",
+    "edit-post": "Chỉnh sửa bài viết",
+    posts: "Danh sách bài viết",
+    search: "Tìm kiếm",
+    profile: "Trang cá nhân",
+    post: "Bài viết",
+    login: "Đăng nhập",
   };
 
   useEffect(() => {
@@ -25,39 +25,39 @@ const Breadcrumb = ({match }) => {
           const response = await baseAxios.get(`/posts/${id}`);
           setPostTitle(response.data.title);
         } catch (error) {
-          console.error('Error fetching post title:', error);
+          console.error("Error fetching post title:", error);
         }
       }
     };
 
     if (location.pathname.includes("post/")) {
       const id = location.pathname.split("post/")[1].split("/")[0];
-      if(id) fetchPostTitle(id);
+      if (id) fetchPostTitle(id);
     }
   }, [location.pathname]);
 
   return (
-   <div className='max-w-[1200px] w-full my-0 mx-auto p-5'>
- <BreadcrumbAntd>
-      <BreadcrumbAntd.Item>
-        <Link to="/">Trang chủ</Link>
-      </BreadcrumbAntd.Item>
-      {pathnames.map((pathname, index) => {
-        const isLast = index === pathnames.length - 1;
-        const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-        const displayName = customNames[pathname] || (isLast && postTitle) || pathname;
+    <div className="max-w-[1200px] w-full my-0 mx-auto p-5">
+      <BreadcrumbAntd>
+        <BreadcrumbAntd.Item>
+          <Link to="/">Trang chủ</Link>
+        </BreadcrumbAntd.Item>
+        {pathnames.map((pathname, index) => {
+          const isLast = index === pathnames.length - 1;
+          const to = `/${pathnames.slice(0, index + 1).join("/")}`;
+          const displayName =
+            customNames[pathname] || (isLast && postTitle) || pathname;
 
-        return isLast ? (
-          <BreadcrumbAntd.Item key={to}>{displayName}</BreadcrumbAntd.Item>
-        ) : (
-          <BreadcrumbAntd.Item key={to}>
-            <Link to={to}>{displayName}</Link>
-          </BreadcrumbAntd.Item>
-        );
-      })}
-    </BreadcrumbAntd>
-
-   </div>
+          return isLast ? (
+            <BreadcrumbAntd.Item className="text-base" key={to}>{displayName}</BreadcrumbAntd.Item>
+          ) : (
+            <BreadcrumbAntd.Item key={to}>
+              <Link to={to}>{displayName}</Link>
+            </BreadcrumbAntd.Item>
+          );
+        })}
+      </BreadcrumbAntd>
+    </div>
   );
 };
 

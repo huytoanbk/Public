@@ -1,0 +1,7 @@
+.App.post-detail {
+    background-color: #f4f4f4;
+}
+
+.swiper-button-next, .swiper-button-prev {
+    display: none;
+}

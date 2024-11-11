@@ -105,7 +105,7 @@ const AppHeader = () => {
             />
           </Menu.Item>
           <Menu.Item key="saved">Tin đã lưu</Menu.Item>
-          <Menu.Item key="my-post">Tin đã lưu</Menu.Item>
+          <Menu.Item key="my-post">Bài viết của tôi</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
         </>
       ) : (
@@ -133,7 +133,7 @@ const AppHeader = () => {
         borderBottom: "1px solid #ddd",
         position: "sticky",
         top: 0,
-        zIndex: 1000,
+        zIndex: 9999,
       }}
     >
       <Row justify="space-between" align="middle" gutter={16}>
