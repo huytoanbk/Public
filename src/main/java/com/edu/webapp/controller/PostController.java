@@ -1,5 +1,6 @@
 package com.edu.webapp.controller;
 
+import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
@@ -47,8 +48,9 @@ public class PostController {
     @GetMapping("/search-user-post")
     public ResponseEntity<Page<PostUserRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
                                                            @RequestParam(name = "size", defaultValue = "30") Integer size,
-                                                           @RequestParam(name = "key", defaultValue = "") String key) {
-        return ResponseEntity.ok(postService.searchPostUser(page, size, key));
+                                                           @RequestParam(name = "key", defaultValue = "") String key,
+                                                           @RequestParam(name = "status", required = false) ActiveStatus status) {
+        return ResponseEntity.ok(postService.searchPostUser(page, size, key,status));
     }
 
     @PutMapping("/update")

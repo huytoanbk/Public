@@ -8,6 +8,7 @@ import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.CommentMapper;
 import com.edu.webapp.mapper.PostMapper;
+import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.page.CustomPage;
 import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
@@ -49,6 +50,7 @@ public class PostsServiceImpl implements PostService {
     public void createPost(PostCreateReq postCreateReq) {
         String username = jwtCommon.extractUsername();
         Post post = postMapper.postReqToPost(postCreateReq);
+        post.setActive(ActiveStatus.ACTIVE);
         post.setCreatedBy(username);
         post.setUpdatedBy(username);
         postRepository.save(post);
@@ -127,10 +129,16 @@ public class PostsServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostUserRes> searchPostUser(Integer page, Integer size, String key) {
+    public Page<PostUserRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
         String username = jwtCommon.extractUsername();
-        Page<Post> posts = postRepository.findByCreatedByAndContentContaining(username, key, pageable);
+        Page<Post> posts;
+        if (status == null) {
+            posts = postRepository.findByCreatedByAndContentContaining(username, key, pageable);
+        } else {
+            posts = postRepository.findByCreatedByAndContentContainingAndActive(username, key, status, pageable);
+        }
+
         List<PostUserRes> postUserResList = postMapper.postsToPostsUsers(posts.getContent());
         return new PageImpl<>(postUserResList, pageable, posts.getTotalElements());
     }

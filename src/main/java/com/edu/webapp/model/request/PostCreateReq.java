@@ -36,6 +36,5 @@ public class PostCreateReq {
     private String district;
     private String longitude;
     private String latitude;
-    private ActiveStatus active;
     private TypeRoom type;
 }

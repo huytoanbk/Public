@@ -1,5 +1,6 @@
 package com.edu.webapp.service;
 
+import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
@@ -15,7 +16,7 @@ public interface PostService {
 
     CommentRes createComment(CommentReq commentReq);
 
-    Page<PostUserRes> searchPostUser(Integer page, Integer size, String key);
+    Page<PostUserRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status);
 
     Page<CommentRes> getListCommentPost(CommentPostSearchReq commentPostSearchReq);
 
