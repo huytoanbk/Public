@@ -15,6 +15,11 @@ public class TimeUtils {
             endTime = OffsetDateTime.now();
         }
         Duration duration = Duration.between(startTime, endTime);
+        long minute = duration.toMinutes();
+        if (minute < 60) {
+            if (minute == 0) return " vài giây trước";
+            return minute + " phút trước";
+        }
         long hours = duration.toHours();
 
         if (hours < 24) {

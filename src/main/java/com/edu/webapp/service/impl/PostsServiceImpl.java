@@ -9,10 +9,7 @@ import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.CommentMapper;
 import com.edu.webapp.mapper.PostMapper;
 import com.edu.webapp.model.page.CustomPage;
-import com.edu.webapp.model.request.CommentPostSearchReq;
-import com.edu.webapp.model.request.CommentReq;
-import com.edu.webapp.model.request.FilterPostReq;
-import com.edu.webapp.model.request.PostCreateReq;
+import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.PostUserRes;
@@ -103,16 +100,8 @@ public class PostsServiceImpl implements PostService {
         Post post = postRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
         post.setView(post.getView() + 1);
         postRepository.save(post);
-        PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
         User user = userRepository.findByEmail(post.getCreatedBy()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
-        userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
-        userPostRes.setId(user.getId());
-        userPostRes.setAvatar(user.getAvatar());
-        userPostRes.setFullName(user.getFullName());
-        userPostRes.setPhone(user.getPhone());
-        userPostRes.setEmail(user.getEmail());
-        userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
-        userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
+        PostRes.UserPostRes userPostRes = buildUserPostRes(user);
         PostRes postRes = postMapper.postToPostRes(post);
         postRes.setUserPostRes(userPostRes);
         postRes.setUptime(TimeUtils.formatTimeDifference(postRes.getUpdatedAt(), OffsetDateTime.now()));
@@ -171,6 +160,52 @@ public class PostsServiceImpl implements PostService {
             commentRes.setEmail(user.getEmail());
             commentResList.add(commentRes);
         }
-        return new CustomPage<>(commentResList,pageable, 0L,page.getTotalElements()>10);
+        return new CustomPage<>(commentResList, pageable, 0L, page.getTotalElements() > 10);
+    }
+
+    @Override
+    public PostRes updatePost(PostUpdateReq postUpdateReq) {
+        String email = jwtCommon.extractUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        Post post = postRepository.findById(postUpdateReq.getPostId()).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
+        if (!post.getCreatedBy().equals(user.getEmail()))
+            throw new ValidateException(ErrorCodes.YOU_NOT_PERMISSION_UPDATE);
+        post.setTitle(postUpdateReq.getTitle());
+        post.setContent(postUpdateReq.getContent());
+        post.setPrice(postUpdateReq.getPrice());
+        post.setDeposit(postUpdateReq.getDeposit());
+        post.setAddress(postUpdateReq.getAddress());
+        post.setAcreage(postUpdateReq.getAcreage());
+        post.setStatusRoom(postUpdateReq.getStatusRoom());
+        post.setContact(postUpdateReq.getContact());
+        post.setImages(post.getImages());
+        post.setProvince(postUpdateReq.getProvince());
+        post.setDistrict(postUpdateReq.getDistrict());
+        post.setLongitude(postUpdateReq.getLongitude());
+        post.setLatitude(postUpdateReq.getLatitude());
+        post.setActive(postUpdateReq.getActive());
+        post.setType(postUpdateReq.getType());
+        post.setUpdatedBy(email);
+        post.setUpdatedAt(OffsetDateTime.now());
+        postRepository.save(post);
+        PostRes postRes = postMapper.postToPostRes(post);
+        PostRes.UserPostRes userPostRes = buildUserPostRes(user);
+        postRes.setUserPostRes(userPostRes);
+        postRes.setUptime(TimeUtils.formatTimeDifference(postRes.getUpdatedAt(), OffsetDateTime.now()));
+        postRes.setDateOfJoin(TimeUtils.formatTimeDifference(postRes.getCreatedAt(), OffsetDateTime.now()));
+        return postRes;
+    }
+
+    private PostRes.UserPostRes buildUserPostRes(User user) {
+        PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
+        userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
+        userPostRes.setId(user.getId());
+        userPostRes.setAvatar(user.getAvatar());
+        userPostRes.setFullName(user.getFullName());
+        userPostRes.setPhone(user.getPhone());
+        userPostRes.setEmail(user.getEmail());
+        userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
+        userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
+        return userPostRes;
     }
 }

@@ -1,9 +1,6 @@
 package com.edu.webapp.service;
 
-import com.edu.webapp.model.request.CommentPostSearchReq;
-import com.edu.webapp.model.request.CommentReq;
-import com.edu.webapp.model.request.FilterPostReq;
-import com.edu.webapp.model.request.PostCreateReq;
+import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.PostUserRes;
@@ -21,4 +18,6 @@ public interface PostService {
     Page<PostUserRes> searchPostUser(Integer page, Integer size, String key);
 
     Page<CommentRes> getListCommentPost(CommentPostSearchReq commentPostSearchReq);
+
+    PostRes updatePost(PostUpdateReq postUpdateReq);
 }

@@ -1,9 +1,6 @@
 package com.edu.webapp.controller;
 
-import com.edu.webapp.model.request.CommentPostSearchReq;
-import com.edu.webapp.model.request.CommentReq;
-import com.edu.webapp.model.request.FilterPostReq;
-import com.edu.webapp.model.request.PostCreateReq;
+import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.PostUserRes;
@@ -55,7 +52,7 @@ public class PostController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<PostRes> updatePost(@RequestBody PostRes postRes) {
-        return null;
+    public ResponseEntity<PostRes> updatePost(@RequestBody PostUpdateReq postUpdateReq) {
+        return ResponseEntity.ok(postService.updatePost(postUpdateReq));
     }
 }
