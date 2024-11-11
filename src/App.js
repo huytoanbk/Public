@@ -25,6 +25,7 @@ import { useEffect } from "react";
 import axiosInstance from "./interceptor";
 import UserManagement from "./pages/admin/user-management";
 import MyPost from "./pages/my-post";
+import EditPostForm from "./pages/edit-post";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -90,6 +91,14 @@ function App() {
             element={
               <PrivateRoute>
                 <MyPost />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-post/:id"
+            element={
+              <PrivateRoute>
+                <EditPostForm />
               </PrivateRoute>
             }
           />

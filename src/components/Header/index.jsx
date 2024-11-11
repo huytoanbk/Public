@@ -133,7 +133,7 @@ const AppHeader = () => {
         borderBottom: "1px solid #ddd",
         position: "sticky",
         top: 0,
-        zIndex: 9999,
+        zIndex: 1000,
       }}
     >
       <Row justify="space-between" align="middle" gutter={16}>

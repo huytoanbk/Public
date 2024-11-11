@@ -16,6 +16,8 @@ const Breadcrumb = ({ match }) => {
     profile: "Trang cá nhân",
     post: "Bài viết",
     login: "Đăng nhập",
+    "my-post": "Bài viết của tôi",
+    "edit": "Chỉnh sửa bài viết",
   };
 
   useEffect(() => {
