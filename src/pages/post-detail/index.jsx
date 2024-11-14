@@ -35,15 +35,20 @@ import ContactInfo from "./contact-info";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { FaPhoneAlt } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";
+import axiosInstance from "../../interceptor";
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
+import { timeAgo } from "../../utiils/time-ago";
 
 const commentSchema = z.object({
-  comment: z
-    .string({ required_error: "Nội dung bình luận là bắt buộc" })
-    .min(1, "Nội dung bình luận là bắt buộc"),
+  // comment: z.string().min(1, "Nội dung bình luận là bắt buộc"),
 });
 const { Title } = Typography;
 
+const socketURL = process.env.REACT_APP_API_COMMENT;
+
 const PostDetail = () => {
+  const stompClientRef = useRef(null);
   const { id } = useParams();
   const { userInfo } = useUser();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -95,10 +100,13 @@ const PostDetail = () => {
     };
     const fetchComments = async () => {
       try {
-        const response = await baseAxios.get(`/posts/${id}/comment`);
-        setComments(response.data.comments);
-        setCommentCount(response.data.totalCount);
-        setShowMore(response.data.totalCount > 10);
+        const response = await baseAxios.post(`/posts/list-comment`, {
+          postId: id,
+          commentTime: new Date().toISOString()
+        });
+        setComments(response.data.content);
+        setCommentCount(response.data.totalElements);
+        setShowMore(response.data.totalElements > 10);
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
@@ -108,14 +116,36 @@ const PostDetail = () => {
     fetchComments();
   }, [id]);
 
+   useEffect(() => {
+    const socket = new SockJS(socketURL, {
+      
+    });
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, () => {
+      stompClient.subscribe(`/topic/comments/${id}`, (msg) => {
+        const body = JSON.parse(msg.body);
+        console.log('comment', comments);
+        setComments((pre) => [body,...pre])
+      });
+    });
+
+    stompClientRef.current = stompClient;
+
+    return () => {
+      if (stompClientRef.current) {
+        stompClientRef.current.disconnect(() => {
+          console.log("Disconnected from WebSocket");
+        });
+      }
+    };
+  }, []);
+
   const onSubmit = async (data) => {
     try {
-      const { userId } = userInfo;
-      const response = await baseAxios.post(`/posts/${id}/comment`, {
-        comment: data.comment,
+      const response = await axiosInstance.post(`/posts/comment`, {
+        comment: "data.comment",
         postId: id,
-        userId,
-        userTo: "",
       });
       setComments([response.data, ...comments]);
       reset();
@@ -379,16 +409,11 @@ const PostDetail = () => {
         <Title level={2}>Bình luận</Title>
         {comments.slice(0, showMore ? 10 : comments.length).map((comment) => (
           <div key={comment.id} className="border-b py-4">
-            <p className="font-semibold">{comment.createdBy}</p>
+            <p className="font-semibold">{comment.fullName}</p>
             <p className="text-sm text-gray-500">
-              {comment.createdAt
-                ? `${Math.floor(
-                    (new Date() - new Date(comment.createdAt)) /
-                      (1000 * 60 * 60 * 24)
-                  )} ngày trước`
-                : new Date(comment.createdAt).toLocaleDateString()}
+              {timeAgo(comment.createdAt)}
             </p>
-            <p>{comment.content}</p>
+            <p>{comment.comment}</p>
           </div>
         ))}
         {showMore && (

@@ -9,6 +9,11 @@ import { getAvatar, getThumbnail } from "../../utiils/format-info-room";
 
 export default function CardHorizontal({ item }) {
   const navigate = useNavigate();
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`author/${item?.userPostRes?.id}`)
+  }
   return (
     <List.Item
       className="flex-row-reverse product-card rounded-lg shadow mb-4 cursor-pointer"
@@ -69,7 +74,7 @@ export default function CardHorizontal({ item }) {
       </div>
       <div className="border border-solid border-[#e5e7eb] my-1"></div>
       <div className="flex items-center justify-between">
-        <figcaption class="flex items-center">
+        <figcaption class="flex items-center" onClick={handleClick}>
           <div class="border border-[#8492a6] rounded-full w-8 h-8 overflow-hidden border-solid	">
             <img
               class="w-full h-full object-contain"

@@ -2,6 +2,13 @@
   outline: none;
 }
 
+.leaflet-top, .leaflet-bottom {
+  z-index: 500 !important;
+}
+
+.leaflet-control-attribution .leaflet-control {
+  z-index: 500 !important;
+}
 .wrapper {
   max-width: 1280px;
   width: 100%;

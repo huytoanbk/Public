@@ -26,6 +26,7 @@ import axiosInstance from "./interceptor";
 import UserManagement from "./pages/admin/user-management";
 import MyPost from "./pages/my-post";
 import EditPostForm from "./pages/edit-post";
+import AuthorPost from "./pages/author-post";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -78,6 +79,7 @@ function App() {
             }
           />
           <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/author/:id" element={<AuthorPost />} />
           <Route
             path="/create-post"
             element={
