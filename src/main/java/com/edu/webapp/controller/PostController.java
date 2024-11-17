@@ -50,11 +50,17 @@ public class PostController {
                                                            @RequestParam(name = "size", defaultValue = "30") Integer size,
                                                            @RequestParam(name = "key", defaultValue = "") String key,
                                                            @RequestParam(name = "status", required = false) ActiveStatus status) {
-        return ResponseEntity.ok(postService.searchPostUser(page, size, key,status));
+        return ResponseEntity.ok(postService.searchPostUser(page, size, key, status));
     }
 
     @PutMapping("/update")
     public ResponseEntity<PostRes> updatePost(@RequestBody PostUpdateReq postUpdateReq) {
         return ResponseEntity.ok(postService.updatePost(postUpdateReq));
+    }
+
+    @PostMapping("/like-post/{id}")
+    public ResponseEntity<PostRes> likePost(@PathVariable String id) {
+        postService.likePost(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -2,6 +2,7 @@ package com.edu.webapp.service.impl;
 
 import com.edu.webapp.entity.post.Comment;
 import com.edu.webapp.entity.post.Image;
+import com.edu.webapp.entity.post.LikePost;
 import com.edu.webapp.entity.post.Post;
 import com.edu.webapp.entity.user.User;
 import com.edu.webapp.error.ErrorCodes;
@@ -14,10 +15,7 @@ import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
 import com.edu.webapp.model.response.PostUserRes;
-import com.edu.webapp.repository.CommentRepository;
-import com.edu.webapp.repository.ImageRepository;
-import com.edu.webapp.repository.PostRepository;
-import com.edu.webapp.repository.UserRepository;
+import com.edu.webapp.repository.*;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.PostService;
 import com.edu.webapp.utils.TimeUtils;
@@ -44,6 +42,7 @@ public class PostsServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final CommentMapper commentMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final LikePostRepository likePostRepository;
 
     @Transactional
     @Override
@@ -202,6 +201,17 @@ public class PostsServiceImpl implements PostService {
         postRes.setUptime(TimeUtils.formatTimeDifference(postRes.getUpdatedAt(), OffsetDateTime.now()));
         postRes.setDateOfJoin(TimeUtils.formatTimeDifference(postRes.getCreatedAt(), OffsetDateTime.now()));
         return postRes;
+    }
+
+    @Override
+    public void likePost(String id) {
+        String email = jwtCommon.extractUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        Post post = postRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
+        LikePost likePost = new LikePost();
+        likePost.setUserId(user.getId());
+        likePost.setPostId(post.getId());
+        likePostRepository.save(likePost);
     }
 
     private PostRes.UserPostRes buildUserPostRes(User user) {

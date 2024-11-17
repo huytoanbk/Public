@@ -21,4 +21,6 @@ public interface PostService {
     Page<CommentRes> getListCommentPost(CommentPostSearchReq commentPostSearchReq);
 
     PostRes updatePost(PostUpdateReq postUpdateReq);
+
+    void likePost(String id);
 }

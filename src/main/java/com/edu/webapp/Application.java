@@ -1,12 +1,11 @@
 package com.edu.webapp;
 
+import com.edu.webapp.entity.advertisement.AdvertisingPackage;
 import com.edu.webapp.entity.location.District;
 import com.edu.webapp.entity.location.Province;
 import com.edu.webapp.entity.user.Role;
-import com.edu.webapp.repository.DistrictRepository;
-import com.edu.webapp.repository.ProvinceRepository;
-import com.edu.webapp.repository.RoleRepository;
-import com.edu.webapp.repository.UserRepository;
+import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -28,6 +27,7 @@ public class Application implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final ProvinceRepository provinceRepository;
     private final DistrictRepository districtRepository;
+    private final AdvertisingPackageRepository advertisingPackageRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -38,6 +38,31 @@ public class Application implements CommandLineRunner {
         createRoles();
         createProvinces();
         createDistricts();
+        createAdvertisingPackage();
+    }
+
+    private void createAdvertisingPackage() {
+        log.info("Creating advertising package");
+        if (advertisingPackageRepository.findAll().isEmpty()) {
+            AdvertisingPackage month1 = new AdvertisingPackage();
+            month1.setAdvertisingName("Gói 1 tháng");
+            month1.setDes("Gói 1 tháng");
+            month1.setPrice(100000.0);
+            month1.setCreatedBy("SYSTEM");
+            advertisingPackageRepository.save(month1);
+            AdvertisingPackage month6 = new AdvertisingPackage();
+            month1.setAdvertisingName("Gói 6 tháng");
+            month1.setDes("Gói 1 tháng");
+            month1.setPrice(540000.0);
+            month1.setCreatedBy("SYSTEM");
+            advertisingPackageRepository.save(month6);
+            AdvertisingPackage month12 = new AdvertisingPackage();
+            month1.setAdvertisingName("Gói 12 tháng");
+            month1.setDes("Gói 1 tháng");
+            month1.setPrice(10200000.0);
+            month1.setCreatedBy("SYSTEM");
+            advertisingPackageRepository.save(month12);
+        }
     }
 
     private void createRoles() {
