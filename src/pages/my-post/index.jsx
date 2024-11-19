@@ -87,7 +87,7 @@ const MyPost = () => {
   ];
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 max-w-6xl mx-auto">
       <form onSubmit={handleSubmit(onSearch)} className="mb-4 flex gap-2">
         <Input.Search
           {...register("search")}

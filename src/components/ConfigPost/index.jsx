@@ -85,6 +85,10 @@ const roomActiveOtions = [
     value: "ACTIVE",
   },
   {
+    label: "Pending",
+    value: "PENDING",
+  },
+  {
     label: "Deactive",
     value: "DEACTIVE",
   },

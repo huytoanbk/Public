@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Thumbs } from "swiper/modules";
 import baseAxios from "../../interceptor/baseAxios";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,6 +16,8 @@ import {
   Row,
   Col,
   Divider,
+  Form,
+  Spin,
 } from "antd";
 import { useUser } from "../../context/UserContext";
 import "./post-detail.css";
@@ -39,10 +41,12 @@ import axiosInstance from "../../interceptor";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { timeAgo } from "../../utiils/time-ago";
+import moment from "moment";
 
 const commentSchema = z.object({
-  // comment: z.string().min(1, "Nội dung bình luận là bắt buộc"),
+  comment: z.string().min(1, "Nội dung bình luận là bắt buộc"),
 });
+
 const { Title } = Typography;
 
 const socketURL = process.env.REACT_APP_API_COMMENT;
@@ -59,7 +63,8 @@ const PostDetail = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [comments, setComments] = useState([]);
   const [showMore, setShowMore] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
+  const [loadingComment, setLoadingComment] = useState(true);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
   const swiperRef = useRef(null);
 
   const showModal = () => {
@@ -76,13 +81,50 @@ const PostDetail = () => {
     setIsModalVisible(false);
   };
   const {
-    register,
+    control,
     handleSubmit,
-    reset,
     formState: { errors },
+    reset,
   } = useForm({
-    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      comment: "",
+    },
   });
+
+  const handleShowMore = () => {
+    const oldestComment = comments[comments.length - 1];
+    fetchComments(oldestComment.createdAt);
+    setShowMore(true);
+  };
+
+  const fetchComments = async (commentTime) => {
+    setLoadingComment(true);
+    try {
+      const response = await baseAxios.post(`/posts/list-comment`, {
+        postId: id,
+        commentTime:
+          commentTime || moment().utc().format("DD-MM-YYYYTHH:mm:ss") + "Z",
+      });
+
+      if (response.data && response.data.content.length > 0) {
+        setComments((prevComments) => [
+          ...prevComments,
+          ...response.data.content,
+        ]);
+
+        if (response.data.content.length < 10) {
+          setHasMoreComments(false);
+        }
+      } else {
+        setHasMoreComments(false);
+      }
+    } catch (error) {
+      console.error("Error fetching comments", error);
+    } finally {
+      setLoadingComment(false);
+    }
+  };
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -98,40 +140,22 @@ const PostDetail = () => {
         setLoading(false);
       }
     };
-    const fetchComments = async () => {
-      try {
-        const response = await baseAxios.post(`/posts/list-comment`, {
-          postId: id,
-          commentTime: new Date().toISOString()
-        });
-        setComments(response.data.content);
-        setCommentCount(response.data.totalElements);
-        setShowMore(response.data.totalElements > 10);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      }
-    };
 
     fetchPost();
     fetchComments();
   }, [id]);
 
-   useEffect(() => {
-    const socket = new SockJS(socketURL, {
-      
-    });
+  useEffect(() => {
+    const socket = new SockJS(socketURL, {});
     const stompClient = Stomp.over(socket);
-
     stompClient.connect({}, () => {
       stompClient.subscribe(`/topic/comments/${id}`, (msg) => {
         const body = JSON.parse(msg.body);
-        console.log('comment', comments);
-        setComments((pre) => [body,...pre])
+        setComments((pre) => [body, ...pre]);
       });
     });
 
     stompClientRef.current = stompClient;
-
     return () => {
       if (stompClientRef.current) {
         stompClientRef.current.disconnect(() => {
@@ -144,7 +168,7 @@ const PostDetail = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axiosInstance.post(`/posts/comment`, {
-        comment: "data.comment",
+        comment: data.comment,
         postId: id,
       });
       setComments([response.data, ...comments]);
@@ -404,53 +428,83 @@ const PostDetail = () => {
           </div>
         </div>
       </div>
-
-      <div className="mt-8 md:w-3/4">
-        <Title level={2}>Bình luận</Title>
-        {comments.slice(0, showMore ? 10 : comments.length).map((comment) => (
-          <div key={comment.id} className="border-b py-4">
-            <p className="font-semibold">{comment.fullName}</p>
-            <p className="text-sm text-gray-500">
-              {timeAgo(comment.createdAt)}
-            </p>
-            <p>{comment.comment}</p>
+      <div className="flex mb-10 gap-x-[45px] justify-center">
+        <div className="mt-8 w-[644px]">
+          <Title level={2}>Bình luận</Title>
+          <Form onFinish={handleSubmit(onSubmit)} className="mb-4">
+            <Form.Item
+              validateStatus={errors.comment ? "error" : ""}
+              help={errors.comment?.message}
+            >
+              <Controller
+                name="comment"
+                control={control}
+                rules={{ required: "Vui lòng nhập bình luận của bạn" }}
+                render={({ field }) => (
+                  <Input.TextArea
+                    {...field}
+                    placeholder="Nhập bình luận của bạn..."
+                    rows={3}
+                  />
+                )}
+              />
+            </Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="mt-2"
+              disabled={Boolean(!userInfo)}
+            >
+              Gửi bình luận
+            </Button>
+            {!userInfo && (
+              <span>
+                Vui lòng <Link to={"/login"}>đăng nhập</Link> để bình luận
+              </span>
+            )}
+          </Form>
+          <div className="w-full flex-col justify-start items-start gap-3 flex">
+            {comments.map((comment) => (
+              <div className="w-full lg:p-4 p-3 bg-white rounded-3xl border border-gray-300 flex-col justify-start items-start flex">
+                <div className="w-full flex-col justify-start items-start gap-3.5 flex">
+                  <div className="w-full justify-between items-center inline-flex">
+                    <div className="justify-start items-center gap-2.5 flex">
+                      <div className="w-10 h-10 bg-stone-300 rounded-full justify-start items-center gap-2.5 flex">
+                        <Link to={`/author/${comment.userId}`}>
+                          <img
+                            className="rounded-full object-cover w-full"
+                            src={comment.avatar}
+                            alt="User image"
+                          />
+                        </Link>
+                      </div>
+                      <div className="flex-col justify-start items-start gap-1 inline-flex">
+                        <h5 className="text-gray-900 text-sm font-semibold leading-snug">
+                          <Link to={`/author/${comment.userId}`}>
+                            {comment.fullName}
+                          </Link>
+                        </h5>
+                        <h6 className="text-gray-500 text-xs font-normal leading-5">
+                          {timeAgo(comment.createdAt)}
+                        </h6>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-800 text-sm font-normal leading-snug">
+                    {comment.comment}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {loadingComment && <Spin size="large" />}
           </div>
-        ))}
-        {showMore && (
-          <Button
-            onClick={() => setShowMore(false)}
-            className="mt-4"
-            type="link"
-          >
-            Xem thêm
-          </Button>
-        )}
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
-          <Input.TextArea
-            rows={3}
-            placeholder="Nhập bình luận của bạn..."
-            className={`border rounded w-full p-2 ${
-              errors.comment ? "border-red-500" : ""
-            }`}
-            {...register("comment")}
-          />
-          {errors.comment && (
-            <p className="text-red-500">{errors.comment.message}</p>
+          {hasMoreComments && !loadingComment && (
+            <Button onClick={handleShowMore} className="mt-4" type="link">
+              Xem thêm
+            </Button>
           )}
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="mt-2"
-            disabled={Boolean(!userInfo)}
-          >
-            Gửi bình luận
-          </Button>
-          {!userInfo && (
-            <span>
-              Vui lòng <Link to={"/login"}>đăng nhập</Link> để bình luận
-            </span>
-          )}
-        </form>
+        </div>
+        <div className=" w-[340px] h-auto"></div>
       </div>
       <Modal
         title="Bản đồ"

@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { List, Pagination } from 'antd';
-import axios from 'axios';
-import AuthorInfo from './author-info';
-import PostList from './post-list';
-import baseAxios from '../../interceptor/baseAxios';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { List, Pagination } from "antd";
+import axios from "axios";
+import AuthorInfo from "./author-info";
+import PostList from "./post-list";
+import baseAxios from "../../interceptor/baseAxios";
 
 const AuthorPost = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [posts, setPosts] = useState([]);
   const [authorInfo, setAuthorInfo] = useState(null);
   const [totalPosts, setTotalPosts] = useState(0);
@@ -16,7 +16,7 @@ const AuthorPost = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await baseAxios.post('/posts/search', {
+        const response = await baseAxios.post("/posts/search", {
           authorId: id,
           page: currentPage - 1,
           size: 5,
@@ -25,15 +25,15 @@ const AuthorPost = () => {
         setAuthorInfo(response.data.content[0]?.userPostRes);
         setTotalPosts(response.data.totalElements);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error("Error fetching posts:", error);
       }
     };
     fetchData();
   }, [id, currentPage]);
 
   return (
-    <div className="flex gap-8 p-6">
-      <div className="w-1/4 bg-white p-4 rounded-lg shadow-lg">
+    <div className="flex gap-8 p-6 max-w-6xl mx-auto">
+      <div className="w-1/4 bg-white rounded-lg shadow-lg self-baseline	sticky top-[100px]">
         {authorInfo && <AuthorInfo author={authorInfo} />}
       </div>
       <div className="w-3/4">

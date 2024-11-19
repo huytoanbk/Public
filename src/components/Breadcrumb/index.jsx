@@ -18,6 +18,7 @@ const Breadcrumb = ({ match }) => {
     login: "Đăng nhập",
     "my-post": "Bài viết của tôi",
     "edit": "Chỉnh sửa bài viết",
+    author: "Tác giả"
   };
 
   useEffect(() => {
@@ -31,10 +32,23 @@ const Breadcrumb = ({ match }) => {
         }
       }
     };
-
+    const fetchUserName = async (id) => {
+      if (id) {
+        try {
+          const response = await baseAxios.get(`/users/${id}`);
+          setPostTitle(response.data.fullName);
+        } catch (error) {
+          console.error("Error fetching post title:", error);
+        }
+      }
+    };
     if (location.pathname.includes("post/")) {
       const id = location.pathname.split("post/")[1].split("/")[0];
       if (id) fetchPostTitle(id);
+    }
+    if (location.pathname.includes("author/")) {
+      const id = location.pathname.split("author/")[1].split("/")[0];
+      if (id) fetchUserName(id);
     }
   }, [location.pathname]);
 
