@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
@@ -17,6 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class UsersController {
     private final UsersService usersService;
 
+    @PutMapping("/reset-pw")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordReq resetPasswordReq) {
+        usersService.resetPassword(resetPasswordReq);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/email-send-otp")
     public ResponseEntity<?> sendOtpEmail(@RequestParam("email") String email) {

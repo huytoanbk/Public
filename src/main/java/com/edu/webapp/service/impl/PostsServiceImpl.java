@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +50,7 @@ public class PostsServiceImpl implements PostService {
     public void createPost(PostCreateReq postCreateReq) {
         String username = jwtCommon.extractUsername();
         Post post = postMapper.postReqToPost(postCreateReq);
-        post.setActive(ActiveStatus.ACTIVE);
+        post.setActive(ActiveStatus.PENDING);
         post.setCreatedBy(username);
         post.setUpdatedBy(username);
         postRepository.save(post);
@@ -66,34 +67,50 @@ public class PostsServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(filterPostReq.getPage(), filterPostReq.getSize());
         Page<Post> posts = postRepository.findAll(pageable);
         List<PostRes> postRes = postMapper.postsToPosts(posts.getContent());
-        Map<String, Integer> mapCount = new HashMap<>();
-        Set<String> emails = postRes.stream()
+        HashMap<String, Integer> mapCount = new HashMap<>();
+        Set<String> emails;
+        emails = postRes.stream()
                 .map(PostRes::getCreatedBy)
                 .collect(Collectors.toSet());
         Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
                 .stream()
                 .collect(Collectors.toMap(User::getEmail, user -> user));
-
         emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
-        postRes.forEach(post -> {
+        String username = jwtCommon.extractUsername();
+        Map<String, Boolean> mapLikePost;
+        mapLikePost = (username != null)
+                ? likePostRepository.findLikePostByUserId(
+                        userRepository.findByEmail(username)
+                                .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST))
+                                .getId()
+                )
+                .stream()
+                .collect(Collectors.toMap(
+                        LikePost::getPostId,
+                        likePost -> true
+                ))
+                : new HashMap<>();
+        for (PostRes post : postRes) {
             PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
             User user = userMap.get(post.getCreatedBy());
-            if (user == null) {
-                throw new ValidateException(ErrorCodes.USER_NOT_EXIST);
-            }
             userPostRes.setTotalPost(mapCount.getOrDefault(user.getEmail(), 0));
-            userPostRes.setId(user.getId());
-            userPostRes.setAvatar(user.getAvatar());
-            userPostRes.setFullName(user.getFullName());
-            userPostRes.setPhone(user.getPhone());
-            userPostRes.setEmail(user.getEmail());
-            userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
-            userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
+            userPostRes.setId(Objects.requireNonNull(user).getId());
+            buildUserPostRes(userPostRes, user);
             post.setUserPostRes(userPostRes);
             post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
             post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
-        });
+            post.setLike(mapLikePost.getOrDefault(post.getId(), false));
+        }
         return new PageImpl<>(postRes, pageable, posts.getTotalElements());
+    }
+
+    private void buildUserPostRes(PostRes.UserPostRes userPostRes, User user) {
+        userPostRes.setAvatar(user.getAvatar());
+        userPostRes.setFullName(user.getFullName());
+        userPostRes.setPhone(user.getPhone());
+        userPostRes.setEmail(user.getEmail());
+        userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
+        userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
     }
 
     @Override
@@ -137,7 +154,6 @@ public class PostsServiceImpl implements PostService {
         } else {
             posts = postRepository.findByCreatedByAndContentContainingAndActive(username, key, status, pageable);
         }
-
         List<PostUserRes> postUserResList = postMapper.postsToPostsUsers(posts.getContent());
         return new PageImpl<>(postUserResList, pageable, posts.getTotalElements());
     }
@@ -208,22 +224,72 @@ public class PostsServiceImpl implements PostService {
         String email = jwtCommon.extractUsername();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
         Post post = postRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
-        LikePost likePost = new LikePost();
-        likePost.setUserId(user.getId());
-        likePost.setPostId(post.getId());
-        likePostRepository.save(likePost);
+        LikePost likePost = likePostRepository.findLikePostByPostIdAndUserId(post.getId(), user.getId());
+        if (likePost == null) {
+            likePost = new LikePost();
+            likePost.setUserId(user.getId());
+            likePost.setPostId(post.getId());
+            likePostRepository.save(likePost);
+        } else likePostRepository.delete(likePost);
+    }
+
+    @Override
+    public Page<PostRes> listPostLike(Integer page, Integer size) {
+        String username = jwtCommon.extractUsername();
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<LikePost> likePosts = likePostRepository.findLikePostByUserId(user.getId(), pageable);
+        List<String> listPostIds = likePosts.stream().map(LikePost::getPostId).toList();
+        List<Post> posts = postRepository.findByIdIn(listPostIds);
+        List<PostRes> postRes = postMapper.postsToPosts(posts);
+        Map<String, Integer> mapCount = new HashMap<>();
+        Set<String> emails = postRes.stream()
+                .map(PostRes::getCreatedBy)
+                .collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
+                .stream()
+                .collect(Collectors.toMap(User::getEmail, u -> u));
+        emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
+        Map<String, Boolean> mapLikePost =
+                (username != null)
+                        ? likePostRepository.findLikePostByUserId(
+                                userRepository.findByEmail(username)
+                                        .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST))
+                                        .getId()
+                        )
+                        .stream()
+                        .collect(Collectors.toMap(
+                                LikePost::getPostId,
+                                likePost -> true
+                        ))
+                        : new HashMap<>();
+        for (PostRes post : postRes) {
+            AtomicReference<PostRes.UserPostRes> userPostRes = new AtomicReference<>(new PostRes.UserPostRes());
+            User u = userMap.get(post.getCreatedBy());
+            if (u == null) {
+                throw new ValidateException(ErrorCodes.USER_NOT_EXIST);
+            }
+            userPostRes.get().setTotalPost(mapCount.getOrDefault(user.getEmail(), 0));
+            userPostRes.get().setId(user.getId());
+            userPostRes.get().setAvatar(user.getAvatar());
+            userPostRes.get().setFullName(user.getFullName());
+            userPostRes.get().setPhone(user.getPhone());
+            userPostRes.get().setEmail(user.getEmail());
+            userPostRes.get().setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
+            userPostRes.get().setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
+            post.setUserPostRes(userPostRes.get());
+            post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
+            post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
+            post.setLike(mapLikePost.getOrDefault(post.getId(), false));
+        }
+        return new PageImpl<>(postRes, pageable, likePosts.getTotalElements());
     }
 
     private PostRes.UserPostRes buildUserPostRes(User user) {
         PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
         userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
         userPostRes.setId(user.getId());
-        userPostRes.setAvatar(user.getAvatar());
-        userPostRes.setFullName(user.getFullName());
-        userPostRes.setPhone(user.getPhone());
-        userPostRes.setEmail(user.getEmail());
-        userPostRes.setUptime(TimeUtils.formatTimeDifference(user.getUptime(), OffsetDateTime.now()));
-        userPostRes.setDateOfJoin(TimeUtils.formatTimeDifference(user.getCreatedAt(), OffsetDateTime.now()));
+        buildUserPostRes(userPostRes, user);
         return userPostRes;
     }
 }

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.OffsetDateTime;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +22,7 @@ public class LikePost {
     private String postId;
     @Column(name = "USER_ID")
     private String userId;
+    @Column(name = "CREATED_AT")
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
 }

@@ -33,4 +33,6 @@ public interface UsersService {
     UserRes getUser(String id);
 
     UserRes setRoles(UserRoleReq userRoleReq);
+
+    void resetPassword(ResetPasswordReq resetPasswordReq);
 }

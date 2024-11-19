@@ -2,7 +2,9 @@ package com.edu.webapp.controller;
 
 import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
+import com.edu.webapp.model.request.PayAdCreateReq;
 import com.edu.webapp.model.response.AdvertisingPackageRes;
+import com.edu.webapp.model.response.PayAdRes;
 import com.edu.webapp.service.AdvertisingPackageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,14 +27,27 @@ public @RequiredArgsConstructor
     }
 
     @GetMapping
-    public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page") Integer page,
-                                                                                 @RequestParam(name = "size", defaultValue = "30") Integer size,
-                                                                                 @RequestParam(name = "key", defaultValue = "") String key) {
+    public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size, @RequestParam(name = "key", defaultValue = "") String key) {
         return ResponseEntity.ok(advertisingPackageService.getAllAdvertisingPackages(page, size, key));
     }
 
-    @PutMapping()
+    @PutMapping
     public ResponseEntity<AdvertisingPackageRes> updateAdvertisingPackage(AdvertisingPackageUpdateReq advertisingPackageUpdateReq) {
         return ResponseEntity.ok(advertisingPackageService.updateAdvertisingPackage(advertisingPackageUpdateReq));
+    }
+
+    @GetMapping("/qr-code")
+    public ResponseEntity<?> getAdvertisingPackageQrCode() {
+        return ResponseEntity.ok("http://localhost:8888/qr.jpg");
+    }
+
+    @PostMapping("/pay")
+    public ResponseEntity<PayAdRes> payAd(@RequestBody PayAdCreateReq payAdCreateReq) {
+        return ResponseEntity.ok(advertisingPackageService.createPayAd(payAdCreateReq));
+    }
+
+    @GetMapping("/pay/{id}")
+    public ResponseEntity<PayAdRes> getPayAd(@PathVariable Integer id) {
+        return ResponseEntity.ok(advertisingPackageService.getPayAd(id));
     }
 }

@@ -63,4 +63,10 @@ public class PostController {
         postService.likePost(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/like-post")
+    public ResponseEntity<Page<PostRes>> listPostLike(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                                                @RequestParam(name = "size", defaultValue = "30") Integer size){
+        return ResponseEntity.ok(postService.listPostLike(page,size));
+    }
 }

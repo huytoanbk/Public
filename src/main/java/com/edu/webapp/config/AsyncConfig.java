@@ -10,12 +10,24 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class AsyncConfig {
 
     @Bean(name = "taskExecutorSendOtp")
-    public ThreadPoolTaskExecutor taskExecutor() {
+    public ThreadPoolTaskExecutor taskExecutorSendOtp() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("Async-");
+        executor.setThreadNamePrefix("Async-SendOtp-");
+        executor.initialize();
+        return executor;
+    }
+
+
+    @Bean(name = "taskExecutorPayAd")
+    public ThreadPoolTaskExecutor taskExecutorPayAd() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("Async-PayAd-");
         executor.initialize();
         return executor;
     }

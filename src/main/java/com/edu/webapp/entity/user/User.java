@@ -14,8 +14,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -74,6 +76,9 @@ public class User implements UserDetails, Serializable {
 
     @Column(name = "UPTIME")
     private OffsetDateTime uptime;
+
+    @Column(name = "RECHARGE_VIP")
+    private LocalDate rechargeVip;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

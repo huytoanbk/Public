@@ -1,7 +1,7 @@
 package com.edu.webapp.model.enums;
 
 public enum ActiveStatus {
-    ACTIVE, INACTIVE;
+    ACTIVE, PENDING, INACTIVE, REJECT;
 
     public static ActiveStatus getActiveStatus(String value) {
         for (ActiveStatus status : ActiveStatus.values()) {

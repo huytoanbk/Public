@@ -42,7 +42,7 @@ public class PostRes {
     private UserPostRes userPostRes;
     private String uptime;
     private String dateOfJoin;
-
+    private boolean like;
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder

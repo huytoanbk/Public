@@ -6,9 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface PostRepository extends JpaRepository<Post, String> {
     Page<Post> findByCreatedByAndContentContaining(String createdBy, String key, Pageable pageable);
+
     Page<Post> findByCreatedByAndContentContainingAndActive(String createdBy, String key, ActiveStatus status, Pageable pageable);
 
     Integer countByCreatedBy(String createdBy);
+    List<Post> findByIdIn(List<String> ids);
 }

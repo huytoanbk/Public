@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,7 @@ public class UsersServiceImpl implements UsersService {
     private final CacheLocalConfig cacheLocalConfig;
     private final JavaMailSender mailSender;
     private final OtpRepository otpRepository;
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
 
     @Override
     public AuthRes register(UserCreateReq userCreateReq) {
@@ -185,5 +187,45 @@ public class UsersServiceImpl implements UsersService {
         user.setRoles(roles);
         userRepository.save(user);
         return userMapper.userToUserRes(user);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordReq resetPasswordReq) {
+        User user = userRepository.findByEmail(resetPasswordReq.getEmail())
+                .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        String passwordNew = generatePassword(12);
+        user.setPassword(passwordEncoder.encode(passwordNew));
+        userRepository.save(user);
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setTo(user.getEmail());
+            helper.setSubject("Password Reset Request");
+            String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
+                    + "<h2 style='color: #4CAF50;'>Password Reset Request</h2>"
+                    + "<p>Dear User,</p>"
+                    + "<p>We have received a request to reset your password. If you did not make this request, please ignore this email.</p>"
+                    + "<p>Your password reset code is:</p>"
+                    + "<h1 style='color: #4CAF50;'>" + passwordNew + "</h1>"
+                    + "<p>Please use this code to reset your password.</p>"
+                    + "<br><p>If you have any questions, feel free to contact our support team.</p>"
+                    + "<br><p>Best Regards,<br>TEST Support Team</p>"
+                    + "</div>";
+
+            helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
+        } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
+        }
+    }
+
+    public String generatePassword(int length) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            password.append(CHARACTERS.charAt(index));
+        }
+        return password.toString();
     }
 }

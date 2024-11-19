@@ -23,4 +23,6 @@ public interface PostService {
     PostRes updatePost(PostUpdateReq postUpdateReq);
 
     void likePost(String id);
+
+    Page<PostRes> listPostLike(Integer page, Integer size);
 }
