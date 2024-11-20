@@ -59,7 +59,7 @@ public class PostController {
     }
 
     @PostMapping("/like-post/{id}")
-    public ResponseEntity<PostRes> likePost(@PathVariable String id) {
+    public ResponseEntity<?> likePost(@PathVariable String id) {
         postService.likePost(id);
         return ResponseEntity.ok().build();
     }
