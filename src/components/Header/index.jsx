@@ -17,12 +17,14 @@ import { useUser } from "../../context/UserContext";
 import Logo from "../Icon/logo";
 import baseAxios from "../../interceptor/baseAxios";
 import axiosInstance from "../../interceptor";
+import ModalPackages from "../ModalPackages";
 
 const { Header } = Layout;
 const { Option } = Select;
 
 const AppHeader = () => {
   const { clearUserInfo, userInfo } = useUser();
+  const [isShowModalPackages, setIsShowModalPackages] = useState(false);
   const [notiStatus, setNotiStatus] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,8 +38,8 @@ const AppHeader = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
     }
-    if(key === "my-post") {
-      navigate("/my-post")
+    if (key === "my-post") {
+      navigate("/my-post");
     }
   };
 
@@ -81,7 +83,7 @@ const AppHeader = () => {
   };
 
   useEffect(() => {
-    if(userInfo) {
+    if (userInfo) {
       const { notiStatus = null } = userInfo;
       if (notiStatus === "ACTIVE") {
         setNotiStatus(true);
@@ -180,10 +182,17 @@ const AppHeader = () => {
               type="primary"
               icon={<PlusOutlined />}
               style={{ padding: "0 20px" }}
-              onClick={() => navigate("/create-post")}
+              // onClick={() => navigate("/create-post")}
+              onClick={() => {
+                setIsShowModalPackages(true);
+              }}
             >
               Đăng tin
             </Button>
+            <ModalPackages
+              isVisible={isShowModalPackages}
+              onClose={() => setIsShowModalPackages(false)}
+            />
           </Col>
         )}
       </Row>

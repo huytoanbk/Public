@@ -23,7 +23,7 @@ const ForgotPasswordForm = ({ control, errors, handleSubmit, onSubmit }) => (
     </Form.Item>
     <Form.Item>
       <Button type="primary" htmlType="submit" className="w-full py-2 text-lg rounded-lg">
-        Send Reset Link
+        Gửi OTP đến email
       </Button>
     </Form.Item>
   </Form>

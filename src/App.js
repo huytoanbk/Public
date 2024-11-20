@@ -27,6 +27,8 @@ import UserManagement from "./pages/admin/user-management";
 import MyPost from "./pages/my-post";
 import EditPostForm from "./pages/edit-post";
 import AuthorPost from "./pages/author-post";
+import CreateAdvertisingPackage from "./pages/admin/ads-management/CreateAdvertisingPackage";
+import EditAdvertisingPackage from "./pages/admin/ads-management/EditAdvertisingPackage";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -122,6 +124,8 @@ function App() {
                       element={<UserManagement />}
                     />
                     <Route path="ads-management" element={<AdsManagement />} />
+                    <Route path="create-advertising-package" element={<CreateAdvertisingPackage />} />
+                    <Route path="edit-advertising-package" element={<EditAdvertisingPackage />} />
                     <Route path="post-create" element={<PostCreate />} />
                     <Route path="profile" element={<Profile />} />{" "}
                   </Routes>

@@ -13,6 +13,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "./index.css";
 import { getRoomType, getThumbnail } from "../../utiils/format-info-room";
+import LikeButton from "../LikeButton";
 
 const PostAdsSlider = () => {
   const [products, setProducts] = useState([]);
@@ -73,8 +74,11 @@ const PostAdsSlider = () => {
                   )}
                 </div>
                 <div className="px-4 py-3 mb-auto flex-grow">
-                  <div className="font-medium text-lg inline-block hover:text-indigo-600 transition duration-500 ease-in-out mb-2 truncate max-w-[180px]">
-                    {product.title}
+                  <div className="flex justify-between items-center">
+                    <div className="font-medium text-lg inline-block hover:text-indigo-600 transition duration-500 ease-in-out mb-2 truncate max-w-[180px]">
+                      {product.title}
+                    </div>
+                    <LikeButton post={product} />
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-gray-500 text-sm flex items-center mb-2">

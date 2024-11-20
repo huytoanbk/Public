@@ -6,14 +6,15 @@ import { IoPricetag } from "react-icons/io5";
 import { IoIosTimer } from "react-icons/io";
 import { CiLocationOn } from "react-icons/ci";
 import { getAvatar, getThumbnail } from "../../utiils/format-info-room";
+import LikeButton from "../LikeButton";
 
 export default function CardHorizontal({ item }) {
   const navigate = useNavigate();
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`author/${item?.userPostRes?.id}`)
-  }
+    navigate(`author/${item?.userPostRes?.id}`);
+  };
   return (
     <List.Item
       className="flex-row-reverse product-card rounded-lg shadow mb-4 cursor-pointer"
@@ -35,12 +36,15 @@ export default function CardHorizontal({ item }) {
       <List.Item.Meta
         className="!mb-0"
         title={
-          <Link
-            to={`/post/${item.id}`}
-            className="text-lg font-semibold text-gray-900 dark:text-black line-clamp-1"
-          >
-            {item.title}
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link
+              to={`/post/${item.id}`}
+              className="text-lg font-semibold text-gray-900 dark:text-black line-clamp-1"
+            >
+              {item.title}
+            </Link>
+            <LikeButton post={item} />
+          </div>
         }
       />
       <div className="flex items-center justify-between">
