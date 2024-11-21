@@ -111,6 +111,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
             Thread.sleep(3000);
             payAd.setActive(ActiveStatus.ACTIVE);
             payAdRepository.save(payAd);
+            log.info("Pay Ad successful and data = {}", payAd);
             User user = userRepository.findById(payAd.getUserId()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
             AdvertisingPackage advertisingPackage = advertisingPackageRepository.findById(payAd.getAdvertisingPackage())
                     .orElseThrow(() -> new ValidateException(ErrorCodes.ADVERTISING_PACKAGE_VALID));
