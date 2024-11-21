@@ -194,6 +194,8 @@ public class PostsServiceImpl implements PostService {
     public PostRes updatePost(PostUpdateReq postUpdateReq) {
         String email = jwtCommon.extractUsername();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        if (user.getRechargeVip() == null || LocalDate.now().isAfter(user.getRechargeVip()))
+            throw new ValidateException(ErrorCodes.USER_NOT_RECHARGE_VIP);
         Post post = postRepository.findById(postUpdateReq.getPostId()).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
         if (!post.getCreatedBy().equals(user.getEmail()))
             throw new ValidateException(ErrorCodes.YOU_NOT_PERMISSION_UPDATE);
