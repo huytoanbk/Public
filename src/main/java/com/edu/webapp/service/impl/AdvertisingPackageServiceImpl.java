@@ -20,6 +20,7 @@ import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.AdvertisingPackageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -93,18 +94,11 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         payAd.setAdvertisingPackage(advertisingPackage.getId());
         payAd.setPrice(advertisingPackage.getPrice());
         payAdRepository.save(payAd);
-        payAdsSuccess(payAd);
-
+        ((AdvertisingPackageServiceImpl) AopContext.currentProxy()).payAdsSuccess(payAd);
         return payAdMapper.payAdToPayAdRes(payAd);
     }
 
-    @Override
-    public PayAdRes getPayAd(Integer id) {
-        PayAd payAd = payAdRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.PAY_AD_VALID));
-        return payAdMapper.payAdToPayAdRes(payAd);
-    }
-
-    @Async
+    @Async(value = "taskExecutorPayAd")
     @Transactional
     public void payAdsSuccess(PayAd payAd) {
         try {
@@ -125,4 +119,12 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
             log.error(e.getMessage(), e);
         }
     }
+
+    @Override
+    public PayAdRes getPayAd(Integer id) {
+        PayAd payAd = payAdRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.PAY_AD_VALID));
+        return payAdMapper.payAdToPayAdRes(payAd);
+    }
+
+
 }
