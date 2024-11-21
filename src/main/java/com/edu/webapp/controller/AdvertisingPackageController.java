@@ -27,7 +27,7 @@ public @RequiredArgsConstructor
     }
 
     @GetMapping
-    public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size, @RequestParam(name = "key", defaultValue = "") String key) {
+    public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page",required = false) Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size, @RequestParam(name = "key", defaultValue = "") String key) {
         return ResponseEntity.ok(advertisingPackageService.getAllAdvertisingPackages(page, size, key));
     }
 

@@ -43,6 +43,9 @@ public class AdvertisingPackage {
     @Column(name = "UPDATED_BY")
     private String updatedBy;
 
+    @Column(name = "COUNT_DATE")
+    private Integer countDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "ACTIVE")
     private ActiveStatus active = ActiveStatus.ACTIVE;

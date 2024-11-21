@@ -21,5 +21,6 @@ public class AdvertisingPackageRes {
     private String createdBy;
     private OffsetDateTime updatedAt;
     private String updatedBy;
-    private ActiveStatus active ;
+    private ActiveStatus active;
+    private Integer countDate;
 }

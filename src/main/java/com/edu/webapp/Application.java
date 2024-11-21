@@ -49,18 +49,21 @@ public class Application implements CommandLineRunner {
             month1.setDes("Gói 1 tháng");
             month1.setPrice(100000.0);
             month1.setCreatedBy("SYSTEM");
+            month1.setCountDate(30);
             advertisingPackageRepository.save(month1);
             AdvertisingPackage month6 = new AdvertisingPackage();
-            month1.setAdvertisingName("Gói 6 tháng");
-            month1.setDes("Gói 1 tháng");
-            month1.setPrice(540000.0);
-            month1.setCreatedBy("SYSTEM");
+            month6.setAdvertisingName("Gói 6 tháng");
+            month6.setDes("Gói 3 tháng");
+            month6.setPrice(540000.0);
+            month6.setCreatedBy("SYSTEM");
+            month6.setCountDate(180);
             advertisingPackageRepository.save(month6);
             AdvertisingPackage month12 = new AdvertisingPackage();
-            month1.setAdvertisingName("Gói 12 tháng");
-            month1.setDes("Gói 1 tháng");
-            month1.setPrice(10200000.0);
-            month1.setCreatedBy("SYSTEM");
+            month12.setAdvertisingName("Gói 12 tháng");
+            month12.setDes("Gói 12 tháng");
+            month12.setPrice(10200000.0);
+            month12.setCreatedBy("SYSTEM");
+            month12.setCountDate(365);
             advertisingPackageRepository.save(month12);
         }
     }

@@ -26,6 +26,7 @@ import org.springframework.data.domain.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,6 +50,9 @@ public class PostsServiceImpl implements PostService {
     @Override
     public void createPost(PostCreateReq postCreateReq) {
         String username = jwtCommon.extractUsername();
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        if (user.getRechargeVip() == null || LocalDate.now().isAfter(user.getRechargeVip()))
+            throw new ValidateException(ErrorCodes.USER_NOT_RECHARGE_VIP);
         Post post = postMapper.postReqToPost(postCreateReq);
         post.setActive(ActiveStatus.PENDING);
         post.setCreatedBy(username);
