@@ -23,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -92,6 +94,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         payAd.setPrice(advertisingPackage.getPrice());
         payAdRepository.save(payAd);
         payAdsSuccess(payAd);
+
         return payAdMapper.payAdToPayAdRes(payAd);
     }
 
@@ -102,11 +105,21 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     }
 
     @Async
+    @Transactional
     public void payAdsSuccess(PayAd payAd) {
         try {
             Thread.sleep(3000);
             payAd.setActive(ActiveStatus.ACTIVE);
             payAdRepository.save(payAd);
+            User user = userRepository.findById(payAd.getUserId()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+            AdvertisingPackage advertisingPackage = advertisingPackageRepository.findById(payAd.getAdvertisingPackage())
+                    .orElseThrow(() -> new ValidateException(ErrorCodes.ADVERTISING_PACKAGE_VALID));
+            LocalDate rechargeVip = user.getRechargeVip();
+            if (rechargeVip != null) {
+                rechargeVip.plusDays(advertisingPackage.getCountDate());
+            } else rechargeVip = LocalDate.now().plusDays(advertisingPackage.getCountDate());
+            user.setRechargeVip(rechargeVip);
+            userRepository.save(user);
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         }
