@@ -15,16 +15,13 @@ import { UserOutlined, PlusOutlined, MenuOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import Logo from "../Icon/logo";
-import baseAxios from "../../interceptor/baseAxios";
 import axiosInstance from "../../interceptor";
-import ModalPackages from "../ModalPackages";
 
 const { Header } = Layout;
 const { Option } = Select;
 
 const AppHeader = () => {
   const { clearUserInfo, userInfo } = useUser();
-  const [isShowModalPackages, setIsShowModalPackages] = useState(false);
   const [notiStatus, setNotiStatus] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,9 +34,13 @@ const AppHeader = () => {
       clearUserInfo();
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
+      window.location.reload();
     }
     if (key === "my-post") {
       navigate("/my-post");
+    }
+    if(key === "saved-post") {
+      navigate("/my-saved-post");
     }
   };
 
@@ -106,7 +107,7 @@ const AppHeader = () => {
               style={{ marginLeft: 8 }}
             />
           </Menu.Item>
-          <Menu.Item key="saved">Tin đã lưu</Menu.Item>
+          <Menu.Item key="saved-post">Tin đã lưu</Menu.Item>
           <Menu.Item key="my-post">Bài viết của tôi</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
         </>
@@ -182,17 +183,10 @@ const AppHeader = () => {
               type="primary"
               icon={<PlusOutlined />}
               style={{ padding: "0 20px" }}
-              // onClick={() => navigate("/create-post")}
-              onClick={() => {
-                setIsShowModalPackages(true);
-              }}
+              onClick={() => navigate("/create-post")}
             >
               Đăng tin
             </Button>
-            <ModalPackages
-              isVisible={isShowModalPackages}
-              onClose={() => setIsShowModalPackages(false)}
-            />
           </Col>
         )}
       </Row>

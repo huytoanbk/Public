@@ -29,6 +29,7 @@ import EditPostForm from "./pages/edit-post";
 import AuthorPost from "./pages/author-post";
 import CreateAdvertisingPackage from "./pages/admin/ads-management/CreateAdvertisingPackage";
 import EditAdvertisingPackage from "./pages/admin/ads-management/EditAdvertisingPackage";
+import MySavedPost from "./pages/my-saved-post";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -95,6 +96,14 @@ function App() {
             element={
               <PrivateRoute>
                 <MyPost />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-saved-post"
+            element={
+              <PrivateRoute>
+                <MySavedPost />
               </PrivateRoute>
             }
           />

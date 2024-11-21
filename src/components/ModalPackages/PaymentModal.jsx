@@ -10,7 +10,7 @@ const PaymentModal = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [qrCode, setQrCode] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState(null);
+  // const [paymentStatus, setPaymentStatus] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const PaymentModal = ({
         .get("/advertising-package/qr-code", { advertisingPackage: packageId })
         .then((response) => {
           setLoading(false);
-          setQrCode(response);
+          setQrCode(response.data);
         })
         .catch((error) => {
           setLoading(false);
@@ -33,7 +33,7 @@ const PaymentModal = ({
   const handleClose = () => {
     onClose();
     setQrCode(null);
-    setPaymentStatus(null);
+    // setPaymentStatus(null);
   };
 
   const checkPaymentStatus = () => {
@@ -43,20 +43,21 @@ const PaymentModal = ({
         .get(`/advertising-package/pay/${packageId}`)
         .then((response) => {
           setLoading(false);
-          if (response.data.status === "success") {
-            setPaymentStatus("Đã thanh toán thành công");
+          if (response?.data?.active?.toUpperCase() === "ACTIVE") {
+            // setPaymentStatus("Đã thanh toán thành công");
             message.success("Thanh toán thành công!");
             setTimeout(() => {
               handleClose();
+              onClosePackagesModal();
             }, 2000);
           } else {
-            setPaymentStatus("Thanh toán không thành công");
+            // setPaymentStatus("Thanh toán không thành công");
             message.error("Thanh toán không thành công.");
           }
         })
         .catch((error) => {
           setLoading(false);
-          setPaymentStatus("Không thể kiểm tra trạng thái thanh toán");
+          // setPaymentStatus("Không thể kiểm tra trạng thái thanh toán");
           message.error("Lỗi khi kiểm tra trạng thái thanh toán.");
         });
     }, 1000);
@@ -89,9 +90,9 @@ const PaymentModal = ({
                 ? "Đang kiểm tra trạng thái thanh toán..."
                 : "Kiểm tra trạng thái thanh toán"}
             </Button>
-            {paymentStatus && (
+            {/* {paymentStatus && (
               <div className="mt-4 text-lg font-semibold">{paymentStatus}</div>
-            )}
+            )} */}
           </div>
         ) : (
           <p className="text-gray-500">Không có mã QR để hiển thị.</p>

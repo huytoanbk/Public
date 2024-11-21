@@ -384,15 +384,19 @@ const PostDetail = () => {
         <div className="hidden md:block w-[340px] h-auto">
           <div className="bg-white p-4 rounded-lg shadow-md sticky top-[100px]">
             <div className="flex items-center mb-3">
-              <img
-                src={getAvatar(post?.userPostRes?.avatar)}
-                alt="User Avatar"
-                className="w-14 h-14 rounded-full mr-2 border border-[#8492a6] border-solid"
-              />
+              <Link to={`/author/${post?.userPostRes?.id}`}>
+                <img
+                  src={getAvatar(post?.userPostRes?.avatar)}
+                  alt="User Avatar"
+                  className="w-14 h-14 rounded-full mr-2 border border-[#8492a6] border-solid"
+                />
+              </Link>
               <div>
-                <h2 className="text-base font-bold">
-                  {post?.userPostRes?.fullName || "User"}
-                </h2>
+                <Link to={`/author/${post?.userPostRes?.id}`}>
+                  <h2 className="text-base font-bold">
+                    {post?.userPostRes?.fullName || "User"}
+                  </h2>
+                </Link>
                 <p className="text-sm flex items-center">
                   <IoNewspaperOutline className="mr-1 w-4 h-4" />
                   {post?.userPostRes?.totalPost || "1"} Tin đăng

@@ -13,7 +13,7 @@ export default function CardHorizontal({ item }) {
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`author/${item?.userPostRes?.id}`);
+    navigate(`/author/${item?.userPostRes?.id}`);
   };
   return (
     <List.Item

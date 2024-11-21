@@ -23,7 +23,7 @@ const AdsManagement = () => {
     defaultValues: { search: "" },
   });
 
-  const fetchData = async (page = 1, pageSize = 10, search = "") => {
+  const fetchData = async (page = 0, pageSize = 10, search = "") => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/advertising-package`, {
@@ -41,7 +41,7 @@ const AdsManagement = () => {
 
   const onSearch = ({ search }) => {
     setSearchQuery(search);
-    fetchData(1, pagination.pageSize, search);
+    fetchData(0, pagination.pageSize, search);
   };
 
   const handleTableChange = (pagination) => {

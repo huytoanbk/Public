@@ -5,9 +5,12 @@ import axios from "axios";
 import AuthorInfo from "./author-info";
 import PostList from "./post-list";
 import baseAxios from "../../interceptor/baseAxios";
+import { useUser } from "../../context/UserContext";
+import axiosInstance from "../../interceptor";
 
 const AuthorPost = () => {
   const { id } = useParams();
+  const {userInfo} = useUser();
   const [posts, setPosts] = useState([]);
   const [authorInfo, setAuthorInfo] = useState(null);
   const [totalPosts, setTotalPosts] = useState(0);
@@ -16,11 +19,20 @@ const AuthorPost = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await baseAxios.post("/posts/search", {
-          authorId: id,
-          page: currentPage - 1,
-          size: 5,
-        });
+        let response;
+        if(userInfo) {
+          response = await baseAxios.post("/posts/search", {
+            authorId: id,
+            page: currentPage - 1,
+            size: 5,
+          });
+        } else {
+          response = await axiosInstance.post("/posts/search", {
+            authorId: id,
+            page: currentPage - 1,
+            size: 5,
+          });
+        }
         setPosts(response.data.content);
         setAuthorInfo(response.data.content[0]?.userPostRes);
         setTotalPosts(response.data.totalElements);

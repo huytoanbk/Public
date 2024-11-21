@@ -18,7 +18,8 @@ const Breadcrumb = ({ match }) => {
     login: "Đăng nhập",
     "my-post": "Bài viết của tôi",
     "edit": "Chỉnh sửa bài viết",
-    author: "Tác giả"
+    author: "Tác giả",
+    "my-saved-post": "Bài viết yêu thích",
   };
 
   useEffect(() => {
@@ -68,7 +69,8 @@ const Breadcrumb = ({ match }) => {
             <BreadcrumbAntd.Item className="text-base" key={to}>{displayName}</BreadcrumbAntd.Item>
           ) : (
             <BreadcrumbAntd.Item key={to}>
-              <Link to={to}>{displayName}</Link>
+              {/* <Link to={to}>{displayName}</Link> */}
+              <span className="text-base">{displayName}</span>
             </BreadcrumbAntd.Item>
           );
         })}

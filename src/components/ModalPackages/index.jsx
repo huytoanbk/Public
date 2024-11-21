@@ -1,83 +1,36 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "antd";
+import { Modal, Button, message as messageAntd } from "antd";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import baseAxios from "../../interceptor/baseAxios";
 import PaymentModal from "./PaymentModal";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../interceptor";
 
 const ModalPackages = ({ isVisible, onClose }) => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
-  const handleBuyPackage = (packageId) => {
-    setSelectedPackageId(packageId);
+  const handleBuyPackage = async (packageId) => {
+    try {
+      const response = await axiosInstance.post('/advertising-package/pay', {
+        advertisingPackage: packageId
+      });
+      const {id = ''} = response?.data || {};
+      setSelectedPackageId(id);
+    } catch(error) {
+      const { errorMessage = "Có lỗi xảy ra" } = error;
+      messageAntd.error(errorMessage); 
+    }
   };
 
   useEffect(() => {
     baseAxios
-      .get("/advertising-package?page=1&size=10")
+      .get("/advertising-package")
       .then((response) => {
-        const fakePackages = [
-          {
-            id: 1,
-            advertisingName: "Gói cơ bản",
-            price: 99,
-            des: "Phù hợp cho người dùng cá nhân hoặc nhỏ lẻ.",
-            createdAt: "2024-11-01T10:00:00.000Z",
-            createdBy: "Admin",
-            updatedAt: "2024-11-15T12:00:00.000Z",
-            updatedBy: "Admin",
-            active: "ACTIVE",
-          },
-          {
-            id: 2,
-            advertisingName: "Gói tiêu chuẩn",
-            price: 199,
-            des: "Bao gồm nhiều tính năng mở rộng và hỗ trợ nâng cao.",
-            createdAt: "2024-11-02T10:00:00.000Z",
-            createdBy: "Admin",
-            updatedAt: "2024-11-16T12:00:00.000Z",
-            updatedBy: "Admin",
-            active: "ACTIVE",
-          },
-          {
-            id: 3,
-            advertisingName: "Gói cao cấp",
-            price: 299,
-            des: "Dành cho doanh nghiệp với hỗ trợ 24/7.",
-            createdAt: "2024-11-03T10:00:00.000Z",
-            createdBy: "Admin",
-            updatedAt: "2024-11-17T12:00:00.000Z",
-            updatedBy: "Admin",
-            active: "ACTIVE",
-          },
-          {
-            id: 4,
-            advertisingName: "Gói đặc biệt",
-            price: 499,
-            des: "Đáp ứng nhu cầu cá nhân hoá cho các doanh nghiệp lớn.",
-            createdAt: "2024-11-04T10:00:00.000Z",
-            createdBy: "Admin",
-            updatedAt: "2024-11-18T12:00:00.000Z",
-            updatedBy: "Admin",
-            active: "ACTIVE",
-          },
-          {
-            id: 5,
-            advertisingName: "Gói thử nghiệm",
-            price: 0,
-            des: "Gói miễn phí dùng thử trong 7 ngày.",
-            createdAt: "2024-11-05T10:00:00.000Z",
-            createdBy: "Admin",
-            updatedAt: "2024-11-19T12:00:00.000Z",
-            updatedBy: "Admin",
-            active: "ACTIVE",
-          },
-        ];
-        // setPackages(response.data.content);
-        setPackages(fakePackages);
+        const listPackages = response?.data?.content || {};
+        setPackages(listPackages);
       })
       .catch((error) => {
         console.error("Error fetching packages:", error);
@@ -105,8 +58,8 @@ const ModalPackages = ({ isVisible, onClose }) => {
                 </h3>
                 <p className="font-light text-gray-600">{pkg.des}</p>
                 <div className="flex justify-center items-baseline my-6">
-                  <span className="mr-2 text-4xl font-extrabold text-blue-600">
-                    ${pkg.price}
+                  <span className="mr-2 text-3xl font-extrabold text-blue-600">
+                    {pkg.price.toLocaleString()}đ
                   </span>
                 </div>
                 <Button type="primary" onClick={() => handleBuyPackage(pkg.id)}>

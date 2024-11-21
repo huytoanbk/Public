@@ -56,7 +56,9 @@ axiosInstance.interceptors.response.use(
       }
     }
     const errorMessage = error?.response?.data?.message;
+    const errorCode = error?.response?.data?.errorCode;
     error["errorMessage"] = errorMessage;
+    error["errorCode"] = errorCode;
     return Promise.reject(error);
   }
 );

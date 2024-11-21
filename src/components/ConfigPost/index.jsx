@@ -9,7 +9,7 @@ import {
   Select,
   Upload,
   DatePicker,
-  notification,
+  message as messageAntd,
   Row,
   Col,
 } from "antd";
@@ -20,6 +20,7 @@ import LocationPicker from "../../components/LocationPicker";
 import { useNavigate } from "react-router-dom";
 import Title from "antd/es/typography/Title";
 import "./post-room.css";
+import ModalPackages from "../ModalPackages";
 
 const schema = z.object({
   title: z
@@ -95,6 +96,7 @@ const roomActiveOtions = [
 ];
 
 const ConfigPost = ({ initData = null, isEdit = false }) => {
+  const [isShowModalPackages, setIsShowModalPackages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [location, setLocation] = useState(null);
@@ -169,17 +171,22 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
       setLoading(true);
       if (isEdit) {
         await axiosInstance.put("/posts/update", payload);
-        notification.success({ message: "Cập nhật bài viết thành công!" });
+        messageAntd.success("Cập nhật bài viết thành công!");
       } else {
         await axiosInstance.post("/posts", payload);
-        notification.success({ message: "Tạo bài viết thành công!" });
+        messageAntd.success("Tạo bài viết thành công!");
       }
       navigate("/my-post");
     } catch (error) {
-      const { errorMessage = "Có lỗi xảy ra" } = error;
-      notification.error({
-        message: errorMessage,
-      });
+      const { errorMessage = "Có lỗi xảy ra", errorCode = "" } = error;
+      if (errorCode === "USER_NOT_RECHARGE_VIP") {
+        messageAntd.error(
+          "Bạn chưa mua gói thành viên, vui lòng mua để đăng tin"
+        );
+        setIsShowModalPackages(true);
+        return;
+      }
+      messageAntd.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -510,9 +517,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
                       formData
                     );
                     if (response.status === 200) {
-                      notification.success({
-                        message: "Tải lên hình ảnh thành công",
-                      });
+                      messageAntd.success("Tải lên hình ảnh thành công");
                       onSuccess(response.data);
                       clearErrors("images");
                     }
@@ -579,6 +584,10 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
           </Button>
         </Form.Item>
       </Form>
+      <ModalPackages
+        isVisible={isShowModalPackages}
+        onClose={() => setIsShowModalPackages(false)}
+      />
     </div>
   );
 };

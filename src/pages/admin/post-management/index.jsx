@@ -4,6 +4,8 @@ import { Table, Button, Form, Input, Select, Space, notification } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import baseAxios from "../../../interceptor/baseAxios";
+import { getRoomStatus, getRoomType } from "../../../utiils/format-info-room";
+import { render } from "@testing-library/react";
 
 const { Option } = Select;
 
@@ -78,11 +80,25 @@ const PostManagement = () => {
 
   const columns = [
     { title: "Title", dataIndex: "title", key: "title" },
-    { title: "Status", dataIndex: "statusRoom", key: "statusRoom" },
+    {
+      title: "Status",
+      dataIndex: "statusRoom",
+      key: "statusRoom",
+      render: (_, record) => <span>{getRoomStatus(record.statusRoom)}</span>,
+    },
     { title: "Created By", dataIndex: "createdBy", key: "createdBy" },
     { title: "Province", dataIndex: "province", key: "province" },
-    { title: "Active", dataIndex: "active", key: "active" },
-    { title: "Type", dataIndex: "type", key: "type" },
+    {
+      title: "Active",
+      dataIndex: "active",
+      key: "active",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (_, record) => <span>{getRoomType(record.type)}</span>,
+    },
     {
       title: "Action",
       key: "action",
@@ -168,7 +184,6 @@ const PostManagement = () => {
             <Descriptions.Item label="Title">
               <div>{selectedPost.title}</div>
             </Descriptions.Item>
-
             <Descriptions.Item label="Price">
               <div>{selectedPost.price}</div>
             </Descriptions.Item>
@@ -182,7 +197,7 @@ const PostManagement = () => {
               <div>{selectedPost.acreage}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Status">
-              <div>{selectedPost.statusRoom}</div>
+              <div>{getRoomStatus(selectedPost.statusRoom)}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Contact">
               <div>{selectedPost.contact}</div>
@@ -218,7 +233,7 @@ const PostManagement = () => {
               <div>{selectedPost.active}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Type">
-              <div>{selectedPost.type}</div>
+              <div>{getRoomType(selectedPost.type)}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Images">
               <div>
