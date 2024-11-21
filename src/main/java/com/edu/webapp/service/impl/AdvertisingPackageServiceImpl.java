@@ -91,6 +91,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         payAd.setAdvertisingPackage(advertisingPackage.getId());
         payAd.setPrice(advertisingPackage.getPrice());
         payAdRepository.save(payAd);
+        payAdsSuccess(payAd);
         return payAdMapper.payAdToPayAdRes(payAd);
     }
 
