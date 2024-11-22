@@ -24,7 +24,6 @@ import baseAxios from "../../interceptor/baseAxios";
 const Login = () => {
   const [params] = useSearchParams();
   const { updateUserInfo, userInfo } = useUser();
-  console.log("userInfo", userInfo);
   const [isRegister, setIsRegister] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const navigate = useNavigate();
@@ -86,7 +85,7 @@ const Login = () => {
   const handleForgotPassword = async (data) => {
     try {
       const response = await axios.post(
-        `${baseUrl}/users/forgot-password`,
+        `${baseUrl}/users/email-send-otp`,
         data
       );
       if (response.status === 200) {
@@ -148,12 +147,10 @@ const Login = () => {
         </h2>
 
         {isForgotPassword ? (
-          <ForgotPasswordForm
-            control={control}
-            errors={errors}
-            handleSubmit={handleSubmit}
-            onSubmit={onSubmit}
-          />
+          <ForgotPasswordForm onFinish={() => {
+            setIsRegister(false)
+            setIsForgotPassword(false)
+          }} />
         ) : isRegister ? (
           <RegisterForm />
         ) : (
