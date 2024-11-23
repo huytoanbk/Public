@@ -12,6 +12,11 @@ const { Header, Sider, Content } = Layout;
 
 const navItems = [
   {
+    key: "/",
+    label: "Tổng quát",
+    path: "/admin",
+  },
+  {
     key: "/admin/post-management",
     label: "Quản lý lịch sử tin đã đăng",
     path: "/admin/post-management",
@@ -99,19 +104,6 @@ const AdminLayout = ({ children }) => {
             paddingRight: "20px",
           }}
         >
-          {/* <Button
-            type="text"
-            onClick={toggleCollapsed}
-            style={{
-              fontSize: "18px",
-              padding: "0 16px",
-              color: "#1890ff",
-              border: "none",
-            }}
-          >
-            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          </Button> */}
-
           <Dropdown overlay={menu} placement="bottomRight">
             <div
               style={{

@@ -80,18 +80,15 @@ const roomTypeOtions = [
     value: "GRAFT",
   },
 ];
+
 const roomActiveOtions = [
   {
     label: "Active",
     value: "ACTIVE",
   },
   {
-    label: "Pending",
-    value: "PENDING",
-  },
-  {
-    label: "Deactive",
-    value: "DEACTIVE",
+    label: "Inactive",
+    value: "INACTIVE",
   },
 ];
 
@@ -107,7 +104,9 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
     initData?.longitude && initData?.latitude
       ? [initData.latitude, initData.longitude]
       : [21.0283334, 105.854041];
-  const {
+
+  const isSelectActive = initData?.status === "PENDING" || initData?.status === "REJECT"
+     const {
     handleSubmit,
     control,
     watch,
@@ -343,6 +342,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
                   render={({ field }) => (
                     <Select
                       {...field}
+                       disabled={isSelectActive}
                       placeholder="Active"
                       options={roomActiveOtions}
                     ></Select>

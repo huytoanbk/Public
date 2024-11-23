@@ -47,9 +47,9 @@ const PaymentModal = ({
             // setPaymentStatus("Đã thanh toán thành công");
             message.success("Thanh toán thành công!");
             setTimeout(() => {
-              handleClose();
-              onClosePackagesModal();
-            }, 2000);
+              handleClose(); 
+              onClosePackagesModal(); 
+            }, 200);
           } else {
             // setPaymentStatus("Thanh toán không thành công");
             message.error("Thanh toán không thành công.");

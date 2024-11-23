@@ -16,12 +16,15 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import Logo from "../Icon/logo";
 import axiosInstance from "../../interceptor";
+import { getUserInfo } from "../../utiils/get-user-info";
+import ModalPackages from "../ModalPackages";
 
 const { Header } = Layout;
 const { Option } = Select;
 
 const AppHeader = () => {
-  const { clearUserInfo, userInfo } = useUser();
+  const [isShowModalPackages, setIsShowModalPackages] = useState(false);
+  const { clearUserInfo, userInfo, updateUserInfo } = useUser();
   const [notiStatus, setNotiStatus] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,6 +32,9 @@ const AppHeader = () => {
   const handleMenuClick = ({ key }) => {
     if (key === "my-account") {
       navigate("/profile");
+    }
+    if (key === "buy-ads-pack") {
+      setIsShowModalPackages(true);
     }
     if (key === "logout") {
       clearUserInfo();
@@ -66,12 +72,15 @@ const AppHeader = () => {
     try {
       await axiosInstance.post(`/users/change-noti?notiStatus=${status}`);
       setNotiStatus(checked);
+      const userInfo = await getUserInfo();
+      updateUserInfo({ ...userInfo, ...userInfo.data });
       notification.success({
         message: `Đã ${
           checked ? "bật" : "tắt"
         } tính năng gửi mail tự động thành công`,
         description: "Khi có bài viết mới, email sẽ tự động gửi đến bạn",
       });
+      
     } catch (error) {
       const messageDisplay =
         error?.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau";
@@ -109,6 +118,7 @@ const AppHeader = () => {
           </Menu.Item>
           <Menu.Item key="saved-post">Tin đã lưu</Menu.Item>
           <Menu.Item key="my-post">Bài viết của tôi</Menu.Item>
+          <Menu.Item key="buy-ads-pack">Mua gói hội viên</Menu.Item>
           <Menu.Item key="logout">Đăng xuất</Menu.Item>
         </>
       ) : (
@@ -190,6 +200,10 @@ const AppHeader = () => {
           </Col>
         )}
       </Row>
+      <ModalPackages
+        isVisible={isShowModalPackages}
+        onClose={() => setIsShowModalPackages(false)}
+      />
     </Header>
   );
 };

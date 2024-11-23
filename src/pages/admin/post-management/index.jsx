@@ -4,8 +4,9 @@ import { Table, Button, Form, Input, Select, Space, notification } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import baseAxios from "../../../interceptor/baseAxios";
-import { getRoomStatus, getRoomType } from "../../../utiils/format-info-room";
+import { getPostStatus, getRoomStatus, getRoomType } from "../../../utiils/format-info-room";
 import { render } from "@testing-library/react";
+import { FaEye } from "react-icons/fa";
 
 const { Option } = Select;
 
@@ -104,14 +105,7 @@ const PostManagement = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button onClick={() => handleAction("view", record)}>View</Button>
-          <Button onClick={() => handleAction("edit", record)}>Edit</Button>
-          <Button onClick={() => handleAction("delete", record)} danger>
-            Delete
-          </Button>
-          <Button onClick={() => handleAction("toggle", record)}>
-            Toggle Status
-          </Button>
+          <Button onClick={() => handleAction("view", record)} icon={<FaEye />}>Xem</Button>
         </Space>
       ),
     },
@@ -230,7 +224,7 @@ const PostManagement = () => {
               <div>{selectedPost.map}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Active">
-              <div>{selectedPost.active}</div>
+              <div>{getPostStatus(selectedPost.active)}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Type">
               <div>{getRoomType(selectedPost.type)}</div>

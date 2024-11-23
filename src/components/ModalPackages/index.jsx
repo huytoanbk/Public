@@ -12,16 +12,18 @@ const ModalPackages = ({ isVisible, onClose }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
+  console.log("selectedPackageId", selectedPackageId);
+
   const handleBuyPackage = async (packageId) => {
     try {
-      const response = await axiosInstance.post('/advertising-package/pay', {
-        advertisingPackage: packageId
+      const response = await axiosInstance.post("/advertising-package/pay", {
+        advertisingPackage: packageId,
       });
-      const {id = ''} = response?.data || {};
+      const { id = "" } = response?.data || {};
       setSelectedPackageId(id);
-    } catch(error) {
+    } catch (error) {
       const { errorMessage = "Có lỗi xảy ra" } = error;
-      messageAntd.error(errorMessage); 
+      messageAntd.error(errorMessage);
     }
   };
 
@@ -102,11 +104,13 @@ const ModalPackages = ({ isVisible, onClose }) => {
         )}
         <PaymentModal
           isVisible={!!selectedPackageId}
-          onClose={() => setSelectedPackageId(null)}
+          onClose={() => {
+            setSelectedPackageId(null);
+          }}
           packageId={selectedPackageId}
           onClosePackagesModal={() => {
-            onClose();
-            navigate("/create-post")
+            setSelectedPackageId(null);
+            setTimeout(() => onClose(), 200);
           }}
         />
       </div>

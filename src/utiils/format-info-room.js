@@ -9,6 +9,7 @@ export function getRoomType(roomType) {
       return "";
   }
 }
+
 export function getRoomStatus(statusRoom) {
   if (!statusRoom) return "";
   switch (statusRoom.toUpperCase()) {
@@ -18,6 +19,22 @@ export function getRoomStatus(statusRoom) {
       return "Nội thất đầy đủ";
     case "LUXURY_FURNITURE":
       return "Nội thất cao cấp";
+    default:
+      return "";
+  }
+}
+
+export function getPostStatus(statusRoom) {
+  if (!statusRoom) return "";
+  switch (statusRoom.toUpperCase()) {
+    case "ACTIVE":
+      return "Đang hoạt động";
+    case "PENDING":
+      return "Đang chờ duyệt";
+    case "INACTIVE":
+      return "Không hoạt động";
+    case "REJECT":
+      return "Bị từ chối";
     default:
       return "";
   }

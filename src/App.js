@@ -3,7 +3,7 @@ import "./App.css";
 import { useForm, FormProvider } from "react-hook-form";
 import "swiper/css";
 import "swiper/css/pagination";
-import 'leaflet/dist/leaflet.css';
+import "leaflet/dist/leaflet.css";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import AdminLayout from "./pages/admin";
@@ -30,6 +30,7 @@ import AuthorPost from "./pages/author-post";
 import CreateAdvertisingPackage from "./pages/admin/ads-management/CreateAdvertisingPackage";
 import EditAdvertisingPackage from "./pages/admin/ads-management/EditAdvertisingPackage";
 import MySavedPost from "./pages/my-saved-post";
+import AdminOverview from "./pages/admin/overview";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -39,9 +40,8 @@ function App() {
 
   const handleCheckRole = async () => {
     if (pathname.includes("/admin") && Boolean(userInfo)) {
-      console.log('userInfo', userInfo);
       const userInfoResponse = await axiosInstance.get(`/users`);
-      if(userInfoResponse && userInfoResponse.data) {
+      if (userInfoResponse && userInfoResponse.data) {
         // const isAdmin = userInfo.roles.find(
         //   (roleItem) => roleItem.name === "ADMIN"
         // );
@@ -50,7 +50,7 @@ function App() {
         // }
       }
     }
-  }
+  };
   useEffect(() => {
     const token = localStorage.getItem("token") || "null";
     const userInfo = localStorage.getItem("userInfo") || "null";
@@ -70,7 +70,9 @@ function App() {
     <div className={`App ${pathname.includes("/post") ? "post-detail" : ""}`}>
       <FormProvider {...methods}>
         {!pathname.includes("/admin") && <AppHeader />}
-        {(!pathname.includes("/admin") && !pathname.includes("/login") ) && <Breadcrumb />}
+        {!pathname.includes("/admin") && !pathname.includes("/login") && (
+          <Breadcrumb />
+        )}
         <Routes>
           <Route index element={<Home />} />
           <Route
@@ -123,6 +125,7 @@ function App() {
               <PrivateRoute>
                 <AdminLayout>
                   <Routes>
+                    <Route index element={<AdminOverview />} />
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route
                       path="post-management"
@@ -133,8 +136,14 @@ function App() {
                       element={<UserManagement />}
                     />
                     <Route path="ads-management" element={<AdsManagement />} />
-                    <Route path="create-advertising-package" element={<CreateAdvertisingPackage />} />
-                    <Route path="edit-advertising-package" element={<EditAdvertisingPackage />} />
+                    <Route
+                      path="create-advertising-package"
+                      element={<CreateAdvertisingPackage />}
+                    />
+                    <Route
+                      path="edit-advertising-package"
+                      element={<EditAdvertisingPackage />}
+                    />
                     <Route path="post-create" element={<PostCreate />} />
                     <Route path="profile" element={<Profile />} />{" "}
                   </Routes>

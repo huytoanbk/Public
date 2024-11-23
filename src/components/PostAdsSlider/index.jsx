@@ -14,22 +14,29 @@ import "swiper/css/navigation";
 import "./index.css";
 import { getRoomType, getThumbnail } from "../../utiils/format-info-room";
 import LikeButton from "../LikeButton";
+import axiosInstance from "../../interceptor";
 
 const PostAdsSlider = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchListPost = async () => {
       try {
-        const response = await baseAxios.post("/posts/search");
+        let response;
+        const isLoggedIn = localStorage.getItem("token");
+        if (!isLoggedIn) {
+          response = await baseAxios.post(`/posts/search`);
+        } else {
+          response = await axiosInstance.post(`/posts/search`);
+        }
         setProducts(response.data.content);
       } catch (error) {
         console.error("Error fetching products", error);
       }
     };
 
-    fetchProducts();
+    fetchListPost();
   }, []);
 
   return (
