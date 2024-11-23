@@ -2,6 +2,13 @@
   outline: none;
 }
 
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .leaflet-top, .leaflet-bottom {
   z-index: 500 !important;
 }

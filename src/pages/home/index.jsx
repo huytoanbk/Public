@@ -19,7 +19,12 @@ import {
 } from "antd";
 import { getListPost } from "../../services/get-list-post";
 import "../../styles/home.css";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { numberWithCommas } from "../../utiils/number-with-comma";
 import { Controller, useForm } from "react-hook-form";
 import PostAdsSlider from "../../components/PostAdsSlider";
@@ -28,6 +33,7 @@ import baseAxios from "../../interceptor/baseAxios";
 import moment from "moment";
 import "./home.css";
 import CardHorizontal from "../../components/CardItem/CardHorizontal";
+import { statusRoomOptions } from "../../components/ConfigPost";
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
@@ -35,7 +41,8 @@ const { Option } = Select;
 const { Title } = Typography;
 
 const HomePage = () => {
-  const navigate = useNavigate();
+  const searchParam = useSearchParams();
+  const location = useLocation();
   const [articles, setArticles] = useState([]);
   const [paginationData, setPaginationData] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -58,16 +65,21 @@ const HomePage = () => {
   const furniture = watch("furniture");
   const province = watch("province");
   const district = watch("district");
+  const statusRoom = watch("statusRoom");
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         setLoading(true);
+        const params = new URLSearchParams(location.search);
+        const p = params.get("p");
         const response = await getListPost({
           page: pagination.current - 1,
           size: pagination.pageSize,
-          roomType: filter.tab,
-          sort: filter.sort,
+          type: filter.tab,
+          key: p,
+          statusRoom,
+          fieldSort: filter.sort,
           ...(priceRange && {
             price: {
               from: priceRange[0],
@@ -106,6 +118,8 @@ const HomePage = () => {
     priceRange,
     province,
     district,
+    statusRoom,
+    location.search,
   ]);
   const selectedProvinceId = watch("province");
   useEffect(() => {
@@ -150,11 +164,17 @@ const HomePage = () => {
     setDrawerVisible(!drawerVisible);
   };
 
+  const handleAfterChange = (fieldName, value) => {
+    setValue(fieldName, value);
+  };
+
   return (
     <Layout className="bg-white pt-2 homepage">
       <Content className="w-full mx-auto mb-20 max-w-6xl px-5">
         <Row gutter={30}>
-          <Title className="" level={3}>Phòng mới ưu đãi</Title>
+          <Title className="" level={3}>
+            Phòng mới ưu đãi
+          </Title>
           <PostAdsSlider />
         </Row>
         <Row
@@ -353,6 +373,9 @@ const HomePage = () => {
                     max={10000000}
                     step={500000}
                     onChange={field.onChange}
+                    onAfterChange={(value) =>
+                      handleAfterChange("priceRange", value)
+                    }
                     value={field.value}
                     unit="VND"
                   />
@@ -375,6 +398,27 @@ const HomePage = () => {
                     value={field.value}
                     unit="m²"
                   />
+                )}
+              />
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">
+                Trạng thái phòng
+              </label>
+              <Controller
+                name="statusRoom"
+                control={control}
+                className="w-full"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    placeholder="Chọn trạng thái phòng"
+                    className="w-full"
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    options={statusRoomOptions}
+                  ></Select>
                 )}
               />
             </div>
@@ -431,6 +475,9 @@ const HomePage = () => {
                   max={10000000}
                   step={500000}
                   onChange={field.onChange}
+                  onAfterChange={(value) =>
+                    handleAfterChange("priceRange", value)
+                  }
                   value={field.value}
                   unit="VND"
                 />
@@ -456,21 +503,6 @@ const HomePage = () => {
               )}
             />
           </div>
-
-          {/* <div className="mt-4">
-            <label className="block text-sm font-medium mb-1">Nội thất</label>
-            <Controller
-              name="furniture"
-              control={control}
-              defaultValue="Có nội thất"
-              render={({ field }) => (
-                <Select {...field} style={{ width: "100%" }}>
-                  <Option value="Có nội thất">Có nội thất</Option>
-                  <Option value="Không nội thất">Không nội thất</Option>
-                </Select>
-              )}
-            />
-          </div> */}
         </Col>
       </Drawer>
     </Layout>

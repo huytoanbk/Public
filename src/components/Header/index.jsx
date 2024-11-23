@@ -51,7 +51,7 @@ const AppHeader = () => {
   };
 
   const onSearch = (value) => {
-    navigate(`/search?q=${encodeURIComponent(value)}`);
+    // navigate(`/search?q=${encodeURIComponent(value)}`);
   };
 
   const onChangeHandle = (e) => {

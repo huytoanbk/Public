@@ -12,7 +12,6 @@ const ModalPackages = ({ isVisible, onClose }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
-  console.log("selectedPackageId", selectedPackageId);
 
   const handleBuyPackage = async (packageId) => {
     try {
@@ -45,7 +44,7 @@ const ModalPackages = ({ isVisible, onClose }) => {
       open={isVisible}
       onCancel={onClose}
       footer={null}
-      width={800}
+      width={900}
     >
       <div className="bg-white p-3 rounded-lg">
         {packages.length <= 3 ? (
@@ -53,7 +52,7 @@ const ModalPackages = ({ isVisible, onClose }) => {
             {packages.map((pkg) => (
               <div
                 key={pkg.id}
-                className="flex flex-col justify-between h-[340px] p-6 max-w-xs text-center bg-white rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow"
+                className="flex flex-col justify-between h-[340px] p-6 w-[230px] text-center bg-white rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow"
               >
                 <h3 className="mb-4 text-xl font-bold text-gray-800">
                   {pkg.advertisingName}
@@ -72,35 +71,35 @@ const ModalPackages = ({ isVisible, onClose }) => {
           </div>
         ) : (
           <Swiper
-            slidesPerView={3}
-            spaceBetween={20}
-            navigation
-            pagination={{ clickable: true }}
-            modules={[Navigation, Pagination]}
-            className="px-3 py-2"
-          >
-            {packages.map((pkg) => (
-              <SwiperSlide key={pkg.id}>
-                <div className="flex flex-col justify-between h-[340px] p-6 max-w-xs text-center bg-white rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow">
-                  <h3 className="mb-4 text-xl font-bold text-gray-800">
-                    {pkg.advertisingName}
-                  </h3>
-                  <p className="font-light text-gray-600">{pkg.des}</p>
-                  <div className="flex justify-center items-baseline my-6">
-                    <span className="mr-2 text-4xl font-extrabold text-blue-600">
-                      ${pkg.price}
-                    </span>
-                  </div>
-                  <Button
-                    type="primary"
-                    onClick={() => handleBuyPackage(pkg.id)}
-                  >
-                    Mua ngay
-                  </Button>
+          slidesPerView={3}
+          spaceBetween={20}
+          navigation
+          pagination={{ clickable: true }}
+          modules={[Navigation, Pagination]}
+          className="px-2 py-2"
+        >
+          {packages.map((pkg) => (
+            <SwiperSlide key={pkg.id}>
+              <div className="flex flex-col justify-between h-[340px] p-6 w-[230px] text-center bg-white rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow">
+                <h3 className="mb-4 text-xl font-bold text-gray-800">
+                  {pkg.advertisingName}
+                </h3>
+                <p className="font-light text-gray-600">{pkg.des}</p>
+                <div className="flex justify-center items-baseline my-6">
+                  <span className="mr-2 text-4xl font-extrabold text-blue-600">
+                    ${pkg.price}
+                  </span>
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                <Button
+                  type="primary"
+                  onClick={() => handleBuyPackage(pkg.id)}
+                >
+                  Mua ngay
+                </Button>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
         )}
         <PaymentModal
           isVisible={!!selectedPackageId}

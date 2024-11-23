@@ -14,6 +14,7 @@ const SliderFilter = ({
   max,
   step,
   onChange,
+  onAfterChange,
   value = [min, max],
   unit = "",
 }) => {
@@ -26,6 +27,7 @@ const SliderFilter = ({
         max={max}
         step={step}
         onChange={onChange}
+        onAfterChange={onAfterChange}
         value={value}
         tooltip={{
           formatter: (val) => formatValue(val, unit),

@@ -98,7 +98,7 @@ const PostAdsSlider = () => {
                     </div>
                   </div>
                   <div
-                    className="line-clamp-2 h-[32px]"
+                    className="line-clamp-2 h-[44px] text-base"
                     dangerouslySetInnerHTML={{
                       __html: product.content,
                     }}

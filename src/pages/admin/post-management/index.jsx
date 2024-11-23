@@ -4,9 +4,16 @@ import { Table, Button, Form, Input, Select, Space, notification } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import baseAxios from "../../../interceptor/baseAxios";
-import { getPostStatus, getRoomStatus, getRoomType } from "../../../utiils/format-info-room";
+import {
+  getPostStatus,
+  getRoomStatus,
+  getRoomType,
+} from "../../../utiils/format-info-room";
 import { render } from "@testing-library/react";
 import { FaEye } from "react-icons/fa";
+import { RxExternalLink } from "react-icons/rx";
+import { Link } from "react-router-dom";
+import moment from "moment";
 
 const { Option } = Select;
 
@@ -105,7 +112,9 @@ const PostManagement = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button onClick={() => handleAction("view", record)} icon={<FaEye />}>Xem</Button>
+          <Button onClick={() => handleAction("view", record)} icon={<FaEye />}>
+            Xem
+          </Button>
         </Space>
       ),
     },
@@ -167,7 +176,14 @@ const PostManagement = () => {
         style={{ marginTop: "20px" }}
       />
       <Modal
-        title={selectedPost?.title || "Post Details"}
+        title={
+          <span className="flex items-center">
+            {selectedPost?.title || "Post Details"}
+            <Link to={`/post/${selectedPost?.id}`} className="ml-2">
+              <RxExternalLink />
+            </Link>
+          </span>
+        }
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={null}
@@ -175,73 +191,83 @@ const PostManagement = () => {
       >
         {selectedPost && (
           <Descriptions bordered column={1}>
-            <Descriptions.Item label="Title">
+            <Descriptions.Item label="Tiêu đề">
               <div>{selectedPost.title}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Price">
+            <Descriptions.Item label="Giá">
               <div>{selectedPost.price}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Deposit">
+            <Descriptions.Item label="Đặt cọc">
               <div>{selectedPost.deposit}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Address">
+            <Descriptions.Item label="Địa chỉ">
               <div>{selectedPost.address}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Acreage">
+            <Descriptions.Item label="Diện tích">
               <div>{selectedPost.acreage}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Status">
+            <Descriptions.Item label="Trạng thái phòng">
               <div>{getRoomStatus(selectedPost.statusRoom)}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Contact">
+            <Descriptions.Item label="Liên hệ">
               <div>{selectedPost.contact}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Created At">
-              <div>{selectedPost.createdAt}</div>
+            <Descriptions.Item label="Ngày tạo">
+              <div>
+                {moment(selectedPost.createdAt, "DD-MM-YYYYTHH:mm:ssZ").format(
+                  "HH:mm:ss DD/MM/YYYY"
+                )}
+              </div>
             </Descriptions.Item>
-            <Descriptions.Item label="Created By">
+            <Descriptions.Item label="Người tạo">
               <div>{selectedPost.createdBy}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Updated At">
-              <div>{selectedPost.updatedAt}</div>
+            <Descriptions.Item label="Ngày cập nhật">
+              <div>
+                {moment(selectedPost.updatedAt, "DD-MM-YYYYTHH:mm:ssZ").format(
+                  "HH:mm:ss DD/MM/YYYY"
+                )}
+              </div>
             </Descriptions.Item>
-            <Descriptions.Item label="Updated By">
+            <Descriptions.Item label="Người cập nhật">
               <div>{selectedPost.updatedBy}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Expiration Date">
-              <div>{selectedPost.expirationDate}</div>
+            <Descriptions.Item label="Ngày hết hạn">
+              <div>
+                {selectedPost.expirationDate}
+              </div>
             </Descriptions.Item>
-            <Descriptions.Item label="Province">
+            <Descriptions.Item label="Tỉnh/Thành phố">
               <div>{selectedPost.province}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="District">
+            <Descriptions.Item label="Quận/Huyện">
               <div>{selectedPost.district}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="View">
+            <Descriptions.Item label="Lượt xem">
               <div>{selectedPost.view}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Map">
+            <Descriptions.Item label="Bản đồ">
               <div>{selectedPost.map}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Active">
+            <Descriptions.Item label="Hoạt động">
               <div>{getPostStatus(selectedPost.active)}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Type">
+            <Descriptions.Item label="Loại phòng">
               <div>{getRoomType(selectedPost.type)}</div>
             </Descriptions.Item>
-            <Descriptions.Item label="Images">
+            <Descriptions.Item label="Hình ảnh">
               <div>
                 {selectedPost.images?.map((image, index) => (
                   <img
                     key={index}
                     src={image}
-                    alt={`Post image ${index + 1}`}
+                    alt={`Hình ảnh ${index + 1}`}
                     style={{ width: "100%", marginBottom: "10px" }}
                   />
                 ))}
               </div>
             </Descriptions.Item>
-            <Descriptions.Item label="Content">
+            <Descriptions.Item label="Nội dung">
               <div dangerouslySetInnerHTML={{ __html: selectedPost.content }} />
             </Descriptions.Item>
           </Descriptions>

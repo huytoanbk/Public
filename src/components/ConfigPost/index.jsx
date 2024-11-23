@@ -12,6 +12,7 @@ import {
   message as messageAntd,
   Row,
   Col,
+  message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Editor } from "@tinymce/tinymce-react";
@@ -64,7 +65,7 @@ const schema = z.object({
     .min(1, { message: "Vui lòng tải lên hình ảnh" }),
 });
 
-const statusRoomOptions = [
+export const statusRoomOptions = [
   { value: "EMPTY", label: "Nhà trống" },
   { value: "FULLY_FURNISHED", label: "Nội thất đầy đủ" },
   { value: "LUXURY_FURNITURE", label: "Nội thất cao cấp" },
@@ -105,8 +106,9 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
       ? [initData.latitude, initData.longitude]
       : [21.0283334, 105.854041];
 
-  const isSelectActive = initData?.status === "PENDING" || initData?.status === "REJECT"
-     const {
+  const isSelectActive =
+    initData?.status === "PENDING" || initData?.status === "REJECT";
+  const {
     handleSubmit,
     control,
     watch,
@@ -116,7 +118,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
     setValue,
     getValues,
   } = useForm({
-    shouldFocusError: true,
+    shouldFocusError: false,
     resolver: zodResolver(schema),
     defaultValues: initData
       ? {
@@ -143,9 +145,14 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
   };
 
   const onError = (errors) => {
-    console.log("get value", getValues());
-
-    console.log("Errors:", errors);
+    const errorMessages = Object.values(errors).map((error) => error.message);
+    message.error(
+      <ul>
+        {errorMessages.map((msg, index) => (
+          <li key={index}>{msg}</li>
+        ))}
+      </ul>
+    );
   };
 
   const onSubmit = async (data) => {
@@ -342,7 +349,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
                   render={({ field }) => (
                     <Select
                       {...field}
-                       disabled={isSelectActive}
+                      disabled={isSelectActive}
                       placeholder="Active"
                       options={roomActiveOtions}
                     ></Select>
@@ -517,7 +524,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
                       formData
                     );
                     if (response.status === 200) {
-                      messageAntd.success("Tải lên hình ảnh thành công");
+                      message.success("Tải lên hình ảnh thành công");
                       onSuccess(response.data);
                       clearErrors("images");
                     }
