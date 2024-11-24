@@ -35,4 +35,6 @@ public interface UsersService {
     UserRes setRoles(UserRoleReq userRoleReq);
 
     void resetPassword(ResetPasswordReq resetPasswordReq);
+
+    UserRes updateStatus(UserUpdateStatusReq userUpdateStatusReq);
 }

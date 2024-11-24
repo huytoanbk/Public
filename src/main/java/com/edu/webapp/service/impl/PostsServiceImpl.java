@@ -1,9 +1,13 @@
 package com.edu.webapp.service.impl;
 
-import com.edu.webapp.entity.post.Comment;
-import com.edu.webapp.entity.post.Image;
-import com.edu.webapp.entity.post.LikePost;
-import com.edu.webapp.entity.post.Post;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.json.JsonData;
+import com.edu.webapp.entity.post.*;
 import com.edu.webapp.entity.user.User;
 import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
@@ -22,10 +26,12 @@ import com.edu.webapp.utils.TimeUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -45,6 +51,9 @@ public class PostsServiceImpl implements PostService {
     private final CommentMapper commentMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final LikePostRepository likePostRepository;
+    private final PostElsRepository postElsRepository;
+    private final ElasticsearchService<PostEls> elasticsearchService;
+    private final LogSearchRepository logSearchRepository;
 
     @Transactional
     @Override
@@ -64,13 +73,17 @@ public class PostsServiceImpl implements PostService {
             image.setPost(post);
             imageRepository.save(image);
         }
+        PostEls postEls = postMapper.postToPostEls(post);
+        postElsRepository.save(postEls);
     }
 
     @Override
-    public Page<PostRes> search(FilterPostReq filterPostReq) {
+    public Page<PostRes> search(FilterPostReq filterPostReq) throws IOException {
         Pageable pageable = PageRequest.of(filterPostReq.getPage(), filterPostReq.getSize());
-        Page<Post> posts = postRepository.findAll(pageable);
-        List<PostRes> postRes = postMapper.postsToPosts(posts.getContent());
+        Page<PostEls> posts = elasticsearchService.search("post", buildBoolQuery(filterPostReq), filterPostReq.getPage(), filterPostReq.getSize(), PostEls.class, getOrderSort(filterPostReq.getFieldSort()));
+        List<String> postId = posts.stream().map(PostEls::getId).toList();
+        List<Post> postList = postRepository.findByIdIn(postId);
+        List<PostRes> postRes = postMapper.postsToPosts(postList);
         HashMap<String, Integer> mapCount = new HashMap<>();
         Set<String> emails;
         emails = postRes.stream()
@@ -104,6 +117,11 @@ public class PostsServiceImpl implements PostService {
             post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
             post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
             post.setLike(mapLikePost.getOrDefault(post.getId(), false));
+        }
+        if (username != null && !StringUtils.isEmpty(filterPostReq.getKey())) {
+            LogSearch logSearch = new LogSearch();
+            logSearch.setUserId(username);
+            logSearch.setKeySearch(filterPostReq.getKey());
         }
         return new PageImpl<>(postRes, pageable, posts.getTotalElements());
     }
@@ -217,6 +235,8 @@ public class PostsServiceImpl implements PostService {
         post.setUpdatedBy(email);
         post.setUpdatedAt(OffsetDateTime.now());
         postRepository.save(post);
+        PostEls postEls = postMapper.postToPostEls(post);
+        postElsRepository.save(postEls);
         PostRes postRes = postMapper.postToPostRes(post);
         PostRes.UserPostRes userPostRes = buildUserPostRes(user);
         postRes.setUserPostRes(userPostRes);
@@ -291,11 +311,138 @@ public class PostsServiceImpl implements PostService {
         return new PageImpl<>(postRes, pageable, likePosts.getTotalElements());
     }
 
+    @Override
+    public List<PostRes> recommend() throws IOException {
+        String username = jwtCommon.extractUsername();
+        List<Post> list;
+        if (username == null) {
+            list = postRepository.findRandomRecommend();
+        } else {
+            List<String> keySearch = logSearchRepository.findByUserId(username);
+            Page<PostEls> posts = elasticsearchService.search("post", buildBoolQueryRecommend(keySearch), 0, 10, PostEls.class, new HashMap<>());
+            List<String> postId = posts.stream().map(PostEls::getId).toList();
+            list = postRepository.findByIdIn(postId);
+            List<Post> randomRecommend = postRepository.findRandomRecommend();
+            if (list.size() < 10) {
+                list.addAll(randomRecommend.subList(0, 10 - list.size()));
+            }
+        }
+        List<PostRes> postRes = postMapper.postsToPosts(list);
+        HashMap<String, Integer> mapCount = new HashMap<>();
+        Set<String> emails;
+        emails = postRes.stream()
+                .map(PostRes::getCreatedBy)
+                .collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
+                .stream()
+                .collect(Collectors.toMap(User::getEmail, user -> user));
+        emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
+        Map<String, Boolean> mapLikePost;
+        mapLikePost = (username != null)
+                ? likePostRepository.findLikePostByUserId(
+                        userRepository.findByEmail(username)
+                                .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST))
+                                .getId()
+                )
+                .stream()
+                .collect(Collectors.toMap(
+                        LikePost::getPostId,
+                        likePost -> true
+                ))
+                : new HashMap<>();
+        for (PostRes post : postRes) {
+            PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
+            User user = userMap.get(post.getCreatedBy());
+            userPostRes.setTotalPost(mapCount.getOrDefault(user.getEmail(), 0));
+            userPostRes.setId(Objects.requireNonNull(user).getId());
+            buildUserPostRes(userPostRes, user);
+            post.setUserPostRes(userPostRes);
+            post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
+            post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
+            post.setLike(mapLikePost.getOrDefault(post.getId(), false));
+        }
+        return List.of();
+    }
+
     private PostRes.UserPostRes buildUserPostRes(User user) {
         PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
         userPostRes.setTotalPost(postRepository.countByCreatedBy(user.getEmail()));
         userPostRes.setId(user.getId());
         buildUserPostRes(userPostRes, user);
         return userPostRes;
+    }
+
+
+    public BoolQuery buildBoolQuery(FilterPostReq filterPostReq) {
+        return BoolQuery.of(b -> b
+                .must(m -> m
+                        .range(r -> r.field("price").gte(JsonData.of(filterPostReq.getAcreage().getFrom())).lte(JsonData.of(filterPostReq.getAcreage().getTo()))))
+                .must(m -> m
+                        .range(r -> r.field("acreage").gte(JsonData.of(filterPostReq.getAcreage().getFrom())).lte(JsonData.of(filterPostReq.getAcreage().getTo()))))
+                .must(m -> m
+                        .match(mch -> mch.field("content").query(filterPostReq.getKey()).operator(Operator.Or)))
+                .must(m -> m
+                        .match(mch -> mch.field("title").query(filterPostReq.getKey()).operator(Operator.Or)))
+                .filter(f -> f
+                        .term(t -> {
+                            if (filterPostReq.getType() != null) {
+                                t.field("type").value(filterPostReq.getType());
+                            }
+                            return t;
+                        }))
+                .filter(f -> f
+                        .term(t -> {
+                            if (filterPostReq.getType() != null) {
+                                t.field("province").value(filterPostReq.getProvince());
+                            }
+                            return t;
+                        }))
+                .filter(f -> f
+                        .term(t -> {
+                            if (filterPostReq.getType() != null) {
+                                t.field("district").value(filterPostReq.getDistrict());
+                            }
+                            return t;
+                        }))
+                .filter(f -> f
+                        .term(t -> {
+                            if (filterPostReq.getType() != null) {
+                                t.field("statusRoom").value(filterPostReq.getStatusRoom());
+                            }
+                            return t;
+                        }))
+        );
+    }
+
+    private Map<String, SortOrder> getOrderSort(String value) {
+        Map<String, SortOrder> map = new HashMap<>();
+        if (value == null) return map;
+        switch (value) {
+            case "newest":
+                map.put("createdAt", SortOrder.Desc);
+                map.put("updatedAt", SortOrder.Desc);
+                break;
+            case "priceLow":
+                map.put("price", SortOrder.Asc);
+                break;
+            case "priceHigh":
+                map.put("price", SortOrder.Desc);
+                break;
+        }
+        return map;
+    }
+
+
+    public BoolQuery buildBoolQueryRecommend(List<String> values) {
+        return BoolQuery.of(b -> {
+                    for (String value : values) {
+                        b.must(m -> m
+                                .match(mch -> mch.field("content").query(value).operator(Operator.Or)));
+                        b.must(m -> m
+                                .match(mch -> mch.field("title").query(value).operator(Operator.Or)));
+                    }
+                    return b;
+                }
+        );
     }
 }

@@ -18,6 +18,8 @@ spring:
             enable: true
           ssl:
             enable: false
+  elasticsearch:
+    uris: http://localhost:9200
   servlet:
     multipart:
       max-file-size: 10MB

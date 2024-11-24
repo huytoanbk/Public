@@ -219,6 +219,15 @@ public class UsersServiceImpl implements UsersService {
         }
     }
 
+    @Override
+    public UserRes updateStatus(UserUpdateStatusReq userUpdateStatusReq) {
+        String email = jwtCommon.extractUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        user.setActive(userUpdateStatusReq.getActive());
+        userRepository.save(user);
+        return userMapper.userToUserRes(user);
+    }
+
     public String generatePassword(int length) {
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder();

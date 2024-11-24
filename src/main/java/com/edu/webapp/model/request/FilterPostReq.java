@@ -12,11 +12,12 @@ import lombok.NoArgsConstructor;
 public class FilterPostReq {
     private String province;
     private String district;
-    private String statusRoom;
-    private String roomType;
     private FilterRangeReq price;
     private FilterRangeReq acreage;
-    private String location;
+    private String type;
+    private String key;
+    private String fieldSort;
+    private String statusRoom;
     private Integer page = 0;
     private Integer size = 10;
 }

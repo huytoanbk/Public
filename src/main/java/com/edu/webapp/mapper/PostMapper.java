@@ -2,6 +2,7 @@ package com.edu.webapp.mapper;
 
 import com.edu.webapp.entity.post.Image;
 import com.edu.webapp.entity.post.Post;
+import com.edu.webapp.entity.post.PostEls;
 import com.edu.webapp.model.enums.RoomStatus;
 import com.edu.webapp.model.enums.TypeRoom;
 import com.edu.webapp.model.request.PostCreateReq;
@@ -21,11 +22,13 @@ public interface PostMapper {
     Post postReqToPost(PostCreateReq postCreateReq);
 
     List<PostRes> postsToPosts(List<Post> posts);
-
+    List<Post> postsElsToPosts(List<PostEls> postEls);
     @Mapping(source = "images", target = "images", qualifiedByName = "convertImages")
 //    @Mapping(source = "statusRoom", target = "statusRoom", qualifiedByName = "convertStatusRoom")
 //    @Mapping(source = "type", target = "type", qualifiedByName = "convertType")
     PostRes postToPostRes(Post post);
+
+    PostEls postToPostEls(Post post);
 
     List<PostUserRes> postsToPostsUsers(List<Post> posts);
 

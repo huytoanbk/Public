@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.OffsetDateTime;
 
 @Data
 @AllArgsConstructor
@@ -23,4 +26,7 @@ public class LogSearch {
     @Column(name = "KEY_SEARCH")
     private String keySearch;
 
+    @Column(name = "CREATED_AT")
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
 }
