@@ -69,12 +69,17 @@ public class PostController {
 
     @GetMapping("/like-post")
     public ResponseEntity<Page<PostRes>> listPostLike(@RequestParam(name = "page", defaultValue = "0") Integer page,
-                                                @RequestParam(name = "size", defaultValue = "30") Integer size){
-        return ResponseEntity.ok(postService.listPostLike(page,size));
+                                                      @RequestParam(name = "size", defaultValue = "30") Integer size) {
+        return ResponseEntity.ok(postService.listPostLike(page, size));
     }
 
     @GetMapping("/recommend")
     public ResponseEntity<List<PostRes>> recommend() throws IOException {
         return ResponseEntity.ok(postService.recommend());
+    }
+
+    @PutMapping("update-status")
+    public ResponseEntity<PostRes> updatePostStatus(@RequestBody PostUpdateStatusReq postUpdateStatusReq) {
+        return ResponseEntity.ok(postService.updatePostStatus(postUpdateStatusReq));
     }
 }

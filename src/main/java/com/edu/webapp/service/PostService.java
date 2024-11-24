@@ -30,4 +30,6 @@ public interface PostService {
     Page<PostRes> listPostLike(Integer page, Integer size);
 
     List<PostRes> recommend() throws IOException;
+
+    PostRes updatePostStatus(PostUpdateStatusReq postUpdateStatusReq);
 }

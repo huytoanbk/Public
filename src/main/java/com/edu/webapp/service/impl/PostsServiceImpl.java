@@ -75,10 +75,10 @@ public class PostsServiceImpl implements PostService {
             imageRepository.save(image);
         }
         PostEls postEls = postMapper.postToPostEls(post);
-        OffsetDateTime offsetDateTime = OffsetDateTime.now();
-        postEls.setCreatedAt(Timestamp.from(offsetDateTime.toInstant()));
-        postEls.setUpdatedAt(Timestamp.from(offsetDateTime.toInstant()));
-        postElsRepository.save(postEls);
+//        OffsetDateTime offsetDateTime = OffsetDateTime.now();
+//        postEls.setCreatedAt(Timestamp.from(offsetDateTime.toInstant()));
+//        postEls.setUpdatedAt(Timestamp.from(offsetDateTime.toInstant()));
+//        postElsRepository.save(postEls);
     }
 
     @Override
@@ -316,6 +316,20 @@ public class PostsServiceImpl implements PostService {
             post.setLike(mapLikePost.getOrDefault(post.getId(), false));
         }
         return List.of();
+    }
+
+    @Override
+    public PostRes updatePostStatus(PostUpdateStatusReq postUpdateStatusReq) {
+        Post post = postRepository.findById(postUpdateStatusReq.getPostId()).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
+        post.setActive(postUpdateStatusReq.getActive());
+        postRepository.save(post);
+        User user = userRepository.findByEmail(post.getCreatedBy()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        PostRes.UserPostRes userPostRes = buildUserPostRes(user);
+        PostRes postRes = postMapper.postToPostRes(post);
+        postRes.setUserPostRes(userPostRes);
+        postRes.setUptime(TimeUtils.formatTimeDifference(postRes.getUpdatedAt(), OffsetDateTime.now()));
+        postRes.setDateOfJoin(TimeUtils.formatTimeDifference(postRes.getCreatedAt(), OffsetDateTime.now()));
+        return postRes;
     }
 
     private PostRes.UserPostRes buildUserPostRes(User user) {
