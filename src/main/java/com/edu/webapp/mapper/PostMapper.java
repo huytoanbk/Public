@@ -22,12 +22,15 @@ public interface PostMapper {
     Post postReqToPost(PostCreateReq postCreateReq);
 
     List<PostRes> postsToPosts(List<Post> posts);
-    List<Post> postsElsToPosts(List<PostEls> postEls);
+
+//    List<Post> postsElsToPosts(List<PostEls> postEls);
     @Mapping(source = "images", target = "images", qualifiedByName = "convertImages")
 //    @Mapping(source = "statusRoom", target = "statusRoom", qualifiedByName = "convertStatusRoom")
 //    @Mapping(source = "type", target = "type", qualifiedByName = "convertType")
     PostRes postToPostRes(Post post);
 
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     PostEls postToPostEls(Post post);
 
     List<PostUserRes> postsToPostsUsers(List<Post> posts);

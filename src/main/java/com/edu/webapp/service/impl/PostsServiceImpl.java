@@ -32,6 +32,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -74,6 +75,9 @@ public class PostsServiceImpl implements PostService {
             imageRepository.save(image);
         }
         PostEls postEls = postMapper.postToPostEls(post);
+        OffsetDateTime offsetDateTime = OffsetDateTime.now();
+        postEls.setCreatedAt(Timestamp.from(offsetDateTime.toInstant()));
+        postEls.setUpdatedAt(Timestamp.from(offsetDateTime.toInstant()));
         postElsRepository.save(postEls);
     }
 
@@ -86,27 +90,12 @@ public class PostsServiceImpl implements PostService {
         List<PostRes> postRes = postMapper.postsToPosts(postList);
         HashMap<String, Integer> mapCount = new HashMap<>();
         Set<String> emails;
-        emails = postRes.stream()
-                .map(PostRes::getCreatedBy)
-                .collect(Collectors.toSet());
-        Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
-                .stream()
-                .collect(Collectors.toMap(User::getEmail, user -> user));
+        emails = postRes.stream().map(PostRes::getCreatedBy).collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails).stream().collect(Collectors.toMap(User::getEmail, user -> user));
         emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
         String username = jwtCommon.extractUsername();
         Map<String, Boolean> mapLikePost;
-        mapLikePost = (username != null)
-                ? likePostRepository.findLikePostByUserId(
-                        userRepository.findByEmail(username)
-                                .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST))
-                                .getId()
-                )
-                .stream()
-                .collect(Collectors.toMap(
-                        LikePost::getPostId,
-                        likePost -> true
-                ))
-                : new HashMap<>();
+        mapLikePost = (username != null) ? likePostRepository.findLikePostByUserId(userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST)).getId()).stream().collect(Collectors.toMap(LikePost::getPostId, likePost -> true)) : new HashMap<>();
         for (PostRes post : postRes) {
             PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
             User user = userMap.get(post.getCreatedBy());
@@ -189,12 +178,8 @@ public class PostsServiceImpl implements PostService {
         else
             page = commentRepository.findByPostIdAndCreatedAtBefore(commentPostSearchReq.getPostId(), commentPostSearchReq.getCommentTime(), pageable);
         List<Comment> comments = page.getContent();
-        Set<String> ids = comments.stream()
-                .map(Comment::getUserId)
-                .collect(Collectors.toSet());
-        Map<String, User> userMap = userRepository.findAllByIdIn(ids)
-                .stream()
-                .collect(Collectors.toMap(User::getId, user -> user));
+        Set<String> ids = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByIdIn(ids).stream().collect(Collectors.toMap(User::getId, user -> user));
         List<CommentRes> commentResList = new ArrayList<>();
         for (Comment comment : comments) {
             CommentRes commentRes = commentMapper.commentToCommentRes(comment);
@@ -269,26 +254,10 @@ public class PostsServiceImpl implements PostService {
         List<Post> posts = postRepository.findByIdIn(listPostIds);
         List<PostRes> postRes = postMapper.postsToPosts(posts);
         Map<String, Integer> mapCount = new HashMap<>();
-        Set<String> emails = postRes.stream()
-                .map(PostRes::getCreatedBy)
-                .collect(Collectors.toSet());
-        Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
-                .stream()
-                .collect(Collectors.toMap(User::getEmail, u -> u));
+        Set<String> emails = postRes.stream().map(PostRes::getCreatedBy).collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails).stream().collect(Collectors.toMap(User::getEmail, u -> u));
         emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
-        Map<String, Boolean> mapLikePost =
-                (username != null)
-                        ? likePostRepository.findLikePostByUserId(
-                                userRepository.findByEmail(username)
-                                        .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST))
-                                        .getId()
-                        )
-                        .stream()
-                        .collect(Collectors.toMap(
-                                LikePost::getPostId,
-                                likePost -> true
-                        ))
-                        : new HashMap<>();
+        Map<String, Boolean> mapLikePost = (username != null) ? likePostRepository.findLikePostByUserId(userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST)).getId()).stream().collect(Collectors.toMap(LikePost::getPostId, likePost -> true)) : new HashMap<>();
         for (PostRes post : postRes) {
             AtomicReference<PostRes.UserPostRes> userPostRes = new AtomicReference<>(new PostRes.UserPostRes());
             User u = userMap.get(post.getCreatedBy());
@@ -330,26 +299,11 @@ public class PostsServiceImpl implements PostService {
         List<PostRes> postRes = postMapper.postsToPosts(list);
         HashMap<String, Integer> mapCount = new HashMap<>();
         Set<String> emails;
-        emails = postRes.stream()
-                .map(PostRes::getCreatedBy)
-                .collect(Collectors.toSet());
-        Map<String, User> userMap = userRepository.findAllByEmailIn(emails)
-                .stream()
-                .collect(Collectors.toMap(User::getEmail, user -> user));
+        emails = postRes.stream().map(PostRes::getCreatedBy).collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails).stream().collect(Collectors.toMap(User::getEmail, user -> user));
         emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
         Map<String, Boolean> mapLikePost;
-        mapLikePost = (username != null)
-                ? likePostRepository.findLikePostByUserId(
-                        userRepository.findByEmail(username)
-                                .orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST))
-                                .getId()
-                )
-                .stream()
-                .collect(Collectors.toMap(
-                        LikePost::getPostId,
-                        likePost -> true
-                ))
-                : new HashMap<>();
+        mapLikePost = (username != null) ? likePostRepository.findLikePostByUserId(userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST)).getId()).stream().collect(Collectors.toMap(LikePost::getPostId, likePost -> true)) : new HashMap<>();
         for (PostRes post : postRes) {
             PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
             User user = userMap.get(post.getCreatedBy());
@@ -374,49 +328,53 @@ public class PostsServiceImpl implements PostService {
 
 
     public BoolQuery buildBoolQuery(FilterPostReq filterPostReq) {
-        return BoolQuery.of(b -> b
-                .must(m -> m
-                        .range(r -> r.field("price").gte(JsonData.of(filterPostReq.getAcreage().getFrom())).lte(JsonData.of(filterPostReq.getAcreage().getTo()))))
-                .must(m -> m
-                        .range(r -> r.field("acreage").gte(JsonData.of(filterPostReq.getAcreage().getFrom())).lte(JsonData.of(filterPostReq.getAcreage().getTo()))))
-                .must(m -> m
-                        .match(mch -> mch.field("content").query(filterPostReq.getKey()).operator(Operator.Or)))
-                .must(m -> m
-                        .match(mch -> mch.field("title").query(filterPostReq.getKey()).operator(Operator.Or)))
-                .filter(f -> f
-                        .term(t -> {
-                            if (filterPostReq.getType() != null) {
-                                t.field("type").value(filterPostReq.getType());
-                            }
-                            return t;
-                        }))
-                .filter(f -> f
-                        .term(t -> {
-                            if (filterPostReq.getType() != null) {
-                                t.field("province").value(filterPostReq.getProvince());
-                            }
-                            return t;
-                        }))
-                .filter(f -> f
-                        .term(t -> {
-                            if (filterPostReq.getType() != null) {
-                                t.field("district").value(filterPostReq.getDistrict());
-                            }
-                            return t;
-                        }))
-                .filter(f -> f
-                        .term(t -> {
-                            if (filterPostReq.getType() != null) {
-                                t.field("statusRoom").value(filterPostReq.getStatusRoom());
-                            }
-                            return t;
-                        }))
-        );
+
+        return BoolQuery.of(b -> {
+            List<Query> mustQueries = new ArrayList<>();
+
+            // Range for price
+            if (filterPostReq.getPrice() != null) {
+                mustQueries.add(Query.of(m -> m.range(r -> r.field("price").gte(JsonData.of(filterPostReq.getPrice().getFrom())).lte(JsonData.of(filterPostReq.getPrice().getTo() != null ? filterPostReq.getPrice().getTo() : filterPostReq.getPrice().getFrom() + 100000000)) // Default upper bound
+                )));
+            }
+
+            // Range for acreage
+            if (filterPostReq.getAcreage() != null) {
+                mustQueries.add(Query.of(m -> m.range(r -> r.field("acreage").gte(JsonData.of(filterPostReq.getAcreage().getFrom())).lte(JsonData.of(filterPostReq.getAcreage().getTo() != null ? filterPostReq.getAcreage().getTo() : filterPostReq.getAcreage().getFrom() + 500)) // Default upper bound
+                )));
+            }
+            List<Query> shouldQueries = new ArrayList<>();
+            String keyQuery = StringUtils.isEmpty(filterPostReq.getKey()) ? "*" : filterPostReq.getKey();
+            shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("content").value(keyQuery.equals("*") ? "*" : "*" + keyQuery + "*"))));
+            shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value(keyQuery.equals("*") ? "*" : "*" + keyQuery + "*"))));
+            List<Query> filterQueries = new ArrayList<>();
+
+            if (filterPostReq.getType() != null) {
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("type").value(filterPostReq.getType()))));
+            }
+
+            if (filterPostReq.getProvince() != null) {
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("province").value(filterPostReq.getProvince()))));
+            }
+
+            if (filterPostReq.getDistrict() != null) {
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("district").value(filterPostReq.getDistrict()))));
+            }
+
+            if (filterPostReq.getStatusRoom() != null) {
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("statusRoom").value(filterPostReq.getStatusRoom()))));
+            }
+
+            return b.must(mustQueries).should(shouldQueries).minimumShouldMatch("1").filter(filterQueries);
+        });
     }
 
     private Map<String, SortOrder> getOrderSort(String value) {
         Map<String, SortOrder> map = new HashMap<>();
-        if (value == null) return map;
+        if (value == null) {
+            map.put("createdAt", SortOrder.Desc);
+            return map;
+        }
         switch (value) {
             case "newest":
                 map.put("createdAt", SortOrder.Desc);
@@ -435,14 +393,12 @@ public class PostsServiceImpl implements PostService {
 
     public BoolQuery buildBoolQueryRecommend(List<String> values) {
         return BoolQuery.of(b -> {
-                    for (String value : values) {
-                        b.must(m -> m
-                                .match(mch -> mch.field("content").query(value).operator(Operator.Or)));
-                        b.must(m -> m
-                                .match(mch -> mch.field("title").query(value).operator(Operator.Or)));
-                    }
-                    return b;
-                }
-        );
+            List<Query> shouldQueries = new ArrayList<>();
+            for (String value : values) {
+                shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("content").value("*" + value + "*"))));
+                shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value("*" + value + "*"))));
+            }
+            return b.should(shouldQueries).minimumShouldMatch("1");
+        });
     }
 }

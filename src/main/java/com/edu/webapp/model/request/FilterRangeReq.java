@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class FilterRangeReq {
-    private double from;
-    private double to;
+    private Double from;
+    private Double to;
 }

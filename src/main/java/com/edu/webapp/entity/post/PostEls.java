@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.print.DocFlavor;
+import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 
 @Data
@@ -24,11 +27,12 @@ public class PostEls {
     private double acreage;
     private String statusRoom;
     private String contact;
-    private OffsetDateTime createdAt;
+    @Field(type = FieldType.Date)
+    private Timestamp createdAt;
     private String createdBy;
-    private OffsetDateTime updatedAt;
+    @Field(type = FieldType.Date)
+    private Timestamp updatedAt;
     private String updatedBy;
-    private OffsetDateTime expirationDate;
     private String province;
     private String district;
     private String longitude;

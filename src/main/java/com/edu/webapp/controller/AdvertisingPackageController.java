@@ -53,7 +53,7 @@ public @RequiredArgsConstructor
     }
 
     @GetMapping("/pay-ad")
-    public ResponseEntity<Page<PayAdAdRes>> getPayAdAll(@RequestParam(name = "page",required = false) Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
+    public ResponseEntity<Page<PayAdAdRes>> getPayAdAll(@RequestParam(name = "page",required = false, defaultValue = "0") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
         return ResponseEntity.ok(advertisingPackageService.getPayAdAll(page, size));
     }
 }
