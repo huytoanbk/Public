@@ -71,7 +71,7 @@ export const statusRoomOptions = [
   { value: "LUXURY_FURNITURE", label: "Nội thất cao cấp" },
 ];
 
-const roomTypeOtions = [
+export const roomTypeOtions = [
   {
     label: "Cho thuê",
     value: "RENT",
@@ -82,7 +82,7 @@ const roomTypeOtions = [
   },
 ];
 
-const roomActiveOtions = [
+export const roomActiveOtions = [
   {
     label: "Active",
     value: "ACTIVE",

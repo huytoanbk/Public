@@ -1,46 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { DatePicker, Space } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import axios from 'axios';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import DateFilter from '../../../components/DateFilter'; // Import DateFilter component
+import axiosInstance from '../../../interceptor';
+import { generateDateLabels } from '../../../utiils/generate-label-chart';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const { RangePicker } = DatePicker;
-
 const UserStatsChart = () => {
-  const { control, setValue, watch } = useForm();
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const dateRange = watch("dateRange");
-
-  const generateDateLabels = (startDate, endDate) => {
-    const labels = [];
-    let currentDate = moment(startDate);
-    const lastDate = moment(endDate);
-
-    while (currentDate.isBefore(lastDate) || currentDate.isSame(lastDate, 'day')) {
-      labels.push(currentDate.format('YYYY-MM-DD'));
-      currentDate = currentDate.add(1, 'days');
-    }
-
-    return labels;
-  };
+  const [dateRange, setDateRange] = useState([null, null]);
 
   const fetchData = async (startDate, endDate) => {
     setLoading(true);
     try {
-      const response = await axios.post('/api/stats', {
-        startDate,
-        endDate
-      });
-
+      // const response = await axiosInstance.post('/api/stats', {
+      //   startDate,
+      //   endDate
+      // });
+      const response = {
+        data: {
+          registrationCount: [5, 10, 15, 20, 25, 30, 35],
+          loginCount: [10, 15, 20, 25, 30, 35, 40],
+          packagePurchaseCount: [2, 4, 6, 8, 10, 12, 14],
+          expiredUserCount: [0, 1, 2, 1, 1, 2, 3],
+        },
+      };
       const { registrationCount, loginCount, packagePurchaseCount, expiredUserCount } = response.data;
       const labels = generateDateLabels(startDate, endDate);
-
       const data = {
         labels,
         datasets: [
@@ -83,47 +72,34 @@ const UserStatsChart = () => {
     }
   };
 
-  const onDateChange = (dates) => {
-    if (dates && dates.length === 2) {
-      const startDate = dates[0].format('YYYY-MM-DD');
-      const endDate = dates[1].format('YYYY-MM-DD');
-
-      setValue("dateRange", [startDate, endDate]);
-
-      fetchData(startDate, endDate);
+  const onDateChange = (dateRange) => {
+    if (dateRange && dateRange.length === 2) {
+      setDateRange(dateRange);
     }
   };
 
   useEffect(() => {
-    if (!dateRange || dateRange.length === 0) {
-      const endDate = moment();
-      const startDate = endDate.clone().subtract(6, 'days');
-      setValue("dateRange", [startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')]);
-
-      fetchData(startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD'));
+    if (dateRange[0] && dateRange[1]) {
+      fetchData(dateRange[0], dateRange[1]);
+    } else {
+      const defaultEndDate = dayjs();
+      const defaultStartDate = dayjs().subtract(6, 'days');
+      setDateRange([defaultStartDate, defaultEndDate]);
+      fetchData(defaultStartDate, defaultEndDate);
     }
-  }, [dateRange, setValue]);
+  }, []);
+
+  useEffect(() => {
+    if (dateRange[0] && dateRange[1]) {
+      fetchData(dateRange[0], dateRange[1]);
+    }
+  }, [dateRange]);
 
   return (
     <div className="container">
-      <h2 className="text-center font-bold text-xl mb-4">User Statistics Chart</h2>
-
-      <form className="mb-4">
-        <Space direction="vertical">
-          <Controller
-            name="dateRange"
-            control={control}
-            render={({ field }) => (
-              <RangePicker
-                {...field}
-                format="YYYY-MM-DD"
-                onChange={onDateChange}
-                className="w-full"
-              />
-            )}
-          />
-        </Space>
-      </form>
+      <div className="mb-4">
+        <DateFilter onDateChange={onDateChange} />
+      </div>
 
       {loading ? (
         <div>Loading...</div>
@@ -132,9 +108,14 @@ const UserStatsChart = () => {
           data={chartData}
           options={{
             responsive: true,
+           
             plugins: {
               legend: {
                 position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Thống kê người đăng ký và người mua gói hội viên',
               },
               tooltip: {
                 mode: 'index',
@@ -156,9 +137,10 @@ const UserStatsChart = () => {
               },
             },
           }}
+          style={{ height: '300px', width: '100%' }}
         />
       ) : (
-        <div>No data available</div>
+        <div>Không có dữ liệu</div>
       )}
     </div>
   );

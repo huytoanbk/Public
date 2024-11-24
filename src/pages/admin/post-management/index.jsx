@@ -1,4 +1,4 @@
-import { Modal, Descriptions } from "antd";
+import { Modal, Descriptions, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Table, Button, Form, Input, Select, Space, notification } from "antd";
 import { useForm, Controller } from "react-hook-form";
@@ -14,6 +14,8 @@ import { FaEye } from "react-icons/fa";
 import { RxExternalLink } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import axiosInstance from "../../../interceptor";
+import { statusRoomOptions, roomTypeOtions } from "../../../components/ConfigPost";
 
 const { Option } = Select;
 
@@ -33,11 +35,9 @@ const PostManagement = () => {
     setLoading(true);
     try {
       const response = await baseAxios.post("/posts/search", {
-        // params: {
         page: updatedPagination.current - 1,
         size: updatedPagination.pageSize,
         ...filters,
-        // },
       });
       const { content, totalElements } = response.data;
       setData(content);
@@ -64,11 +64,10 @@ const PostManagement = () => {
     fetchData({}, newPagination);
   };
 
-  const handleAction = (action, record) => {
+  const handleAction = async (action, record) => {
     switch (action) {
       case "view":
-        setSelectedPost(record);
-        setIsModalVisible(true);
+        await fetchPost(record.id);
         break;
       case "edit":
         break;
@@ -78,6 +77,19 @@ const PostManagement = () => {
         break;
       default:
         break;
+    }
+  };
+
+  const fetchPost = async (postId) => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`/posts/${postId}`);
+      setSelectedPost(response.data);
+      setIsModalVisible(true);
+    } catch (error) {
+      message.error("Không thể lấy dữ liệu bài viết!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,6 +112,7 @@ const PostManagement = () => {
       title: "Active",
       dataIndex: "active",
       key: "active",
+      render: (_, record) => <PostStatusColumn record={record} />,
     },
     {
       title: "Type",
@@ -127,35 +140,58 @@ const PostManagement = () => {
         onFinish={handleSubmit(onSearch)}
         style={{ gap: "16px", marginBottom: "20px" }}
       >
-        <Form.Item label="Search by Title">
+        <Form.Item label="Tiêu đề bài viết">
+  <Controller
+    name="title"
+    control={control}
+    render={({ field }) => (
+      <Input {...field} placeholder="Nhập tiêu đề bài viết" />
+    )}
+  />
+</Form.Item>
+        <Form.Item label="Trạng thái bài viết">
           <Controller
-            name="title"
+            name="status"
             control={control}
             render={({ field }) => (
-              <Input {...field} placeholder="Enter title" />
-            )}
-          />
-        </Form.Item>
-        <Form.Item label="Status">
-          <Controller
-            name="statusRoom"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} placeholder="Select status" allowClear>
-                <Option value="available">Available</Option>
-                <Option value="rented">Rented</Option>
+              <Select {...field} placeholder="Chọn trạng thái" allowClear>
+                {statusOptions.map((option) => (
+                  <Select.Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Option>
+                ))}
               </Select>
             )}
           />
         </Form.Item>
-        <Form.Item label="Room Type">
+
+        <Form.Item label="Trạng thái nhà">
+          <Controller
+            name="statusRoom"
+            control={control}
+            render={({ field }) => (
+              <Select {...field} placeholder="Chọn trạng thái" allowClear>
+                {statusRoomOptions.map((option) => (
+                  <Select.Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item label="Loại phòng">
           <Controller
             name="roomType"
             control={control}
             render={({ field }) => (
-              <Select {...field} placeholder="Select type" allowClear>
-                <Option value="single">Single</Option>
-                <Option value="double">Double</Option>
+              <Select {...field} placeholder="Chọn loại phòng" allowClear>
+                {roomTypeOtions.map((option) => (
+                  <Select.Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Option>
+                ))}
               </Select>
             )}
           />
@@ -173,6 +209,7 @@ const PostManagement = () => {
         pagination={pagination}
         onChange={handleTableChange}
         rowKey="id"
+        scroll={{ x: 1000 }}
         style={{ marginTop: "20px" }}
       />
       <Modal
@@ -233,9 +270,7 @@ const PostManagement = () => {
               <div>{selectedPost.updatedBy}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Ngày hết hạn">
-              <div>
-                {selectedPost.expirationDate}
-              </div>
+              <div>{selectedPost.expirationDate}</div>
             </Descriptions.Item>
             <Descriptions.Item label="Tỉnh/Thành phố">
               <div>{selectedPost.province}</div>
@@ -274,6 +309,40 @@ const PostManagement = () => {
         )}
       </Modal>
     </div>
+  );
+};
+
+const statusOptions = [
+  { value: "ACTIVE", label: "Duyệt bài viết" },
+  { value: "PENDING", label: "Đang chờ duyệt" },
+  { value: "INACTIVE", label: "Ngừng hoạt động" },
+  { value: "REJECT", label: "Từ chối" },
+];
+
+const PostStatusColumn = ({ record }) => {
+  const handleStatusChange = async (value) => {
+    try {
+      const response = await axios.put(`/update-status/status=${value}`, {
+        postId: record.id,
+        status: value,
+      });
+      if (response.status === 200) {
+        message.success("Cập nhật trạng thái thành công!");
+      } else {
+        message.error("Cập nhật trạng thái thất bại!");
+      }
+    } catch (error) {
+      message.error("Có lỗi xảy ra khi cập nhật trạng thái!");
+    }
+  };
+
+  return (
+    <Select
+      value={record.active}
+      onChange={handleStatusChange}
+      options={statusOptions}
+      style={{ width: 180 }}
+    />
   );
 };
 
