@@ -2,10 +2,7 @@ package com.edu.webapp.service.impl;
 
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.json.JsonData;
 import com.edu.webapp.entity.post.*;
 import com.edu.webapp.entity.user.User;
@@ -74,11 +71,7 @@ public class PostsServiceImpl implements PostService {
             image.setPost(post);
             imageRepository.save(image);
         }
-        PostEls postEls = postMapper.postToPostEls(post);
-//        OffsetDateTime offsetDateTime = OffsetDateTime.now();
-//        postEls.setCreatedAt(Timestamp.from(offsetDateTime.toInstant()));
-//        postEls.setUpdatedAt(Timestamp.from(offsetDateTime.toInstant()));
-//        postElsRepository.save(postEls);
+
     }
 
     @Override
@@ -220,6 +213,12 @@ public class PostsServiceImpl implements PostService {
         post.setUpdatedBy(email);
         post.setUpdatedAt(OffsetDateTime.now());
         postRepository.save(post);
+        if (post.getActive().equals(ActiveStatus.ACTIVE)){
+            try {
+                postElsRepository.deleteById(post.getId());
+            }catch (Exception ignored){
+            }
+        }
         PostEls postEls = postMapper.postToPostEls(post);
         postElsRepository.save(postEls);
         PostRes postRes = postMapper.postToPostRes(post);
@@ -323,6 +322,15 @@ public class PostsServiceImpl implements PostService {
         Post post = postRepository.findById(postUpdateStatusReq.getPostId()).orElseThrow(() -> new ValidateException(ErrorCodes.POST_NOT_EXIST));
         post.setActive(postUpdateStatusReq.getActive());
         postRepository.save(post);
+        if (postUpdateStatusReq.getActive().equals(ActiveStatus.ACTIVE)) {
+            PostEls postEls = postMapper.postToPostEls(post);
+            OffsetDateTime offsetDateTime = OffsetDateTime.now();
+            postEls.setCreatedAt(Timestamp.from(offsetDateTime.toInstant()));
+            postEls.setUpdatedAt(Timestamp.from(offsetDateTime.toInstant()));
+            postElsRepository.save(postEls);
+        } else {
+            postElsRepository.deleteById(post.getId());
+        }
         User user = userRepository.findByEmail(post.getCreatedBy()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
         PostRes.UserPostRes userPostRes = buildUserPostRes(user);
         PostRes postRes = postMapper.postToPostRes(post);

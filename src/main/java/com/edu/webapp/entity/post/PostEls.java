@@ -1,6 +1,7 @@
 package com.edu.webapp.entity.post;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import java.time.OffsetDateTime;
 @Document(indexName = "post")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostEls {
+    @Id
     private String id;
     private String title;
     private String content;
