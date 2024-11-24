@@ -62,8 +62,10 @@ const UserManagement = () => {
         userId,
         active: newStatus,
       });
+      message.success("Cập nhật thông tin user thành công")
       fetchUsers();
     } catch (error) {
+      message.error("Cập nhật thông tin user thất bại")
       console.error("Error updating status:", error);
     }
   };
@@ -122,6 +124,7 @@ const UserManagement = () => {
         <Select
           defaultValue={record.active}
           style={{ width: 120 }}
+          onClick={(e) => e.stopPropagation()}
           onChange={(value) => updateStatus(record.id, value)}
           options={[
             { value: "active", label: "Active" },
@@ -137,6 +140,7 @@ const UserManagement = () => {
       render: (_, record) => (
         <Select
           mode="multiple"
+          onClick={(e) => e.stopPropagation()}
           value={record.roles.map((role) => role.name)}
           onChange={(value) => handleRoleChange(value, record)}
           options={roleOptions}
