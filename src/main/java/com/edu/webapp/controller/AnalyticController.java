@@ -1,42 +1,43 @@
 package com.edu.webapp.controller;
 
+import com.edu.webapp.model.request.ReportReq;
 import com.edu.webapp.model.response.Report1Res;
+import com.edu.webapp.model.response.Report2Res;
+import com.edu.webapp.model.response.Report3Res;
+import com.edu.webapp.model.response.Report4Res;
+import com.edu.webapp.service.AnalyticService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Date;
+
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/analytic")
 @RestController
 public class AnalyticController {
-
-    @GetMapping("/report-1")
-    public ResponseEntity<Report1Res> report1(@RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
-                                              @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date endDate) {
-        return ResponseEntity.ok().build();
+    private final AnalyticService analyticService;
+    @PostMapping("/report-1")
+    public ResponseEntity<Report1Res> report1(@RequestBody ReportReq reportReq) {
+        return ResponseEntity.ok(analyticService.report1(reportReq));
     }
 
-    @GetMapping("/report-2")
-    public ResponseEntity<Report1Res> report2(@RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
-                                              @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date endDate) {
-        return ResponseEntity.ok().build();
+    @PostMapping("/report-2")
+    public ResponseEntity<Report2Res> report2(@RequestBody ReportReq reportReq) {
+        return ResponseEntity.ok(analyticService.report2(reportReq));
     }
 
-    @GetMapping("/report-3")
-    public ResponseEntity<Report1Res> report3(@RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
-                                              @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date endDate) {
-        return ResponseEntity.ok().build();
+    @PostMapping("/report-3")
+    public ResponseEntity<Report3Res> report3(@RequestBody ReportReq reportReq) {
+        return ResponseEntity.ok(analyticService.report3(reportReq));
     }
 
-    @GetMapping("/report-4")
-    public ResponseEntity<Report1Res> report4() {
-        return ResponseEntity.ok().build();
+    @PostMapping("/report-4")
+    public ResponseEntity<Report4Res> report4() {
+        return ResponseEntity.ok(analyticService.report4());
     }
 }

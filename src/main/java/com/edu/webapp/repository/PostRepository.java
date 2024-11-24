@@ -20,4 +20,6 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     @Query(value = "select p from Post p left join User u on p.createdBy=u.email where u.rechargeVip is not null and u.rechargeVip>=CURDATE() order by RAND() limit 10")
     List<Post> findRandomRecommend();
+
+    Integer countByActive(ActiveStatus status);
 }
