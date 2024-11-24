@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCodes {
     ROLE_EXIST("ROLE_EXIST", "Vai trò đã tồn tại!"),
+    NOT_ROLE_EXIST("NOT_ROLE_EXIST", "NOT_ROLE_EXIST"),
     PERMISSION_NOT_EXIST("PERMISSION_NOT_EXIST", "PERMISSION_NOT_EXIST!"),
     OTP_IS_INCORRECT("OTP_IS_INCORRECT", "OTP_IS_INCORRECT"),
     EMAIL_EXIST("EMAIL_EXIST", "Email đã tồn tại!"),

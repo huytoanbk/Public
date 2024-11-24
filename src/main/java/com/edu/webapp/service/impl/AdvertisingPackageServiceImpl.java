@@ -70,7 +70,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
             advertisingPackagePage = advertisingPackageRepository.findAll(pageable);
         } else {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByAdvertisingName(key, pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByAdvertisingNameContaining(key, pageable);
         }
         List<AdvertisingPackageRes> advertisingPackageRes = advertisingPackageMapper.listAdvertisingPackageToListAdvertisingPackageRes(advertisingPackagePage.getContent());
         return new PageImpl<>(advertisingPackageRes, pageable, advertisingPackagePage.getTotalElements());
