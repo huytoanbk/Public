@@ -30,11 +30,11 @@ const TopPosts = () => {
   }, []);
 
   const renderPostItem = (post, type) => (
-    <div key={post.id} className="flex items-center justify-between p-4 border-b">
+    <div key={post.id} className="flex  justify-between p-4 border-b w-full">
       <div className="flex items-center">
-        <div className="mr-4 w-12 h-12 rounded shadow">
+        <div className="">
           <img
-            className="w-full h-full object-cover rounded"
+            className="w-full h-full object-cover rounded mr-5"
             src={post.image}
             alt={post.title}
           />
@@ -50,20 +50,22 @@ const TopPosts = () => {
   );
 
   return (
-    <div className="p-6 bg-white shadow rounded-lg">
+    <div className="p-6 bg-white shadow rounded-lg w-full">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Top Bài Viết</h2>
-      <div className="mb-8">
+     <div className='flex justify-between'>
+     <div className="min-w-[400px]">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Được Bình Luận Nhiều Nhất</h3>
         <div className="divide-y">
           {topCommentedPosts.map((post) => renderPostItem(post, "comments"))}
         </div>
       </div>
-      <div>
+      <div className='min-w-[300px]'>
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Được Yêu Thích Nhiều Nhất</h3>
         <div className="divide-y">
           {topLikedPosts.map((post) => renderPostItem(post, "likes"))}
         </div>
       </div>
+     </div>
     </div>
   );
 };

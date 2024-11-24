@@ -84,11 +84,11 @@ export const roomTypeOtions = [
 
 export const roomActiveOtions = [
   {
-    label: "Active",
-    value: "ACTIVE",
+    label: "Đang chờ duyệt",
+    value: "PENDING",
   },
   {
-    label: "Inactive",
+    label: "Ngừng hoạt động",
     value: "INACTIVE",
   },
 ];
@@ -339,7 +339,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
           {isEdit && (
             <Col xs={24} sm={8}>
               <Form.Item
-                label="Active"
+                label="Trạng thái"
                 validateStatus={errors.active ? "error" : ""}
                 help={errors.active?.message}
               >
@@ -350,7 +350,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
                     <Select
                       {...field}
                       disabled={isSelectActive}
-                      placeholder="Active"
+                      placeholder="Trạng thái bài đăng"
                       options={roomActiveOtions}
                     ></Select>
                   )}

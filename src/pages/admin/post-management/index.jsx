@@ -2,8 +2,6 @@ import { Modal, Descriptions, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Table, Button, Form, Input, Select, Space, notification } from "antd";
 import { useForm, Controller } from "react-hook-form";
-import axios from "axios";
-import baseAxios from "../../../interceptor/baseAxios";
 import {
   getPostStatus,
   getRoomStatus,
@@ -15,7 +13,10 @@ import { RxExternalLink } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import axiosInstance from "../../../interceptor";
-import { statusRoomOptions, roomTypeOtions } from "../../../components/ConfigPost";
+import {
+  statusRoomOptions,
+  roomTypeOtions,
+} from "../../../components/ConfigPost";
 
 const { Option } = Select;
 
@@ -34,7 +35,7 @@ const PostManagement = () => {
   const fetchData = async (filters = {}, updatedPagination = pagination) => {
     setLoading(true);
     try {
-      const response = await baseAxios.post("/posts/search", {
+      const response = await axiosInstance.post("/posts/search", {
         page: updatedPagination.current - 1,
         size: updatedPagination.pageSize,
         ...filters,
@@ -141,14 +142,14 @@ const PostManagement = () => {
         style={{ gap: "16px", marginBottom: "20px" }}
       >
         <Form.Item label="Tiêu đề bài viết">
-  <Controller
-    name="title"
-    control={control}
-    render={({ field }) => (
-      <Input {...field} placeholder="Nhập tiêu đề bài viết" />
-    )}
-  />
-</Form.Item>
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => (
+              <Input {...field} placeholder="Nhập tiêu đề bài viết" />
+            )}
+          />
+        </Form.Item>
         <Form.Item label="Trạng thái bài viết">
           <Controller
             name="status"
@@ -322,10 +323,13 @@ const statusOptions = [
 const PostStatusColumn = ({ record }) => {
   const handleStatusChange = async (value) => {
     try {
-      const response = await axios.put(`/update-status/status=${value}`, {
-        postId: record.id,
-        status: value,
-      });
+      const response = await axiosInstance.put(
+        `/update-status/status=${value}`,
+        {
+          postId: record.id,
+          status: value,
+        }
+      );
       if (response.status === 200) {
         message.success("Cập nhật trạng thái thành công!");
       } else {

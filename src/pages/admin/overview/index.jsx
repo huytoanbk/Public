@@ -25,12 +25,7 @@ const AdminOverview = () => {
         </div>
       </div>
       <div className="flex items-center justify-between gap-x-5">
-        <div className="flex-1">
         <TopPosts />
-        </div>
-        <div className="flex-1">
-          {/* <CommentAndLikeChart /> */}
-        </div>
       </div>
     </div>
   );
