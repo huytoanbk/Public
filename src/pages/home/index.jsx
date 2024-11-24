@@ -16,6 +16,7 @@ import {
   Skeleton,
   Avatar,
   Typography,
+  Input,
 } from "antd";
 import { getListPost } from "../../services/get-list-post";
 import "../../styles/home.css";
@@ -59,68 +60,58 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const { control, watch, setValue } = useForm();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const region = watch("region");
   const priceRange = watch("priceRange");
   const areaRange = watch("areaRange");
-  const furniture = watch("furniture");
   const province = watch("province");
   const district = watch("district");
   const statusRoom = watch("statusRoom");
+  const searchValue = watch("searchValue");
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams(location.search);
-        const p = params.get("p");
-        const response = await getListPost({
-          page: pagination.current - 1,
-          size: pagination.pageSize,
-          type: filter.tab,
-          key: p,
-          statusRoom,
-          fieldSort: filter.sort,
-          ...(priceRange && {
-            price: {
-              from: priceRange[0],
-              to: priceRange[1],
-            },
-          }),
-          ...(areaRange && {
-            acreage: {
-              from: areaRange[0],
-              to: areaRange[1],
-            },
-          }),
-          ...(province && {
-            province,
-          }),
-          ...(district && {
-            district,
-          }),
-        });
-        const { content, ...paginationResponse } = response || {};
-        setArticles(content);
-        setPaginationData(paginationResponse);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        console.error("Error fetching articles:", error);
-      }
-    };
-    fetchArticles();
-  }, [
-    filter,
-    pagination,
-    region,
-    areaRange,
-    furniture,
-    priceRange,
-    province,
-    district,
-    statusRoom,
-    location.search,
-  ]);
+    handleFilter();
+  }, [filter])
+
+  const handleFilter = async () => {
+    try {
+      setLoading(true);
+      // const params = new URLSearchParams(location.search);
+      // const p = params.get("p");
+      const response = await getListPost({
+        page: pagination.current - 1,
+        size: pagination.pageSize,
+        type: filter.tab,
+        key: searchValue,
+        statusRoom,
+        fieldSort: filter.sort,
+        ...(priceRange && {
+          price: {
+            from: priceRange[0],
+            to: priceRange[1],
+          },
+        }),
+        ...(areaRange && {
+          acreage: {
+            from: areaRange[0],
+            to: areaRange[1],
+          },
+        }),
+        ...(province && {
+          province,
+        }),
+        ...(district && {
+          district,
+        }),
+      });
+
+      const { content, ...paginationResponse } = response || {};
+      setArticles(content);
+      setPaginationData(paginationResponse);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const selectedProvinceId = watch("province");
   useEffect(() => {
     if (selectedProvinceId) {
@@ -140,8 +131,8 @@ const HomePage = () => {
         console.error("Lỗi khi lấy danh sách quận:", error);
       }
     };
-
     fetchDistricts();
+    handleFilter();
   }, []);
 
   const handleTabChange = (key) => {
@@ -304,7 +295,27 @@ const HomePage = () => {
             className="bg-white hidden md:block"
             style={{ flex: "0 0 30%" }}
           >
-            <span className="text-lg font-bold">Bộ lọc</span>
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-bold">Bộ lọc</span>
+              <Button htmlType="submit" onClick={handleFilter}>
+                Lọc
+              </Button>
+            </div>
+
+            <div className="mt-4">
+              <Controller
+                name="searchValue"
+                control={control}
+                className="w-full"
+                render={({ field }) => (
+                  <Input
+                    placeholder="Nhập tên phòng"
+                    style={{ maxWidth: 600 }}
+                    {...field}
+                  />
+                )}
+              />
+            </div>
 
             <div className="mt-4">
               <label className="block text-sm font-medium mb-1">
@@ -370,7 +381,7 @@ const HomePage = () => {
                     {...field}
                     label="Giá (VND)"
                     min={0}
-                    max={10000000}
+                    max={100000000}
                     step={500000}
                     onChange={field.onChange}
                     onAfterChange={(value) =>
@@ -392,7 +403,7 @@ const HomePage = () => {
                     {...field}
                     label="Diện tích (m²)"
                     min={0}
-                    max={100}
+                    max={500}
                     step={5}
                     onChange={field.onChange}
                     value={field.value}

@@ -26,9 +26,9 @@ const PostAdsSlider = () => {
         let response;
         const isLoggedIn = localStorage.getItem("token");
         if (!isLoggedIn) {
-          response = await baseAxios.post(`/posts/search`);
+          response = await baseAxios.get(`/posts/recommend`);
         } else {
-          response = await axiosInstance.post(`/posts/search`);
+          response = await axiosInstance.get(`/posts/recommend`);
         }
         setProducts(response.data.content);
       } catch (error) {

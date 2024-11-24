@@ -31,6 +31,7 @@ import CreateAdvertisingPackage from "./pages/admin/ads-management/CreateAdverti
 import EditAdvertisingPackage from "./pages/admin/ads-management/EditAdvertisingPackage";
 import MySavedPost from "./pages/my-saved-post";
 import AdminOverview from "./pages/admin/overview";
+import PackageHistory from "./pages/admin/package-history";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -143,6 +144,10 @@ function App() {
                     <Route
                       path="edit-advertising-package"
                       element={<EditAdvertisingPackage />}
+                    />
+                    <Route
+                      path="package-history"
+                      element={<PackageHistory />}
                     />
                     <Route path="post-create" element={<PostCreate />} />
                     <Route path="profile" element={<Profile />} />{" "}

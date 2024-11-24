@@ -31,6 +31,11 @@ const navItems = [
     label: "Quản lý user",
     path: "/admin/user-management",
   },
+  {
+    key: "/admin/package-history",
+    label: "Lịch sử mua gói hội viên",
+    path: "/admin/package-history",
+  },
 ];
 
 const AdminLayout = ({ children }) => {

@@ -45,19 +45,13 @@ const AppHeader = () => {
     if (key === "my-post") {
       navigate("/my-post");
     }
-    if(key === "saved-post") {
+    if (key === "saved-post") {
       navigate("/my-saved-post");
     }
   };
 
   const onSearch = (value) => {
-    // navigate(`/search?q=${encodeURIComponent(value)}`);
-  };
-
-  const onChangeHandle = (e) => {
-    const value = e.target.value;
     const params = new URLSearchParams(location.search);
-
     if (value) {
       params.set("p", value);
     } else {
@@ -66,6 +60,8 @@ const AppHeader = () => {
 
     navigate({ search: params.toString() }, { replace: true });
   };
+
+  const onChangeHandle = (e) => {};
 
   const toggleNotiStatus = async (checked) => {
     const status = checked ? "ACTIVE" : "INACTIVE";
@@ -80,7 +76,6 @@ const AppHeader = () => {
         } tính năng gửi mail tự động thành công`,
         description: "Khi có bài viết mới, email sẽ tự động gửi đến bạn",
       });
-      
     } catch (error) {
       const messageDisplay =
         error?.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau";
@@ -160,7 +155,7 @@ const AppHeader = () => {
             </div>
           </Link>
         </Col>
-        {!pathname.includes("/login") && (
+        {/* {!pathname.includes("/login") && (
           <Col
             flex="auto"
             style={{ display: "flex", justifyContent: "center" }}
@@ -173,32 +168,34 @@ const AppHeader = () => {
               onChange={onChangeHandle}
             />
           </Col>
-        )}
+        )} */}
         {/* {!pathname.includes("/login") && (
           <Col>
             <Button icon={<MenuOutlined />}>Quản lý tin</Button>
           </Col>
         )} */}
 
-        <Col>
-          <Dropdown overlay={accountMenu} trigger={["click"]}>
-            <Button icon={<UserOutlined />}>
-              {userInfo ? `Xin chào, ${userInfo?.fullName}` : "Tài khoản"}
-            </Button>
-          </Dropdown>
-        </Col>
-        {!pathname.includes("/login") && (
-          <Col>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              style={{ padding: "0 20px" }}
-              onClick={() => navigate("/create-post")}
-            >
-              Đăng tin
-            </Button>
+        <Row>
+          <Col className="mr-5">
+            <Dropdown overlay={accountMenu} trigger={["click"]}>
+              <Button icon={<UserOutlined />}>
+                {userInfo ? `Xin chào, ${userInfo?.fullName}` : "Tài khoản"}
+              </Button>
+            </Dropdown>
           </Col>
-        )}
+          {!pathname.includes("/login") && (
+            <Col>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                style={{ padding: "0 20px" }}
+                onClick={() => navigate("/create-post")}
+              >
+                Đăng tin
+              </Button>
+            </Col>
+          )}
+        </Row>
       </Row>
       <ModalPackages
         isVisible={isShowModalPackages}
