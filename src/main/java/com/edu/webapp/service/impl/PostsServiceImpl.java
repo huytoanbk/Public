@@ -104,6 +104,7 @@ public class PostsServiceImpl implements PostService {
             LogSearch logSearch = new LogSearch();
             logSearch.setUserId(username);
             logSearch.setKeySearch(filterPostReq.getKey());
+            logSearchRepository.save(logSearch);
         }
         return new PageImpl<>(postRes, pageable, posts.getTotalElements());
     }
@@ -213,10 +214,10 @@ public class PostsServiceImpl implements PostService {
         post.setUpdatedBy(email);
         post.setUpdatedAt(OffsetDateTime.now());
         postRepository.save(post);
-        if (post.getActive().equals(ActiveStatus.ACTIVE)){
+        if (post.getActive().equals(ActiveStatus.ACTIVE)) {
             try {
                 postElsRepository.deleteById(post.getId());
-            }catch (Exception ignored){
+            } catch (Exception ignored) {
             }
         }
         PostEls postEls = postMapper.postToPostEls(post);
@@ -287,12 +288,16 @@ public class PostsServiceImpl implements PostService {
             list = postRepository.findRandomRecommend();
         } else {
             List<String> keySearch = logSearchRepository.findByUserId(username);
-            Page<PostEls> posts = elasticsearchService.search("post", buildBoolQueryRecommend(keySearch), 0, 10, PostEls.class, new HashMap<>());
-            List<String> postId = posts.stream().map(PostEls::getId).toList();
-            list = postRepository.findByIdIn(postId);
+            if (keySearch == null) {
+                Page<PostEls> posts = elasticsearchService.search("post", buildBoolQueryRecommend(keySearch), 0, 10, PostEls.class, new HashMap<>());
+                List<String> postId = posts.stream().map(PostEls::getId).toList();
+                list = postRepository.findByIdIn(postId);
+            } else list = new ArrayList<>();
             List<Post> randomRecommend = postRepository.findRandomRecommend();
             if (list.size() < 10) {
-                list.addAll(randomRecommend.subList(0, 10 - list.size()));
+                int min = Math.min(randomRecommend.size(), 10 - randomRecommend.size());
+                List<Post> recommend = randomRecommend.subList(0, min);
+                list.addAll(recommend);
             }
         }
         List<PostRes> postRes = postMapper.postsToPosts(list);
@@ -314,7 +319,7 @@ public class PostsServiceImpl implements PostService {
             post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
             post.setLike(mapLikePost.getOrDefault(post.getId(), false));
         }
-        return List.of();
+        return postRes;
     }
 
     @Override

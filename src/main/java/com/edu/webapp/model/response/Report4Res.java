@@ -11,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProvinceRes {
-    private Integer id;
-    private String name;
-    List<DistrictRes> district;
+public class Report4Res {
+    private List<String> time;
+    private List<String> comment;
+    private List<String> like;
 }

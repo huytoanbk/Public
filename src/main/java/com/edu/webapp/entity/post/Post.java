@@ -93,6 +93,4 @@ public class Post {
     @Column(name = "TYPE")
     private TypeRoom type;
 
-    @Column(name = "check")
-    private Integer check = 0;
 }
