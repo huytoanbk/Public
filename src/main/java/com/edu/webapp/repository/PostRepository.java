@@ -1,6 +1,7 @@
 package com.edu.webapp.repository;
 
 import com.edu.webapp.entity.post.Post;
+import com.edu.webapp.model.dto.PostCommentDto;
 import com.edu.webapp.model.enums.ActiveStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,6 @@ public interface PostRepository extends JpaRepository<Post, String> {
     List<Post> findRandomRecommend();
 
     Integer countByActive(ActiveStatus status);
+
+
 }

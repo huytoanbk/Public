@@ -10,6 +10,8 @@ import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.CommentMapper;
 import com.edu.webapp.mapper.PostMapper;
+import com.edu.webapp.model.dto.PostCommentDto;
+import com.edu.webapp.model.dto.PostLikeDto;
 import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.page.CustomPage;
 import com.edu.webapp.model.request.*;
@@ -343,6 +345,30 @@ public class PostsServiceImpl implements PostService {
         postRes.setUptime(TimeUtils.formatTimeDifference(postRes.getUpdatedAt(), OffsetDateTime.now()));
         postRes.setDateOfJoin(TimeUtils.formatTimeDifference(postRes.getCreatedAt(), OffsetDateTime.now()));
         return postRes;
+    }
+
+    @Override
+    public List<PostRes> top10Comment() {
+        List<PostCommentDto> postCommentDtos = commentRepository.findTop10Comments();
+        List<PostRes> postResList = new ArrayList<>();
+        for (PostCommentDto postCommentDto : postCommentDtos) {
+            PostRes postRes = getPostById(postCommentDto.getPostId());
+            postRes.setTotalComment(postCommentDto.getTotalComment());
+            postResList.add(postRes);
+        }
+        return postResList;
+    }
+
+    @Override
+    public List<PostRes> top10Like() {
+        List<PostLikeDto> postLikeDtos = likePostRepository.findTop10Like();
+        List<PostRes> postResList = new ArrayList<>();
+        for (PostLikeDto postLikeDto : postLikeDtos) {
+            PostRes postRes = getPostById(postLikeDto.getPostId());
+            postRes.setTotalComment(postLikeDto.getTotalLike());
+            postResList.add(postRes);
+        }
+        return postResList;
     }
 
     private PostRes.UserPostRes buildUserPostRes(User user) {

@@ -13,6 +13,6 @@ import java.util.List;
 @Builder
 public class Report4Res {
     private List<String> time;
-    private List<String> comment;
-    private List<String> like;
+    private List<Integer> comment;
+    private List<Integer> like;
 }

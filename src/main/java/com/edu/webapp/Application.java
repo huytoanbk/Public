@@ -4,6 +4,7 @@ import com.edu.webapp.entity.advertisement.AdvertisingPackage;
 import com.edu.webapp.entity.location.District;
 import com.edu.webapp.entity.location.Province;
 import com.edu.webapp.entity.user.Role;
+import com.edu.webapp.entity.user.User;
 import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,14 @@ public class Application implements CommandLineRunner {
         createProvinces();
         createDistricts();
         createAdvertisingPackage();
+        createAdmin();
+    }
 
+    private void createAdmin() {
+        log.info("Create admin");
+        if (userRepository.count() == 0) {
+            User user = new User();
+        }
     }
 
     private void createAdvertisingPackage() {

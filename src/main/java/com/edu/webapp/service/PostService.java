@@ -32,4 +32,8 @@ public interface PostService {
     List<PostRes> recommend() throws IOException;
 
     PostRes updatePostStatus(PostUpdateStatusReq postUpdateStatusReq);
+
+    List<PostRes> top10Comment();
+
+    List<PostRes> top10Like();
 }

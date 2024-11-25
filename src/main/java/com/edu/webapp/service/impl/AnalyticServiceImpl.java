@@ -7,13 +7,13 @@ import com.edu.webapp.model.response.Report1Res;
 import com.edu.webapp.model.response.Report2Res;
 import com.edu.webapp.model.response.Report3Res;
 import com.edu.webapp.model.response.Report4Res;
-import com.edu.webapp.repository.PayAdRepository;
-import com.edu.webapp.repository.PostRepository;
-import com.edu.webapp.repository.ReportPostRepository;
-import com.edu.webapp.repository.UserRepository;
+import com.edu.webapp.repository.*;
 import com.edu.webapp.service.AnalyticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.sql.Date;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,8 @@ public class AnalyticServiceImpl implements AnalyticService {
 
     private final ReportPostRepository reportPostRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final LikePostRepository likePostRepository;
 
     @Override
     public Report1Res report1(ReportReq reportReq) {
@@ -47,6 +49,9 @@ public class AnalyticServiceImpl implements AnalyticService {
     @Override
     public Report3Res report3(ReportReq reportReq) {
         ReportPost reportPost = new ReportPost();
+        LocalDate today = LocalDate.now();
+        Date sqlDate = Date.valueOf(today);
+        reportPostRepository.deleteByCreatedAt(sqlDate);
         reportPost.setPostActive(postRepository.countByActive(ActiveStatus.ACTIVE));
         reportPost.setPostInactive(postRepository.countByActive(ActiveStatus.INACTIVE));
         reportPost.setPostPending(postRepository.countByActive(ActiveStatus.PENDING));
@@ -62,6 +67,10 @@ public class AnalyticServiceImpl implements AnalyticService {
 
     @Override
     public Report4Res report4() {
-        return null;
+        Report4Res report4Res = new Report4Res();
+        report4Res.setTime(commentRepository.get12Month());
+        report4Res.setComment(commentRepository.countLikeByMonth());
+        report4Res.setLike(likePostRepository.countLikeByMonth());
+        return report4Res;
     }
 }

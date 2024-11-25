@@ -82,4 +82,14 @@ public class PostController {
     public ResponseEntity<PostRes> updatePostStatus(@RequestBody PostUpdateStatusReq postUpdateStatusReq) {
         return ResponseEntity.ok(postService.updatePostStatus(postUpdateStatusReq));
     }
+
+    @GetMapping("/top-10-comment")
+    public ResponseEntity<List<PostRes>> top10Comment() {
+        return  ResponseEntity.ok(postService.top10Comment());
+    }
+
+    @GetMapping("/top-10-like")
+    public ResponseEntity<List<PostRes>> top10Like() {
+        return  ResponseEntity.ok(postService.top10Like());
+    }
 }
