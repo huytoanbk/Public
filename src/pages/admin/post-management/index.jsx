@@ -115,7 +115,7 @@ const PostManagement = () => {
       title: "Active",
       dataIndex: "active",
       key: "active",
-      render: (_, record) => <PostStatusColumn record={record} />,
+      render: (_, record) => <PostStatusColumn record={record} onStatusUpdated={fetchData} />,
     },
     {
       title: "Type",
@@ -167,7 +167,7 @@ const PostManagement = () => {
             )}
           />
         </Form.Item>
-{/* 
+        {/* 
         <Form.Item label="Trạng thái nhà">
           <Controller
             name="statusRoom"
@@ -322,7 +322,7 @@ const statusOptions = [
   { value: "REJECT", label: "Từ chối" },
 ];
 
-const PostStatusColumn = ({ record }) => {
+const PostStatusColumn = ({ record, onStatusUpdated }) => {
   const handleStatusChange = async (value) => {
     try {
       const response = await axiosInstance.put(`/posts/update-status`, {
@@ -331,6 +331,9 @@ const PostStatusColumn = ({ record }) => {
       });
       if (response.status === 200) {
         message.success("Cập nhật trạng thái thành công!");
+        if (onStatusUpdated) {
+          onStatusUpdated();
+        }
       } else {
         message.error("Cập nhật trạng thái thất bại!");
       }
