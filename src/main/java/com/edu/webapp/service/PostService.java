@@ -19,7 +19,7 @@ public interface PostService {
 
     CommentRes createComment(CommentReq commentReq);
 
-    Page<PostUserRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status);
+    Page<PostRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status);
 
     Page<CommentRes> getListCommentPost(CommentPostSearchReq commentPostSearchReq);
 
@@ -29,7 +29,7 @@ public interface PostService {
 
     Page<PostRes> listPostLike(Integer page, Integer size);
 
-    List<PostRes> recommend() throws IOException;
+    Page<PostRes> recommend() throws IOException;
 
     PostRes updatePostStatus(PostUpdateStatusReq postUpdateStatusReq);
 

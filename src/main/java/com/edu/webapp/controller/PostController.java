@@ -49,7 +49,7 @@ public class PostController {
     }
 
     @GetMapping("/search-user-post")
-    public ResponseEntity<Page<PostUserRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
+    public ResponseEntity<Page<PostRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
                                                            @RequestParam(name = "size", defaultValue = "30") Integer size,
                                                            @RequestParam(name = "key", defaultValue = "") String key,
                                                            @RequestParam(name = "status", required = false) ActiveStatus status) {
@@ -74,7 +74,7 @@ public class PostController {
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<List<PostRes>> recommend() throws IOException {
+    public ResponseEntity<Page<PostRes>> recommend() throws IOException {
         return ResponseEntity.ok(postService.recommend());
     }
 

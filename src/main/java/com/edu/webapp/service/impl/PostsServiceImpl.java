@@ -152,17 +152,35 @@ public class PostsServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostUserRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status) {
+    public Page<PostRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
         String username = jwtCommon.extractUsername();
-        Page<Post> posts;
+        Page<Post> postList;
         if (status == null) {
-            posts = postRepository.findByCreatedByAndContentContaining(username, key, pageable);
+            postList = postRepository.findByCreatedByAndContentContaining(username, key, pageable);
         } else {
-            posts = postRepository.findByCreatedByAndContentContainingAndActive(username, key, status, pageable);
+            postList = postRepository.findByCreatedByAndContentContainingAndActive(username, key, status, pageable);
         }
-        List<PostUserRes> postUserResList = postMapper.postsToPostsUsers(posts.getContent());
-        return new PageImpl<>(postUserResList, pageable, posts.getTotalElements());
+        List<PostRes> postRes = postMapper.postsToPosts(postList.getContent());
+        HashMap<String, Integer> mapCount = new HashMap<>();
+        Set<String> emails;
+        emails = postRes.stream().map(PostRes::getCreatedBy).collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails).stream().collect(Collectors.toMap(User::getEmail, user -> user));
+        emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
+        Map<String, Boolean> mapLikePost;
+        mapLikePost = (username != null) ? likePostRepository.findLikePostByUserId(userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST)).getId()).stream().collect(Collectors.toMap(LikePost::getPostId, likePost -> true)) : new HashMap<>();
+        for (PostRes post : postRes) {
+            PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
+            User user = userMap.get(post.getCreatedBy());
+            userPostRes.setTotalPost(mapCount.getOrDefault(user.getEmail(), 0));
+            userPostRes.setId(Objects.requireNonNull(user).getId());
+            buildUserPostRes(userPostRes, user);
+            post.setUserPostRes(userPostRes);
+            post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
+            post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
+            post.setLike(mapLikePost.getOrDefault(post.getId(), false));
+        }
+        return new PageImpl<>(postRes, pageable, postList.getTotalElements());
     }
 
     @Override
@@ -283,7 +301,7 @@ public class PostsServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostRes> recommend() throws IOException {
+    public Page<PostRes> recommend() throws IOException {
         String username = jwtCommon.extractUsername();
         List<Post> list;
         if (username == null) {
@@ -321,7 +339,7 @@ public class PostsServiceImpl implements PostService {
             post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
             post.setLike(mapLikePost.getOrDefault(post.getId(), false));
         }
-        return postRes;
+        return new PageImpl<>(postRes, PageRequest.of(0, postRes.size()), postRes.size());
     }
 
     @Override
@@ -402,7 +420,7 @@ public class PostsServiceImpl implements PostService {
             shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value(keyQuery.equals("*") ? "*" : "*" + keyQuery + "*"))));
             List<Query> filterQueries = new ArrayList<>();
 
-            if (filterPostReq.getType() != null) {
+            if (filterPostReq.getType() != null && !filterPostReq.getType().equals("all")) {
                 filterQueries.add(Query.of(f -> f.term(t -> t.field("type").value(filterPostReq.getType()))));
             }
 
