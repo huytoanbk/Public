@@ -22,16 +22,15 @@ const AdsManagement = () => {
     resolver: zodResolver(schema),
     defaultValues: { search: "" },
   });
-
   const fetchData = async (page = 0, pageSize = 10, search = "") => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/advertising-package`, {
-        params: { page, size: pageSize, search },
+        params: { page, size: pageSize, ...(search && { key: search }) },
       });
-      const { content } = response.data;
-      setData(content || []);
-      setPagination({ current: page, pageSize, total: response.data.total });
+      const { content, totalElements } = response.data;
+      setData(content.map((item) => ({ ...item, key: item.id })) || []);
+      setPagination({ current: page + 1, pageSize, total: totalElements });
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {

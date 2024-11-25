@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Title, Tooltip, Legend } from 'chart.js';
+import axios from 'axios';
+import axiosInstance from '../../../interceptor';
 
 ChartJS.register(
   RadialLinearScale, // Đăng ký RadialLinearScale để biểu đồ Radar hoạt động
@@ -34,43 +36,32 @@ const CommentAndLikeChart = () => {
   });
 
   const fetchData = async () => {
-    const response = await fakeApiCall();
-    const { months, comments, likes } = response;
+    try {
+      const response = await axiosInstance.post('/analytic/report-4');
+      const { time, comment, like } = response.data;
 
-    setChartData({
-      labels: months,
-      datasets: [
-        {
-          label: 'Số lượng comment',
-          data: comments,
-          borderColor: 'rgba(255, 99, 132, 1)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderWidth: 1
-        },
-        {
-          label: 'Số lượt yêu thích',
-          data: likes,
-          borderColor: 'rgba(54, 162, 235, 1)',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderWidth: 1
-        }
-      ]
-    });
-  };
-
-  const fakeApiCall = () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          months: [
-            'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-            'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
-          ],
-          comments: [120, 200, 150, 180, 220, 170, 190, 210, 180, 250, 230, 300],
-          likes: [300, 350, 400, 380, 420, 450, 480, 510, 530, 540, 570, 600]
-        });
-      }, 1000);
-    });
+      setChartData({
+        labels: time, // Gắn dữ liệu mốc thời gian vào labels
+        datasets: [
+          {
+            label: 'Số lượng comment',
+            data: comment, // Gắn dữ liệu comment
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderWidth: 1
+          },
+          {
+            label: 'Số lượt yêu thích',
+            data: like, // Gắn dữ liệu like
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderWidth: 1
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu từ API:', error);
+    }
   };
 
   useEffect(() => {
@@ -79,7 +70,9 @@ const CommentAndLikeChart = () => {
 
   return (
     <div>
-      {/* <h2 className="text-center text-xl font-bold">Radar Chart - Số lượng comment và lượt yêu thích theo tháng</h2> */}
+      <h2 className="text-center text-xl font-bold mb-4">
+        Radar Chart - Số lượng comment và lượt yêu thích theo thời gian
+      </h2>
       <Radar data={chartData} style={{ width: '100%' }} />
     </div>
   );

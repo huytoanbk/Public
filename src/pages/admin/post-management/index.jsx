@@ -35,10 +35,12 @@ const PostManagement = () => {
   const fetchData = async (filters = {}, updatedPagination = pagination) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.post("/posts/search", {
-        page: updatedPagination.current - 1,
-        size: updatedPagination.pageSize,
-        ...filters,
+      const response = await axiosInstance.get("/posts/search-user-post", {
+        params: {
+          page: updatedPagination.current - 1,
+          size: updatedPagination.pageSize,
+          ...filters,
+        },
       });
       const { content, totalElements } = response.data;
       setData(content);
@@ -165,7 +167,7 @@ const PostManagement = () => {
             )}
           />
         </Form.Item>
-
+{/* 
         <Form.Item label="Trạng thái nhà">
           <Controller
             name="statusRoom"
@@ -180,9 +182,9 @@ const PostManagement = () => {
               </Select>
             )}
           />
-        </Form.Item>
+        </Form.Item> */}
 
-        <Form.Item label="Loại phòng">
+        {/* <Form.Item label="Loại phòng">
           <Controller
             name="roomType"
             control={control}
@@ -196,7 +198,7 @@ const PostManagement = () => {
               </Select>
             )}
           />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Search
@@ -323,13 +325,10 @@ const statusOptions = [
 const PostStatusColumn = ({ record }) => {
   const handleStatusChange = async (value) => {
     try {
-      const response = await axiosInstance.put(
-        `/update-status/status=${value}`,
-        {
-          postId: record.id,
-          status: value,
-        }
-      );
+      const response = await axiosInstance.put(`/posts/update-status`, {
+        postId: record.id,
+        active: value,
+      });
       if (response.status === 200) {
         message.success("Cập nhật trạng thái thành công!");
       } else {

@@ -16,20 +16,18 @@ const UserStatsChart = () => {
   const fetchData = async (startDate, endDate) => {
     setLoading(true);
     try {
-      // const response = await axiosInstance.post('/api/stats', {
-      //   startDate,
-      //   endDate
-      // });
-      const response = {
-        data: {
-          registrationCount: [5, 10, 15, 20, 25, 30, 35],
-          loginCount: [10, 15, 20, 25, 30, 35, 40],
-          packagePurchaseCount: [2, 4, 6, 8, 10, 12, 14],
-          expiredUserCount: [0, 1, 2, 1, 1, 2, 3],
-        },
-      };
+      // Định dạng ngày trước khi gọi API
+      const formattedStartDate = dayjs(startDate).format('DD-MM-YYYY');
+      const formattedEndDate = dayjs(endDate).format('DD-MM-YYYY');
+  
+      const response = await axiosInstance.post('/analytic/report-1', {
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      });
+  
       const { registrationCount, loginCount, packagePurchaseCount, expiredUserCount } = response.data;
       const labels = generateDateLabels(startDate, endDate);
+  
       const data = {
         labels,
         datasets: [
@@ -63,7 +61,7 @@ const UserStatsChart = () => {
           },
         ],
       };
-
+  
       setChartData(data);
     } catch (error) {
       console.error("Error fetching data", error);
