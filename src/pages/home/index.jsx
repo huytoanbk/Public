@@ -69,19 +69,28 @@ const HomePage = () => {
 
   useEffect(() => {
     handleFilter();
-  }, [filter])
+  }, [filter]);
+
+  const resetFilter = () => {
+    setValue("priceRange", [0, 100000000]);
+    setValue("areaRange", [0, 500]);
+    setValue("province", null);
+    setValue("district", null);
+    setValue("statusRoom", null);
+    setValue("searchValue", "");
+    setFilter({ tab: "all", sort: "newest" });
+    handleFilter();
+  }
 
   const handleFilter = async () => {
     try {
       setLoading(true);
-      // const params = new URLSearchParams(location.search);
-      // const p = params.get("p");
       const response = await getListPost({
         page: pagination.current - 1,
         size: pagination.pageSize,
         type: filter.tab,
         key: searchValue,
-        statusRoom,
+        ...(statusRoom && { statusRoom }),
         fieldSort: filter.sort,
         ...(priceRange && {
           price: {
@@ -297,9 +306,12 @@ const HomePage = () => {
           >
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold">Bộ lọc</span>
-              <Button htmlType="submit" onClick={handleFilter}>
-                Lọc
-              </Button>
+              <div>
+                <Button onClick={resetFilter} className="mr-2">Xóa bộ lọc</Button>
+                <Button htmlType="submit" onClick={handleFilter}>
+                  Lọc
+                </Button>
+              </div>
             </div>
 
             <div className="mt-4">
