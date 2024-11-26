@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FilterRangeReq {
-    private Double from;
-    private Double to;
+public class SetAdminReq {
+    private String userId;
 }

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -47,4 +48,6 @@ public class UserRes {
     private OffsetDateTime uptime;
 
     private List<RoleRes> roles;
+
+    private LocalDate rechargeVip;
 }

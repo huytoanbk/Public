@@ -83,4 +83,9 @@ public class UsersController {
     public ResponseEntity<UserRes> setRoles(@RequestBody UserRoleReq userRoleReq) {
         return ResponseEntity.ok(usersService.setRoles(userRoleReq));
     }
+
+    @PostMapping("/update-status")
+    public ResponseEntity<UserRes> updateStatus(@RequestBody UserUpdateStatusReq userUpdateStatusReq) {
+        return ResponseEntity.ok(usersService.updateStatus(userUpdateStatusReq));
+    }
 }

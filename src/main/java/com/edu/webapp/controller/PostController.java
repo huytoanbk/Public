@@ -12,6 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @RestController
@@ -25,7 +28,7 @@ public class PostController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<Page<PostRes>> getPosts(@RequestBody(required = false) FilterPostReq filterPostReq) {
+    public ResponseEntity<Page<PostRes>> getPosts(@RequestBody(required = false) FilterPostReq filterPostReq) throws IOException {
         if (filterPostReq == null) filterPostReq = new FilterPostReq();
         return ResponseEntity.ok(postService.search(filterPostReq));
     }
@@ -46,7 +49,7 @@ public class PostController {
     }
 
     @GetMapping("/search-user-post")
-    public ResponseEntity<Page<PostUserRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
+    public ResponseEntity<Page<PostRes>> getPostByUser(@RequestParam(name = "page", defaultValue = "0") Integer page,
                                                            @RequestParam(name = "size", defaultValue = "30") Integer size,
                                                            @RequestParam(name = "key", defaultValue = "") String key,
                                                            @RequestParam(name = "status", required = false) ActiveStatus status) {
@@ -66,7 +69,27 @@ public class PostController {
 
     @GetMapping("/like-post")
     public ResponseEntity<Page<PostRes>> listPostLike(@RequestParam(name = "page", defaultValue = "0") Integer page,
-                                                @RequestParam(name = "size", defaultValue = "30") Integer size){
-        return ResponseEntity.ok(postService.listPostLike(page,size));
+                                                      @RequestParam(name = "size", defaultValue = "30") Integer size) {
+        return ResponseEntity.ok(postService.listPostLike(page, size));
+    }
+
+    @GetMapping("/recommend")
+    public ResponseEntity<Page<PostRes>> recommend() throws IOException {
+        return ResponseEntity.ok(postService.recommend());
+    }
+
+    @PutMapping("update-status")
+    public ResponseEntity<PostRes> updatePostStatus(@RequestBody PostUpdateStatusReq postUpdateStatusReq) {
+        return ResponseEntity.ok(postService.updatePostStatus(postUpdateStatusReq));
+    }
+
+    @GetMapping("/top-10-comment")
+    public ResponseEntity<List<PostRes>> top10Comment() {
+        return  ResponseEntity.ok(postService.top10Comment());
+    }
+
+    @GetMapping("/top-10-like")
+    public ResponseEntity<List<PostRes>> top10Like() {
+        return  ResponseEntity.ok(postService.top10Like());
     }
 }

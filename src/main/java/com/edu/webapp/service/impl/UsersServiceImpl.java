@@ -7,12 +7,14 @@ import com.edu.webapp.entity.user.Role;
 import com.edu.webapp.entity.user.User;
 import com.edu.webapp.error.ErrorCodes;
 import com.edu.webapp.error.ValidateException;
+import com.edu.webapp.mapper.ProvinceMapperImpl;
 import com.edu.webapp.mapper.UserMapper;
 import com.edu.webapp.model.enums.NotiStatus;
 import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.AuthRes;
 import com.edu.webapp.model.response.UserRes;
 import com.edu.webapp.repository.OtpRepository;
+import com.edu.webapp.repository.RoleRepository;
 import com.edu.webapp.repository.UserRepository;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.UsersService;
@@ -50,6 +52,8 @@ public class UsersServiceImpl implements UsersService {
     private final JavaMailSender mailSender;
     private final OtpRepository otpRepository;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+    private final ProvinceMapperImpl provinceMapperImpl;
+    private final RoleRepository roleRepository;
 
     @Override
     public AuthRes register(UserCreateReq userCreateReq) {
@@ -217,6 +221,15 @@ public class UsersServiceImpl implements UsersService {
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
         }
+    }
+
+    @Override
+    public UserRes updateStatus(UserUpdateStatusReq userUpdateStatusReq) {
+        String email = jwtCommon.extractUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+        user.setActive(userUpdateStatusReq.getActive());
+        userRepository.save(user);
+        return userMapper.userToUserRes(user);
     }
 
     public String generatePassword(int length) {

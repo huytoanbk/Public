@@ -11,8 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProvinceRes {
-    private Integer id;
-    private String name;
-    List<DistrictRes> district;
+public class Report3Res {
+    List<Integer> postActive;
+    List<Integer> postPending;
+    List<Integer> postReject;
+    List<Integer> postInactive;
 }

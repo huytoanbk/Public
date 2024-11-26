@@ -4,6 +4,7 @@ import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
 import com.edu.webapp.model.response.AdvertisingPackageRes;
+import com.edu.webapp.model.response.PayAdAdRes;
 import com.edu.webapp.model.response.PayAdRes;
 import org.springframework.data.domain.Page;
 
@@ -20,4 +21,6 @@ public interface AdvertisingPackageService {
     PayAdRes createPayAd(PayAdCreateReq payAdCreateReq);
 
     PayAdRes getPayAd(Integer id);
+
+    Page<PayAdAdRes> getPayAdAll(Integer page, Integer size);
 }

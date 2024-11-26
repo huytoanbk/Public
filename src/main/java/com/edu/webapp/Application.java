@@ -4,6 +4,7 @@ import com.edu.webapp.entity.advertisement.AdvertisingPackage;
 import com.edu.webapp.entity.location.District;
 import com.edu.webapp.entity.location.Province;
 import com.edu.webapp.entity.user.Role;
+import com.edu.webapp.entity.user.User;
 import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.sql.Date;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @EnableCaching
+@EnableScheduling
 @EnableAsync
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class Application implements CommandLineRunner {
@@ -30,7 +34,7 @@ public class Application implements CommandLineRunner {
     private final ProvinceRepository provinceRepository;
     private final DistrictRepository districtRepository;
     private final AdvertisingPackageRepository advertisingPackageRepository;
-
+    private final UserRepository userRepository;
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -41,6 +45,14 @@ public class Application implements CommandLineRunner {
         createProvinces();
         createDistricts();
         createAdvertisingPackage();
+        createAdmin();
+    }
+
+    private void createAdmin() {
+        log.info("Create admin");
+        if (userRepository.count() == 0) {
+            User user = new User();
+        }
     }
 
     private void createAdvertisingPackage() {

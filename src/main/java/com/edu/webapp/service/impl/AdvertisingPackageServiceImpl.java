@@ -12,6 +12,7 @@ import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
 import com.edu.webapp.model.response.AdvertisingPackageRes;
+import com.edu.webapp.model.response.PayAdAdRes;
 import com.edu.webapp.model.response.PayAdRes;
 import com.edu.webapp.repository.AdvertisingPackageRepository;
 import com.edu.webapp.repository.PayAdRepository;
@@ -27,7 +28,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -65,7 +70,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
             advertisingPackagePage = advertisingPackageRepository.findAll(pageable);
         } else {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByAdvertisingName(key, pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByAdvertisingNameContaining(key, pageable);
         }
         List<AdvertisingPackageRes> advertisingPackageRes = advertisingPackageMapper.listAdvertisingPackageToListAdvertisingPackageRes(advertisingPackagePage.getContent());
         return new PageImpl<>(advertisingPackageRes, pageable, advertisingPackagePage.getTotalElements());
@@ -124,6 +129,29 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     public PayAdRes getPayAd(Integer id) {
         PayAd payAd = payAdRepository.findById(id).orElseThrow(() -> new ValidateException(ErrorCodes.PAY_AD_VALID));
         return payAdMapper.payAdToPayAdRes(payAd);
+    }
+
+    @Override
+    public Page<PayAdAdRes> getPayAdAll(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").ascending());
+        Page<PayAd> payAdPage = payAdRepository.findAll(pageable);
+        List<AdvertisingPackage> advertisingPackages = advertisingPackageRepository.findAll();
+        Map<Integer, String> advertisingPackageMap = advertisingPackages.stream().collect(Collectors.toMap(AdvertisingPackage::getId, AdvertisingPackage::getAdvertisingName));
+        List<User> users = userRepository.findAllByIdIn(payAdPage.getContent().stream().map(PayAd::getUserId).collect(Collectors.toSet()));
+        Map<String, String> userMap = users.stream().collect(Collectors.toMap(User::getId, User::getEmail));
+        List<PayAdAdRes> payAdAdResList = payAdPage.getContent().stream().map(payAd -> {
+            PayAdAdRes payAdAdRes = new PayAdAdRes();
+            payAdAdRes.setId(payAd.getId());
+            payAdAdRes.setAdvertisingPackage(payAd.getAdvertisingPackage().toString());
+            payAdAdRes.setUserId(payAd.getUserId());
+            payAdAdRes.setPrice(payAd.getPrice());
+            payAdAdRes.setActive(payAd.getActive());
+            payAdAdRes.setCreatedAt(payAd.getCreatedAt());
+            payAdAdRes.setEmail(userMap.getOrDefault(payAd.getUserId(), null));
+            payAdAdRes.setAdvertisingPackageName(advertisingPackageMap.getOrDefault(payAd.getAdvertisingPackage(), null));
+            return payAdAdRes;
+        }).toList();
+        return new PageImpl<>(payAdAdResList, pageable, payAdPage.getTotalElements());
     }
 
 

@@ -92,4 +92,5 @@ public class Post {
     @Enumerated(EnumType.STRING)
     @Column(name = "TYPE")
     private TypeRoom type;
+
 }

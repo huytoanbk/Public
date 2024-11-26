@@ -4,6 +4,7 @@ import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
 import com.edu.webapp.model.response.AdvertisingPackageRes;
+import com.edu.webapp.model.response.PayAdAdRes;
 import com.edu.webapp.model.response.PayAdRes;
 import com.edu.webapp.service.AdvertisingPackageService;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,10 @@ public @RequiredArgsConstructor
     @GetMapping("/pay/{id}")
     public ResponseEntity<PayAdRes> getPayAd(@PathVariable Integer id) {
         return ResponseEntity.ok(advertisingPackageService.getPayAd(id));
+    }
+
+    @GetMapping("/pay-ad")
+    public ResponseEntity<Page<PayAdAdRes>> getPayAdAll(@RequestParam(name = "page",required = false, defaultValue = "0") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
+        return ResponseEntity.ok(advertisingPackageService.getPayAdAll(page, size));
     }
 }

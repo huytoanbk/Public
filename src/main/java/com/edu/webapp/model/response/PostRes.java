@@ -42,7 +42,10 @@ public class PostRes {
     private UserPostRes userPostRes;
     private String uptime;
     private String dateOfJoin;
+    private Long totalLike;
+    private Long totalComment;
     private boolean like;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
