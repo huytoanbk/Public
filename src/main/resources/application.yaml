@@ -30,11 +30,11 @@ spring:
     hikari:
       #      username: root1
       username: root
-      password: Matkhau@123
+      password:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
