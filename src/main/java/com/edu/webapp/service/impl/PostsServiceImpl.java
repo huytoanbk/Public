@@ -398,47 +398,72 @@ public class PostsServiceImpl implements PostService {
     }
 
 
-    public BoolQuery buildBoolQuery(FilterPostReq filterPostReq) {
+        public BoolQuery buildBoolQuery(FilterPostReq filterPostReq) {
+            return BoolQuery.of(b -> {
+                List<Query> mustQueries = new ArrayList<>();
 
-        return BoolQuery.of(b -> {
-            List<Query> mustQueries = new ArrayList<>();
+                // Range for price
+                if (filterPostReq.getPrice() != null) {
+                    mustQueries.add(Query.of(m -> m.range(r -> r.field("price")
+                            .gte(JsonData.of(filterPostReq.getPrice().getFrom()))
+                            .lte(JsonData.of(
+                                    filterPostReq.getPrice().getTo() != null
+                                            ? filterPostReq.getPrice().getTo()
+                                            : filterPostReq.getPrice().getFrom() + 100000000)) // Default upper bound
+                    )));
+                }
 
-            // Range for price
-            if (filterPostReq.getPrice() != null) {
-                mustQueries.add(Query.of(m -> m.range(r -> r.field("price").gte(JsonData.of(filterPostReq.getPrice().getFrom())).lte(JsonData.of(filterPostReq.getPrice().getTo() != null ? filterPostReq.getPrice().getTo() : filterPostReq.getPrice().getFrom() + 100000000)) // Default upper bound
-                )));
-            }
+                // Range for acreage
+                if (filterPostReq.getAcreage() != null) {
+                    mustQueries.add(Query.of(m -> m.range(r -> r.field("acreage")
+                            .gte(JsonData.of(filterPostReq.getAcreage().getFrom()))
+                            .lte(JsonData.of(
+                                    filterPostReq.getAcreage().getTo() != null
+                                            ? filterPostReq.getAcreage().getTo()
+                                            : filterPostReq.getAcreage().getFrom() + 500)) // Default upper bound
+                    )));
+                }
 
-            // Range for acreage
-            if (filterPostReq.getAcreage() != null) {
-                mustQueries.add(Query.of(m -> m.range(r -> r.field("acreage").gte(JsonData.of(filterPostReq.getAcreage().getFrom())).lte(JsonData.of(filterPostReq.getAcreage().getTo() != null ? filterPostReq.getAcreage().getTo() : filterPostReq.getAcreage().getFrom() + 500)) // Default upper bound
-                )));
-            }
-            List<Query> shouldQueries = new ArrayList<>();
-            String keyQuery = StringUtils.isEmpty(filterPostReq.getKey()) ? "*" : filterPostReq.getKey();
-            shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("content").value(keyQuery.equals("*") ? "*" : "*" + keyQuery + "*"))));
-            shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value(keyQuery.equals("*") ? "*" : "*" + keyQuery + "*"))));
-            List<Query> filterQueries = new ArrayList<>();
+                List<Query> shouldQueries = new ArrayList<>();
+                String keyQuery = StringUtils.isEmpty(filterPostReq.getKey()) ? "*" : filterPostReq.getKey();
 
-            if (filterPostReq.getType() != null && !filterPostReq.getType().equals("all")) {
-                filterQueries.add(Query.of(f -> f.term(t -> t.field("type").value(filterPostReq.getType()))));
-            }
+                // Improved wildcard query, adding "*" around the keyQuery only if needed
+                if (!keyQuery.equals("*")) {
+                    shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("content").value("*" + keyQuery + "*"))));
+                    shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value("*" + keyQuery + "*"))));
+                }
 
-            if (filterPostReq.getProvince() != null) {
-                filterQueries.add(Query.of(f -> f.term(t -> t.field("province").value(filterPostReq.getProvince()))));
-            }
+                List<Query> filterQueries = new ArrayList<>();
 
-            if (filterPostReq.getDistrict() != null) {
-                filterQueries.add(Query.of(f -> f.term(t -> t.field("district").value(filterPostReq.getDistrict()))));
-            }
+                // Match queries with exact values (using term for exact matching)
+                if (filterPostReq.getType() != null && !filterPostReq.getType().equals("all")) {
+                    filterQueries.add(Query.of(f -> f.term(t -> t.field("type").value(filterPostReq.getType()))));
+                }
 
-            if (filterPostReq.getStatusRoom() != null) {
-                filterQueries.add(Query.of(f -> f.term(t -> t.field("statusRoom").value(filterPostReq.getStatusRoom()))));
-            }
+                if (filterPostReq.getProvince() != null) {
+                    // Use 'term' for exact match on 'province'
+                    filterQueries.add(Query.of(f -> f.term(t -> t.field("province").value(filterPostReq.getProvince()))));
+                }
 
-            return b.must(mustQueries).should(shouldQueries).minimumShouldMatch("1").filter(filterQueries);
-        });
-    }
+                if (filterPostReq.getDistrict() != null) {
+                    // Use 'term' for exact match on 'district'
+                    filterQueries.add(Query.of(f -> f.term(t -> t.field("district").value(filterPostReq.getDistrict()))));
+                }
+
+                if (filterPostReq.getStatusRoom() != null) {
+                    // Use 'term' for exact match on 'statusRoom'
+                    filterQueries.add(Query.of(f -> f.term(t -> t.field("statusRoom").value(filterPostReq.getStatusRoom()))));
+                }
+
+                return b.must(mustQueries)
+                        .should(shouldQueries)
+                        .filter(filterQueries);
+            });
+        }
+
+
+
+
 
     private Map<String, SortOrder> getOrderSort(String value) {
         Map<String, SortOrder> map = new HashMap<>();

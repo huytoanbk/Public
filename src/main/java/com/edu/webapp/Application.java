@@ -60,6 +60,9 @@ public class Application implements CommandLineRunner {
     private void createAdmin() {
         log.info("Create admin");
         UserCreateReq userCreateReq = new UserCreateReq();
+        userCreateReq.setFullName("ADMIN");
+        userCreateReq.setEmail("admin@gmail.com");
+        userCreateReq.setPassword("admin123");
         if (userRepository.count() == 0) {
             User user = userMapper.userCreateReqToUser(userCreateReq);
             user.setPassword(passwordEncoder.encode(userCreateReq.getPassword()));
@@ -88,7 +91,7 @@ public class Application implements CommandLineRunner {
             AdvertisingPackage month12 = new AdvertisingPackage();
             month12.setAdvertisingName("Gói 12 tháng");
             month12.setDes("Gói 12 tháng");
-            month12.setPrice(10200000.0);
+            month12.setPrice(1020000.0);
             month12.setCreatedBy("SYSTEM");
             month12.setCountDate(365);
             advertisingPackageRepository.save(month12);

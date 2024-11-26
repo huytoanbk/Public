@@ -30,25 +30,25 @@ public interface UserRepository extends JpaRepository<User, String> {
 
 
     @Query(nativeQuery = true, value = "WITH RECURSIVE DateRange AS ( \n" +
-            "    SELECT :startDate AS date_val -- ngày bắt đầu\n" +
+            "    SELECT CAST(? AS DATE) AS date_val -- ngày bắt đầu\n" +
             "    UNION ALL \n" +
-            "    SELECT date_val + INTERVAL 1 DAY \n" +
+            "    SELECT DATE_ADD(date_val, INTERVAL 1 DAY) -- Cộng 1 ngày vào date_val\n" +
             "    FROM DateRange \n" +
-            "    WHERE date_val < :endDate  -- ngày kết thúc\n" +
+            "    WHERE date_val < ?  -- ngày kết thúc\n" +
             ")\n" +
             "SELECT COALESCE(COUNT(u.id), 0) AS user_count\n" +
             "FROM DateRange dr\n" +
             "LEFT JOIN user u ON DATE(u.created_at) = DATE(dr.date_val)\n" +
             "GROUP BY dr.date_val\n" +
-            "ORDER BY dr.date_val")
+            "ORDER BY dr.date_val\n")
     List<Integer> registrationCount(@Param("startDate") Date startDate,
                                         @Param("endDate") Date endDate);
 
 
     @Query(nativeQuery = true, value = "WITH RECURSIVE DateRange AS ( \n" +
-            "    SELECT :startDate AS date_val -- ngày bắt đầu\n" +
+            "    SELECT CAST(:startDate AS DATE) AS date_val -- ngày bắt đầu\n" +
             "    UNION ALL \n" +
-            "    SELECT date_val + INTERVAL 1 DAY \n" +
+            "    SELECT DATE_ADD(date_val, INTERVAL 1 DAY) \n" +  // Sử dụng DATE_ADD để cộng 1 ngày
             "    FROM DateRange \n" +
             "    WHERE date_val < :endDate  -- ngày kết thúc\n" +
             ")\n" +
@@ -58,20 +58,22 @@ public interface UserRepository extends JpaRepository<User, String> {
             "GROUP BY dr.date_val\n" +
             "ORDER BY dr.date_val")
     List<Integer> loginCount(@Param("startDate") Date startDate,
-                                    @Param("endDate") Date endDate);
+                             @Param("endDate") Date endDate);
+
 
     @Query(nativeQuery = true, value = "WITH RECURSIVE DateRange AS ( \n" +
-            "    SELECT :startDate AS date_val -- ngày bắt đầu\n" +
+            "    SELECT CAST(:startDate AS DATE) AS date_val -- ngày bắt đầu\n" +
             "    UNION ALL \n" +
-            "    SELECT date_val + INTERVAL 1 DAY \n" +
+            "    SELECT DATE_ADD(date_val, INTERVAL 1 DAY) \n" +  // Dùng DATE_ADD để cộng 1 ngày
             "    FROM DateRange \n" +
-            "    WHERE date_val < :endDate  -- ngày kết thúc\n" +
+            "    WHERE date_val < CAST(:endDate AS DATE)  -- ngày kết thúc\n" +
             ")\n" +
             "SELECT COALESCE(COUNT(u.id), 0) AS user_count\n" +
             "FROM DateRange dr\n" +
-            "LEFT JOIN user u ON DATE(u.recharge_vip) = DATE(dr.date_val)\n" +
+            "LEFT JOIN user u ON DATE(u.recharge_vip) = DATE(dr.date_val) \n" +  // So sánh ngày
             "GROUP BY dr.date_val\n" +
             "ORDER BY dr.date_val")
     List<Integer> expiredUserCount(@Param("startDate") Date startDate,
-                             @Param("endDate") Date endDate);
+                                   @Param("endDate") Date endDate);
+
 }
