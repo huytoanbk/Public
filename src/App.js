@@ -43,12 +43,12 @@ function App() {
     if (pathname.includes("/admin") && Boolean(userInfo)) {
       const userInfoResponse = await axiosInstance.get(`/users`);
       if (userInfoResponse && userInfoResponse.data) {
-        // const isAdmin = userInfo.roles.find(
-        //   (roleItem) => roleItem.name === "ADMIN"
-        // );
-        // if (!isAdmin) {
-        //   navigate("/");
-        // }
+        const isAdmin = userInfo.roles.find(
+          (roleItem) => roleItem.name === "ADMIN"
+        );
+        if (!isAdmin) {
+          navigate("/");
+        }
       }
     }
   };
