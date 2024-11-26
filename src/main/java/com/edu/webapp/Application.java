@@ -1,11 +1,15 @@
 package com.edu.webapp;
 
+import com.edu.webapp.config.CacheLocalConfig;
 import com.edu.webapp.entity.advertisement.AdvertisingPackage;
 import com.edu.webapp.entity.location.District;
 import com.edu.webapp.entity.location.Province;
 import com.edu.webapp.entity.user.Role;
 import com.edu.webapp.entity.user.User;
+import com.edu.webapp.mapper.UserMapper;
 import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.model.request.UserCreateReq;
+import com.edu.webapp.model.response.AuthRes;
 import com.edu.webapp.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +20,12 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Date;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootApplication
@@ -35,6 +41,9 @@ public class Application implements CommandLineRunner {
     private final DistrictRepository districtRepository;
     private final AdvertisingPackageRepository advertisingPackageRepository;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final CacheLocalConfig cacheLocalConfig;
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -50,8 +59,12 @@ public class Application implements CommandLineRunner {
 
     private void createAdmin() {
         log.info("Create admin");
+        UserCreateReq userCreateReq = new UserCreateReq();
         if (userRepository.count() == 0) {
-            User user = new User();
+            User user = userMapper.userCreateReqToUser(userCreateReq);
+            user.setPassword(passwordEncoder.encode(userCreateReq.getPassword()));
+            user.setRoles(roleRepository.findAll());
+            userRepository.save(user);
         }
     }
 

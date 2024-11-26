@@ -47,7 +47,6 @@ public class UsersServiceImpl implements UsersService {
     private final JwtCommon jwtCommon;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final ImageConfig imageConfig;
     private final CacheLocalConfig cacheLocalConfig;
     private final JavaMailSender mailSender;
     private final OtpRepository otpRepository;
