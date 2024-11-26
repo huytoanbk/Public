@@ -23,7 +23,7 @@ const TopPosts = () => {
         <div className="flex items-center">
           <div className="">
             <img
-              className="w-full h-full object-cover rounded mr-5"
+              className="w-[120px] h-[80px] object-cover rounded mr-5"
               src={firstImage}
               alt={post.title}
             />
