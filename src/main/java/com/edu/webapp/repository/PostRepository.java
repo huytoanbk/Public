@@ -12,8 +12,10 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, String> {
     Page<Post> findByCreatedByAndContentContaining(String createdBy, String key, Pageable pageable);
+    Page<Post> findByContentContaining( String key, Pageable pageable);
 
     Page<Post> findByCreatedByAndContentContainingAndActive(String createdBy, String key, ActiveStatus status, Pageable pageable);
+    Page<Post> findByContentContainingAndActive( String key, ActiveStatus status, Pageable pageable);
 
     Integer countByCreatedBy(String createdBy);
 

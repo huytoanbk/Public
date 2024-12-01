@@ -56,6 +56,14 @@ public class PostController {
         return ResponseEntity.ok(postService.searchPostUser(page, size, key, status));
     }
 
+    @GetMapping("/search-admin-post")
+    public ResponseEntity<Page<PostRes>> getPostAdmin(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                                                       @RequestParam(name = "size", defaultValue = "30") Integer size,
+                                                       @RequestParam(name = "key", defaultValue = "") String key,
+                                                       @RequestParam(name = "status", required = false) ActiveStatus status) {
+        return ResponseEntity.ok(postService.searchPostAdmin(page, size, key, status));
+    }
+
     @PutMapping("/update")
     public ResponseEntity<PostRes> updatePost(@RequestBody PostUpdateReq postUpdateReq) {
         return ResponseEntity.ok(postService.updatePost(postUpdateReq));

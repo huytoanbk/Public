@@ -1,5 +1,6 @@
 package com.edu.webapp.service;
 
+import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
@@ -14,7 +15,7 @@ public interface AdvertisingPackageService {
 
     AdvertisingPackageRes getAdvertisingPackage(Integer id);
 
-    Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key);
+    Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key, ActiveStatus status);
 
     AdvertisingPackageRes updateAdvertisingPackage(AdvertisingPackageUpdateReq advertisingPackageUpdateReq);
 

@@ -1,5 +1,6 @@
 package com.edu.webapp.controller;
 
+import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
@@ -18,7 +19,7 @@ public @RequiredArgsConstructor
     private final AdvertisingPackageService advertisingPackageService;
 
     @PostMapping
-    public ResponseEntity<AdvertisingPackageRes> createAdvertisingPackage(AdvertisingPackageCreateReq advertisingPackageCreateReq) {
+    public ResponseEntity<AdvertisingPackageRes> createAdvertisingPackage(@RequestBody AdvertisingPackageCreateReq advertisingPackageCreateReq) {
         return ResponseEntity.ok(advertisingPackageService.createAdvertisingPackage(advertisingPackageCreateReq));
     }
 
@@ -28,12 +29,15 @@ public @RequiredArgsConstructor
     }
 
     @GetMapping
-    public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page",required = false) Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size, @RequestParam(name = "key", defaultValue = "") String key) {
-        return ResponseEntity.ok(advertisingPackageService.getAllAdvertisingPackages(page, size, key));
+    public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page", required = false) Integer page,
+                                                                                 @RequestParam(name = "size", defaultValue = "30") Integer size,
+                                                                                 @RequestParam(name = "key", defaultValue = "") String key,
+                                                                                 @RequestParam(name ="status",required = false) ActiveStatus status) {
+        return ResponseEntity.ok(advertisingPackageService.getAllAdvertisingPackages(page, size, key,status));
     }
 
     @PutMapping
-    public ResponseEntity<AdvertisingPackageRes> updateAdvertisingPackage(AdvertisingPackageUpdateReq advertisingPackageUpdateReq) {
+    public ResponseEntity<AdvertisingPackageRes> updateAdvertisingPackage(@RequestBody AdvertisingPackageUpdateReq advertisingPackageUpdateReq) {
         return ResponseEntity.ok(advertisingPackageService.updateAdvertisingPackage(advertisingPackageUpdateReq));
     }
 
@@ -53,7 +57,7 @@ public @RequiredArgsConstructor
     }
 
     @GetMapping("/pay-ad")
-    public ResponseEntity<Page<PayAdAdRes>> getPayAdAll(@RequestParam(name = "page",required = false, defaultValue = "0") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
+    public ResponseEntity<Page<PayAdAdRes>> getPayAdAll(@RequestParam(name = "page", required = false, defaultValue = "0") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
         return ResponseEntity.ok(advertisingPackageService.getPayAdAll(page, size));
     }
 }
