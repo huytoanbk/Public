@@ -10,6 +10,7 @@ export default function PackageHistory() {
     total: 0,
   });
   const [loading, setLoading] = useState(false);
+  const [totalAmount, settotalAmount] = useState(false);
 
   useEffect(() => {
     fetchPackageHistory(pagination.current, pagination.pageSize);
@@ -21,7 +22,8 @@ export default function PackageHistory() {
       const response = await axiosInstance.get(
         `/advertising-package/pay-ad?page=${page - 1}&size=${size}`
       );
-      const { content, totalElements } = response.data;
+      const { content, totalElements, totalAmount } = response.data;
+      settotalAmount(totalAmount);
       setData(content);
       setPagination((prev) => ({
         ...prev,
@@ -60,32 +62,28 @@ export default function PackageHistory() {
 
   const columns = [
     {
-      title: "ID",
+      title: "ID Order",
       dataIndex: "id",
       key: "id",
       render: renderWithTooltip,
-
     },
     {
-      title: "Người dùng",
+      title: "Email",
       dataIndex: "email",
       key: "email",
       render: renderWithTooltip,
-
     },
-    {
-      title: "ID Người dùng",
-      dataIndex: "userId",
-      key: "userId",
-      render: renderWithTooltip,
-
-    },
+    // {
+    //   title: "ID Người dùng",
+    //   dataIndex: "userId",
+    //   key: "userId",
+    //   render: renderWithTooltip,
+    // },
     {
       title: "Gói hội viên",
       dataIndex: "advertisingPackageName",
       key: "advertisingPackageName",
       render: renderWithTooltip,
-
     },
     {
       title: "Giá tiền",
@@ -107,13 +105,19 @@ export default function PackageHistory() {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date) => renderWithTooltip(new Date(date).toLocaleString("vi-VN")),
+      render: (date) =>
+        renderWithTooltip(new Date(date * 1000).toLocaleString("vi-VN")),
     },
   ];
 
   return (
     <div className="p-4 bg-white rounded shadow">
-      <h2 className="text-lg font-bold mb-4">Lịch sử mua gói hội viên</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold mb-4">Lịch sử mua gói hội viên</h2>
+        <div className="text-base">
+          <span>Tổng doanh thu: <b className="font-bold">{totalAmount?.toLocaleString()}</b></span>
+        </div>
+      </div>
       <Table
         rowKey="id"
         columns={columns}

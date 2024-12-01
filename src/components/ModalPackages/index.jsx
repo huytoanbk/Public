@@ -27,16 +27,18 @@ const ModalPackages = ({ isVisible, onClose }) => {
   };
 
   useEffect(() => {
-    baseAxios
-      .get("/advertising-package")
-      .then((response) => {
-        const listPackages = response?.data?.content || {};
-        setPackages(listPackages);
-      })
-      .catch((error) => {
-        console.error("Error fetching packages:", error);
-      });
-  }, []);
+    if(isVisible) {
+      baseAxios
+        .get("/advertising-package?status=ACTIVE")
+        .then((response) => {
+          const listPackages = response?.data?.content || {};
+          setPackages(listPackages);
+        })
+        .catch((error) => {
+          console.error("Error fetching packages:", error);
+        });
+    }
+  }, [isVisible]);
 
   return (
     <Modal

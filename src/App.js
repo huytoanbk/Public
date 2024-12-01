@@ -142,7 +142,7 @@ function App() {
                       element={<CreateAdvertisingPackage />}
                     />
                     <Route
-                      path="edit-advertising-package"
+                      path="edit-advertising-package/:id"
                       element={<EditAdvertisingPackage />}
                     />
                     <Route

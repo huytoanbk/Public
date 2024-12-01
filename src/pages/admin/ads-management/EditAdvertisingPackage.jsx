@@ -24,13 +24,13 @@ const EditAdvertisingPackage = () => {
 
   const handleSubmit = async (data) => {
     try {
-      await axiosInstance.put(`/advertising-package/${id}`, data);
+      await axiosInstance.put(`/advertising-package`, { id, ...data });
       messageAntd.success("Cập nhật gói hội viên thành công");
       navigate("/admin/ads-management");
     } catch (error) {
       const message =
         error?.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại";
-        messageAntd.error({
+      messageAntd.error({
         message: message,
       });
     }

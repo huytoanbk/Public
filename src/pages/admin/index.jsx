@@ -23,7 +23,7 @@ const navItems = [
   },
   {
     key: "/admin/ads-management",
-    label: "Quản lý quảng cáo",
+    label: "Quản lý gói hội viên",
     path: "/admin/ads-management",
   },
   {

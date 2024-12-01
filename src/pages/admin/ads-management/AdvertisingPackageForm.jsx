@@ -15,6 +15,12 @@ const schema = z.object({
     }),
   des: z.string().nonempty("Vui lòng nhập mô tả"),
   active: z.enum(["ACTIVE", "INACTIVE"], "Vui lòng chọn trạng thái"),
+  countDate: z
+    .number()
+    .min(1, "Số ngày phải lớn hơn hoặc bằng 1")
+    .refine((value) => value !== undefined, {
+      message: "Vui lòng nhập số ngày",
+    }),
 });
 
 const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
@@ -29,6 +35,7 @@ const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
       price: 0,
       des: "",
       active: "ACTIVE",
+      countDate: 1,
     },
   });
 
@@ -85,6 +92,25 @@ const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
             <Input.TextArea {...field} rows={4} placeholder="Nhập mô tả" />
           )}
         />
+      </div>
+
+      <div className="mb-4">
+        <label className="block font-medium text-gray-700 mb-2">Số ngày</label>
+        <Controller
+          name="countDate"
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              className="w-full"
+              min={1}
+              placeholder="Nhập số ngày"
+            />
+          )}
+        />
+        {errors.countDate && (
+          <p className="text-red-500 text-sm mt-1">{errors.countDate.message}</p>
+        )}
       </div>
 
       <div className="mb-4 w-[150px]">

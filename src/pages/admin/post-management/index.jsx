@@ -35,7 +35,7 @@ const PostManagement = () => {
   const fetchData = async (filters = {}, updatedPagination = pagination) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/posts/search-user-post", {
+      const response = await axiosInstance.get("/posts/search-admin-post", {
         params: {
           page: updatedPagination.current - 1,
           size: updatedPagination.pageSize,
