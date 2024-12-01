@@ -184,6 +184,34 @@ public class PostsServiceImpl implements PostService {
     }
 
     @Override
+    public Page<PostRes> searchPostAdmin(Integer page, Integer size, String key, ActiveStatus status) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
+        Page<Post> postList;
+        if (status == null) {
+            postList = postRepository.findByContentContaining(key, pageable);
+        } else {
+            postList = postRepository.findByContentContainingAndActive(key, status, pageable);
+        }
+        List<PostRes> postRes = postMapper.postsToPosts(postList.getContent());
+        HashMap<String, Integer> mapCount = new HashMap<>();
+        Set<String> emails;
+        emails = postRes.stream().map(PostRes::getCreatedBy).collect(Collectors.toSet());
+        Map<String, User> userMap = userRepository.findAllByEmailIn(emails).stream().collect(Collectors.toMap(User::getEmail, user -> user));
+        emails.forEach(email -> mapCount.put(email, postRepository.countByCreatedBy(email)));
+        for (PostRes post : postRes) {
+            PostRes.UserPostRes userPostRes = new PostRes.UserPostRes();
+            User user = userMap.get(post.getCreatedBy());
+            userPostRes.setTotalPost(mapCount.getOrDefault(user.getEmail(), 0));
+            userPostRes.setId(Objects.requireNonNull(user).getId());
+            buildUserPostRes(userPostRes, user);
+            post.setUserPostRes(userPostRes);
+            post.setUptime(TimeUtils.formatTimeDifference(post.getUpdatedAt(), OffsetDateTime.now()));
+            post.setDateOfJoin(TimeUtils.formatTimeDifference(post.getCreatedAt(), OffsetDateTime.now()));
+        }
+        return new PageImpl<>(postRes, pageable, postList.getTotalElements());
+    }
+
+    @Override
     public Page<CommentRes> getListCommentPost(CommentPostSearchReq commentPostSearchReq) {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
         Page<Comment> page;
@@ -398,71 +426,68 @@ public class PostsServiceImpl implements PostService {
     }
 
 
-        public BoolQuery buildBoolQuery(FilterPostReq filterPostReq) {
-            return BoolQuery.of(b -> {
-                List<Query> mustQueries = new ArrayList<>();
+    public BoolQuery buildBoolQuery(FilterPostReq filterPostReq) {
+        return BoolQuery.of(b -> {
+            List<Query> mustQueries = new ArrayList<>();
 
-                // Range for price
-                if (filterPostReq.getPrice() != null) {
-                    mustQueries.add(Query.of(m -> m.range(r -> r.field("price")
-                            .gte(JsonData.of(filterPostReq.getPrice().getFrom()))
-                            .lte(JsonData.of(
-                                    filterPostReq.getPrice().getTo() != null
-                                            ? filterPostReq.getPrice().getTo()
-                                            : filterPostReq.getPrice().getFrom() + 100000000)) // Default upper bound
-                    )));
-                }
+            // Range for price
+            if (filterPostReq.getPrice() != null) {
+                mustQueries.add(Query.of(m -> m.range(r -> r.field("price")
+                        .gte(JsonData.of(filterPostReq.getPrice().getFrom()))
+                        .lte(JsonData.of(
+                                filterPostReq.getPrice().getTo() != null
+                                        ? filterPostReq.getPrice().getTo()
+                                        : filterPostReq.getPrice().getFrom() + 100000000)) // Default upper bound
+                )));
+            }
 
-                // Range for acreage
-                if (filterPostReq.getAcreage() != null) {
-                    mustQueries.add(Query.of(m -> m.range(r -> r.field("acreage")
-                            .gte(JsonData.of(filterPostReq.getAcreage().getFrom()))
-                            .lte(JsonData.of(
-                                    filterPostReq.getAcreage().getTo() != null
-                                            ? filterPostReq.getAcreage().getTo()
-                                            : filterPostReq.getAcreage().getFrom() + 500)) // Default upper bound
-                    )));
-                }
+            // Range for acreage
+            if (filterPostReq.getAcreage() != null) {
+                mustQueries.add(Query.of(m -> m.range(r -> r.field("acreage")
+                        .gte(JsonData.of(filterPostReq.getAcreage().getFrom()))
+                        .lte(JsonData.of(
+                                filterPostReq.getAcreage().getTo() != null
+                                        ? filterPostReq.getAcreage().getTo()
+                                        : filterPostReq.getAcreage().getFrom() + 500)) // Default upper bound
+                )));
+            }
 
-                List<Query> shouldQueries = new ArrayList<>();
-                String keyQuery = StringUtils.isEmpty(filterPostReq.getKey()) ? "*" : filterPostReq.getKey();
+            List<Query> shouldQueries = new ArrayList<>();
+            String keyQuery = StringUtils.isEmpty(filterPostReq.getKey()) ? "*" : filterPostReq.getKey();
 
-                // Improved wildcard query, adding "*" around the keyQuery only if needed
-                if (!keyQuery.equals("*")) {
-                    shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("content").value("*" + keyQuery + "*"))));
-                    shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value("*" + keyQuery + "*"))));
-                }
+            // Improved wildcard query, adding "*" around the keyQuery only if needed
+            if (!keyQuery.equals("*")) {
+                shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("content").value("*" + keyQuery + "*"))));
+                shouldQueries.add(Query.of(m -> m.wildcard(w -> w.field("title").value("*" + keyQuery + "*"))));
+            }
 
-                List<Query> filterQueries = new ArrayList<>();
+            List<Query> filterQueries = new ArrayList<>();
 
-                // Match queries with exact values (using term for exact matching)
-                if (filterPostReq.getType() != null && !filterPostReq.getType().equals("all")) {
-                    filterQueries.add(Query.of(f -> f.term(t -> t.field("type").value(filterPostReq.getType()))));
-                }
+            // Match queries with exact values (using term for exact matching)
+            if (filterPostReq.getType() != null && !filterPostReq.getType().equals("all")) {
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("type").value(filterPostReq.getType()))));
+            }
 
-                if (filterPostReq.getProvince() != null) {
-                    // Use 'term' for exact match on 'province'
-                    filterQueries.add(Query.of(f -> f.term(t -> t.field("province").value(filterPostReq.getProvince()))));
-                }
+            if (filterPostReq.getProvince() != null) {
+                // Use 'term' for exact match on 'province'
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("province").value(filterPostReq.getProvince()))));
+            }
 
-                if (filterPostReq.getDistrict() != null) {
-                    // Use 'term' for exact match on 'district'
-                    filterQueries.add(Query.of(f -> f.term(t -> t.field("district").value(filterPostReq.getDistrict()))));
-                }
+            if (filterPostReq.getDistrict() != null) {
+                // Use 'term' for exact match on 'district'
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("district").value(filterPostReq.getDistrict()))));
+            }
 
-                if (filterPostReq.getStatusRoom() != null) {
-                    // Use 'term' for exact match on 'statusRoom'
-                    filterQueries.add(Query.of(f -> f.term(t -> t.field("statusRoom").value(filterPostReq.getStatusRoom()))));
-                }
+            if (filterPostReq.getStatusRoom() != null) {
+                // Use 'term' for exact match on 'statusRoom'
+                filterQueries.add(Query.of(f -> f.term(t -> t.field("statusRoom").value(filterPostReq.getStatusRoom()))));
+            }
 
-                return b.must(mustQueries)
-                        .should(shouldQueries)
-                        .filter(filterQueries);
-            });
-        }
-
-
-
+            return b.must(mustQueries)
+                    .should(shouldQueries)
+                    .filter(filterQueries);
+        });
+    }
 
 
     private Map<String, SortOrder> getOrderSort(String value) {

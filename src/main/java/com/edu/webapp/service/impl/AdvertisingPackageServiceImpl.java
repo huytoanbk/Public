@@ -62,15 +62,15 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     }
 
     @Override
-    public Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key) {
+    public Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key, ActiveStatus status) {
         Page<AdvertisingPackage> advertisingPackagePage;
         Pageable pageable;
         if (page == null) {
             pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAll(pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByStatus(status,pageable);
         } else {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByAdvertisingNameContaining(key, pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByStatusAndAdvertisingNameContaining(status,key, pageable);
         }
         List<AdvertisingPackageRes> advertisingPackageRes = advertisingPackageMapper.listAdvertisingPackageToListAdvertisingPackageRes(advertisingPackagePage.getContent());
         return new PageImpl<>(advertisingPackageRes, pageable, advertisingPackagePage.getTotalElements());
