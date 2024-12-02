@@ -536,7 +536,7 @@ public class PostsServiceImpl implements PostService {
             Thread.sleep(10000);
             List<User> users = userRepository.findAllByNotiStatus(NotiStatus.ACTIVE);
             for (User user : users) {
-                if (notiPostRepository.existsByPostIdAndUserId(post.getId(), user.getId())) continue;
+                if (notiPostRepository.existsByPostIdAndUserId(post.getId(), user.getId())||user.getEmail().equals(post.getCreatedBy())) continue;
                 NotiPost notiPost = new NotiPost();
                 notiPost.setPostId(post.getId());
                 notiPost.setUserId(user.getId());
