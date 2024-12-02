@@ -1,6 +1,7 @@
 package com.edu.webapp.repository;
 
 import com.edu.webapp.entity.user.User;
+import com.edu.webapp.model.enums.NotiStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +20,8 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findAllByEmailIn(Set<String> usernames);
 
     List<User> findAllByIdIn(Set<String> usernames);
+
+    List<User> findAllByNotiStatus(NotiStatus notiStatus);
 
     Optional<User> findByEmail(String email);
 

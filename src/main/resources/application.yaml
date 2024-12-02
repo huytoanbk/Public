@@ -32,7 +32,7 @@ spring:
     hikari:
       #      username: root1
       username: root
-      password:
+      password: Matkhau@123
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

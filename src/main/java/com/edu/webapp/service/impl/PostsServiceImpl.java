@@ -13,21 +13,26 @@ import com.edu.webapp.mapper.PostMapper;
 import com.edu.webapp.model.dto.PostCommentDto;
 import com.edu.webapp.model.dto.PostLikeDto;
 import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.model.enums.NotiStatus;
 import com.edu.webapp.model.page.CustomPage;
 import com.edu.webapp.model.request.*;
 import com.edu.webapp.model.response.CommentRes;
 import com.edu.webapp.model.response.PostRes;
-import com.edu.webapp.model.response.PostUserRes;
 import com.edu.webapp.repository.*;
 import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.PostService;
 import com.edu.webapp.utils.TimeUtils;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -54,7 +59,8 @@ public class PostsServiceImpl implements PostService {
     private final PostElsRepository postElsRepository;
     private final ElasticsearchService<PostEls> elasticsearchService;
     private final LogSearchRepository logSearchRepository;
-
+    private final NotiPostRepository notiPostRepository;
+    private final JavaMailSender mailSender;
     @Transactional
     @Override
     public void createPost(PostCreateReq postCreateReq) {
@@ -381,6 +387,7 @@ public class PostsServiceImpl implements PostService {
             postEls.setCreatedAt(Timestamp.from(offsetDateTime.toInstant()));
             postEls.setUpdatedAt(Timestamp.from(offsetDateTime.toInstant()));
             postElsRepository.save(postEls);
+            notiPost(post);
         } else {
             postElsRepository.deleteById(post.getId());
         }
@@ -522,4 +529,87 @@ public class PostsServiceImpl implements PostService {
             return b.should(shouldQueries).minimumShouldMatch("1");
         });
     }
+
+    @Async(value = "taskExecutorNoti")
+    public void notiPost(Post post) {
+        try {
+            Thread.sleep(10000);
+            List<User> users = userRepository.findAllByNotiStatus(NotiStatus.ACTIVE);
+            for (User user : users) {
+                if (notiPostRepository.existsByPostIdAndUserId(post.getId(), user.getId())) continue;
+                NotiPost notiPost = new NotiPost();
+                notiPost.setPostId(post.getId());
+                notiPost.setUserId(user.getId());
+                sendPostNotificationWithEmbeddedImages(user.getEmail(),post,postMapper.convertImages(post.getImages()),"http://localhost:3000/post/"+post.getId());
+                notiPostRepository.save(notiPost);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+
+
+    public void sendPostNotificationWithEmbeddedImages(String toEmail, Post post, List<String> imageUrls,String url) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        // Cài đặt thông tin email
+        helper.setTo(toEmail);
+        helper.setSubject("Thông báo về bài đăng: " + post.getTitle());
+        helper.setText(constructEmailBody(post, imageUrls,url), true);
+
+        // Gửi email
+        mailSender.send(mimeMessage);
+    }
+
+    private String constructEmailBody(Post post, List<String> imageUrls, String postUrl) {
+        StringBuilder imagesHtml = new StringBuilder();
+        for (String imageUrl : imageUrls) {
+            imagesHtml.append(String.format(
+                    "<a href='%s' target='_blank' style='text-decoration:none;'>"
+                            + "<img src='%s' alt='Image' style='max-width:100%%; height:auto; margin:10px 0;' />"
+                            + "</a>",
+                    postUrl, imageUrl));
+        }
+
+        return String.format(
+                "<html>" +
+                        "<body>" +
+                        "<h1>Thông tin bài đăng</h1>" +
+                        "<p><strong>Tiêu đề:</strong> <a href='%s' target='_blank' style='text-decoration:none; color:#2a7dfd;'>%s</a></p>" +
+                        "<p><strong>Nội dung:</strong> %s</p>" +
+                        "<p><strong>Giá:</strong> %.2f VND</p>" +
+                        "<p><strong>Tiền đặt cọc:</strong> %.2f VND</p>" +
+                        "<p><strong>Địa chỉ:</strong> %s</p>" +
+                        "<p><strong>Diện tích:</strong> %.2f m²</p>" +
+                        "<p><strong>Tỉnh/Thành phố:</strong> %s</p>" +
+                        "<p><strong>Quận/Huyện:</strong> %s</p>" +
+                        "<p><strong>Trạng thái phòng:</strong> %s</p>" +
+                        "<p><strong>Loại phòng:</strong> %s</p>" +
+                        "<p><strong>Liên hệ:</strong> %s</p>" +
+                        "<p><strong>Ngày hết hạn:</strong> %s</p>" +
+                        "<p><strong>Số lượt xem:</strong> %d</p>" +
+                        "<h2>Hình ảnh:</h2>" +
+                        "%s" + // Chèn hình ảnh
+                        "</body>" +
+                        "</html>",
+                postUrl, // Link đến bài viết
+                post.getTitle(),
+                post.getContent(),
+                post.getPrice(),
+                post.getDeposit(),
+                post.getAddress(),
+                post.getAcreage(),
+                post.getProvince(),
+                post.getDistrict(),
+                post.getStatusRoom(),
+                post.getType(),
+                post.getContact(),
+                post.getExpirationDate() != null ? post.getExpirationDate().toString() : "Không có",
+                post.getView(),
+                imagesHtml.toString()
+        );
+    }
+
 }

@@ -20,6 +20,7 @@ public interface PostService {
     CommentRes createComment(CommentReq commentReq);
 
     Page<PostRes> searchPostUser(Integer page, Integer size, String key, ActiveStatus status);
+
     Page<PostRes> searchPostAdmin(Integer page, Integer size, String key, ActiveStatus status);
 
     Page<CommentRes> getListCommentPost(CommentPostSearchReq commentPostSearchReq);
