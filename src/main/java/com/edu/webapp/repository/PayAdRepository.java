@@ -25,6 +25,6 @@ public interface PayAdRepository extends JpaRepository<PayAd, Integer> {
     List<Integer> packagePurchaseCount(@Param("startDate") Date startDate,
                                        @Param("endDate") Date endDate);
 
-    @Query(value = "select count(p.price) from PayAd p where p.active = :activeStatus")
+    @Query(value = "select sum(p.price) from PayAd p where p.active = :activeStatus")
     Double totalPrice(@Param("activeStatus")ActiveStatus activeStatus);
 }
