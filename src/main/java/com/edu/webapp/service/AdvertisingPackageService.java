@@ -1,6 +1,7 @@
 package com.edu.webapp.service;
 
 import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.model.page.PayAdAdPage;
 import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
@@ -23,5 +24,5 @@ public interface AdvertisingPackageService {
 
     PayAdRes getPayAd(Integer id);
 
-    Page<PayAdAdRes> getPayAdAll(Integer page, Integer size);
+    PayAdAdPage getPayAdAll(Integer page, Integer size);
 }

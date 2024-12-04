@@ -1,6 +1,7 @@
 package com.edu.webapp.repository;
 
 import com.edu.webapp.entity.advertisement.PayAd;
+import com.edu.webapp.model.enums.ActiveStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,5 +25,6 @@ public interface PayAdRepository extends JpaRepository<PayAd, Integer> {
     List<Integer> packagePurchaseCount(@Param("startDate") Date startDate,
                                        @Param("endDate") Date endDate);
 
-
+    @Query(value = "select count(p.price) from PayAd p where p.active = :activeStatus")
+    Double totalPrice(@Param("activeStatus")ActiveStatus activeStatus);
 }

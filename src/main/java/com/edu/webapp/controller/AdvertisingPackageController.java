@@ -1,6 +1,7 @@
 package com.edu.webapp.controller;
 
 import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.model.page.PayAdAdPage;
 import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
@@ -57,7 +58,7 @@ public @RequiredArgsConstructor
     }
 
     @GetMapping("/pay-ad")
-    public ResponseEntity<Page<PayAdAdRes>> getPayAdAll(@RequestParam(name = "page", required = false, defaultValue = "0") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
+    public ResponseEntity<PayAdAdPage> getPayAdAll(@RequestParam(name = "page", required = false, defaultValue = "0") Integer page, @RequestParam(name = "size", defaultValue = "30") Integer size) {
         return ResponseEntity.ok(advertisingPackageService.getPayAdAll(page, size));
     }
 }

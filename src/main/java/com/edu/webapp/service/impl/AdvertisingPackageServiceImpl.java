@@ -8,6 +8,7 @@ import com.edu.webapp.error.ValidateException;
 import com.edu.webapp.mapper.AdvertisingPackageMapper;
 import com.edu.webapp.mapper.PayAdMapper;
 import com.edu.webapp.model.enums.ActiveStatus;
+import com.edu.webapp.model.page.PayAdAdPage;
 import com.edu.webapp.model.request.AdvertisingPackageCreateReq;
 import com.edu.webapp.model.request.AdvertisingPackageUpdateReq;
 import com.edu.webapp.model.request.PayAdCreateReq;
@@ -67,10 +68,10 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         Pageable pageable;
         if (page == null) {
             pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByStatus(status,pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByStatus(status, pageable);
         } else {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByStatusAndAdvertisingNameContaining(status,key, pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByStatusAndAdvertisingNameContaining(status, key, pageable);
         }
         List<AdvertisingPackageRes> advertisingPackageRes = advertisingPackageMapper.listAdvertisingPackageToListAdvertisingPackageRes(advertisingPackagePage.getContent());
         return new PageImpl<>(advertisingPackageRes, pageable, advertisingPackagePage.getTotalElements());
@@ -132,7 +133,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     }
 
     @Override
-    public Page<PayAdAdRes> getPayAdAll(Integer page, Integer size) {
+    public PayAdAdPage getPayAdAll(Integer page, Integer size) {
         Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").ascending());
         Page<PayAd> payAdPage = payAdRepository.findAll(pageable);
         List<AdvertisingPackage> advertisingPackages = advertisingPackageRepository.findAll();
@@ -151,8 +152,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
             payAdAdRes.setAdvertisingPackageName(advertisingPackageMap.getOrDefault(payAd.getAdvertisingPackage(), null));
             return payAdAdRes;
         }).toList();
-        return new PageImpl<>(payAdAdResList, pageable, payAdPage.getTotalElements());
+        return new PayAdAdPage(payAdAdResList, pageable, payAdPage.getTotalElements(), payAdRepository.totalPrice(ActiveStatus.ACTIVE));
     }
-
 
 }
