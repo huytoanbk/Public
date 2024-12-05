@@ -19,4 +19,5 @@ public class PayAdRes {
     private double price;
     private ActiveStatus active;
     private OffsetDateTime createdAt;
+    private Integer type;
 }

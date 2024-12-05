@@ -80,6 +80,9 @@ public class User implements UserDetails, Serializable {
     @Column(name = "RECHARGE_VIP")
     private LocalDate rechargeVip;
 
+    @Column(name = "POST_VIP")
+    private Integer postVip = 0;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "USER_ROLES",

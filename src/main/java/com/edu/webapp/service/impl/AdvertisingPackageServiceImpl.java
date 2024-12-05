@@ -97,14 +97,20 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         payAd.setUserId(user.getId());
         payAd.setAdvertisingPackage(advertisingPackage.getId());
         payAd.setPrice(advertisingPackage.getPrice());
+        payAd.setType(advertisingPackage.getType());
+        payAd.setDescription(advertisingPackage.getAdvertisingName());
         payAdRepository.save(payAd);
-        ((AdvertisingPackageServiceImpl) AopContext.currentProxy()).payAdsSuccess(payAd);
+        if (advertisingPackage.getType() == 0) {
+            ((AdvertisingPackageServiceImpl) AopContext.currentProxy()).payAdsType0Success(payAd);
+        } else {
+            ((AdvertisingPackageServiceImpl) AopContext.currentProxy()).payAdsType1Success(payAd);
+        }
         return payAdMapper.payAdToPayAdRes(payAd);
     }
 
     @Async(value = "taskExecutorPayAd")
     @Transactional
-    public void payAdsSuccess(PayAd payAd) {
+    public void payAdsType0Success(PayAd payAd) {
         try {
             Thread.sleep(3000);
             payAd.setActive(ActiveStatus.ACTIVE);
@@ -118,6 +124,24 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
                 rechargeVip.plusDays(advertisingPackage.getCountDate());
             } else rechargeVip = LocalDate.now().plusDays(advertisingPackage.getCountDate());
             user.setRechargeVip(rechargeVip);
+            userRepository.save(user);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Async(value = "taskExecutorPayAd")
+    @Transactional
+    public void payAdsType1Success(PayAd payAd) {
+        try {
+            Thread.sleep(3000);
+            payAd.setActive(ActiveStatus.ACTIVE);
+            payAdRepository.save(payAd);
+            log.info("Pay Ad successful and data = {}", payAd);
+            User user = userRepository.findById(payAd.getUserId()).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
+            AdvertisingPackage advertisingPackage = advertisingPackageRepository.findById(payAd.getAdvertisingPackage())
+                    .orElseThrow(() -> new ValidateException(ErrorCodes.ADVERTISING_PACKAGE_VALID));
+            user.setPostVip(user.getPostVip() + advertisingPackage.getCountDate());
             userRepository.save(user);
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);

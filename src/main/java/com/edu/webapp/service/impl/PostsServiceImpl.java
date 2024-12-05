@@ -61,12 +61,13 @@ public class PostsServiceImpl implements PostService {
     private final LogSearchRepository logSearchRepository;
     private final NotiPostRepository notiPostRepository;
     private final JavaMailSender mailSender;
+
     @Transactional
     @Override
     public void createPost(PostCreateReq postCreateReq) {
         String username = jwtCommon.extractUsername();
         User user = userRepository.findByEmail(username).orElseThrow(() -> new ValidateException(ErrorCodes.USER_NOT_EXIST));
-        if (user.getRechargeVip() == null || LocalDate.now().isAfter(user.getRechargeVip()))
+        if (user.getPostVip() == null || user.getPostVip() < 1)
             throw new ValidateException(ErrorCodes.USER_NOT_RECHARGE_VIP);
         Post post = postMapper.postReqToPost(postCreateReq);
         post.setActive(ActiveStatus.PENDING);
@@ -536,11 +537,12 @@ public class PostsServiceImpl implements PostService {
             Thread.sleep(10000);
             List<User> users = userRepository.findAllByNotiStatus(NotiStatus.ACTIVE);
             for (User user : users) {
-                if (notiPostRepository.existsByPostIdAndUserId(post.getId(), user.getId())||user.getEmail().equals(post.getCreatedBy())) continue;
+                if (notiPostRepository.existsByPostIdAndUserId(post.getId(), user.getId()) || user.getEmail().equals(post.getCreatedBy()))
+                    continue;
                 NotiPost notiPost = new NotiPost();
                 notiPost.setPostId(post.getId());
                 notiPost.setUserId(user.getId());
-                sendPostNotificationWithEmbeddedImages(user.getEmail(),post,postMapper.convertImages(post.getImages()),"http://localhost:3000/post/"+post.getId());
+                sendPostNotificationWithEmbeddedImages(user.getEmail(), post, postMapper.convertImages(post.getImages()), "http://localhost:3000/post/" + post.getId());
                 notiPostRepository.save(notiPost);
             }
         } catch (Exception e) {
@@ -549,15 +551,14 @@ public class PostsServiceImpl implements PostService {
     }
 
 
-
-    public void sendPostNotificationWithEmbeddedImages(String toEmail, Post post, List<String> imageUrls,String url) throws MessagingException {
+    public void sendPostNotificationWithEmbeddedImages(String toEmail, Post post, List<String> imageUrls, String url) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
         // Cài đặt thông tin email
         helper.setTo(toEmail);
         helper.setSubject("Thông báo về bài đăng: " + post.getTitle());
-        helper.setText(constructEmailBody(post, imageUrls,url), true);
+        helper.setText(constructEmailBody(post, imageUrls, url), true);
 
         // Gửi email
         mailSender.send(mimeMessage);
