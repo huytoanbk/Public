@@ -80,6 +80,7 @@ public class Application implements CommandLineRunner {
             month1.setPrice(100000.0);
             month1.setCreatedBy("SYSTEM");
             month1.setCountDate(30);
+            month1.setType(0);
             advertisingPackageRepository.save(month1);
             AdvertisingPackage month6 = new AdvertisingPackage();
             month6.setAdvertisingName("Gói 6 tháng");
@@ -87,6 +88,7 @@ public class Application implements CommandLineRunner {
             month6.setPrice(540000.0);
             month6.setCreatedBy("SYSTEM");
             month6.setCountDate(180);
+            month6.setType(0);
             advertisingPackageRepository.save(month6);
             AdvertisingPackage month12 = new AdvertisingPackage();
             month12.setAdvertisingName("Gói 12 tháng");
@@ -94,7 +96,32 @@ public class Application implements CommandLineRunner {
             month12.setPrice(1020000.0);
             month12.setCreatedBy("SYSTEM");
             month12.setCountDate(365);
+            month12.setType(0);
             advertisingPackageRepository.save(month12);
+            AdvertisingPackage post10 = new AdvertisingPackage();
+            post10.setAdvertisingName("10 bài đăng");
+            post10.setDes("10 bài đăng");
+            post10.setPrice(1020000.0);
+            post10.setCreatedBy("SYSTEM");
+            post10.setCountDate(10);
+            post10.setType(1);
+            advertisingPackageRepository.save(post10);
+            AdvertisingPackage post20 = new AdvertisingPackage();
+            post20.setAdvertisingName("20 bài đăng");
+            post20.setDes("20 bài đăng");
+            post20.setPrice(1020000.0);
+            post20.setCreatedBy("SYSTEM");
+            post20.setCountDate(20);
+            post20.setType(1);
+            advertisingPackageRepository.save(post20);
+            AdvertisingPackage post30 = new AdvertisingPackage();
+            post30.setAdvertisingName("30 bài đăng");
+            post30.setDes("30 bài đăng");
+            post30.setPrice(1020000.0);
+            post30.setCreatedBy("SYSTEM");
+            post30.setCountDate(30);
+            post30.setType(1);
+            advertisingPackageRepository.save(post30);
         }
     }
 

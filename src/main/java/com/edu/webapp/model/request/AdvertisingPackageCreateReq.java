@@ -14,4 +14,5 @@ public class AdvertisingPackageCreateReq {
     private Double price;
     private String des;
     private Integer countDate;
+    private Integer type;
 }

@@ -49,4 +49,7 @@ public class AdvertisingPackage {
     @Enumerated(EnumType.STRING)
     @Column(name = "ACTIVE")
     private ActiveStatus active = ActiveStatus.ACTIVE;
+
+    @Column(name = "TYPE")
+    private Integer type;
 }
