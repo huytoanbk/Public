@@ -80,7 +80,8 @@ public class PostsServiceImpl implements PostService {
             image.setPost(post);
             imageRepository.save(image);
         }
-
+        user.setPostVip(user.getPostVip() - 1);
+        userRepository.save(user);
     }
 
     @Override
