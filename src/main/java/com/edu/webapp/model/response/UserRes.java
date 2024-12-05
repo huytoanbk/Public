@@ -49,5 +49,8 @@ public class UserRes {
 
     private List<RoleRes> roles;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate rechargeVip;
+
+    private Integer postVip;
 }
