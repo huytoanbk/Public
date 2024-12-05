@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 public @RequiredArgsConstructor
 @RequestMapping("/api/v1/advertising-package")
 @RestController class AdvertisingPackageController {
@@ -33,8 +35,9 @@ public @RequiredArgsConstructor
     public ResponseEntity<Page<AdvertisingPackageRes>> getAllAdvertisingPackages(@RequestParam(name = "page", required = false) Integer page,
                                                                                  @RequestParam(name = "size", defaultValue = "30") Integer size,
                                                                                  @RequestParam(name = "key", defaultValue = "") String key,
-                                                                                 @RequestParam(name ="status",required = false) ActiveStatus status) {
-        return ResponseEntity.ok(advertisingPackageService.getAllAdvertisingPackages(page, size, key,status));
+                                                                                 @RequestParam(name = "status", required = false) ActiveStatus status,
+                                                                                 @RequestParam(name = "type", required = false) List<Integer> type) {
+        return ResponseEntity.ok(advertisingPackageService.getAllAdvertisingPackages(page, size, key, status,type));
     }
 
     @PutMapping

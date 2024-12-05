@@ -10,13 +10,15 @@ import com.edu.webapp.model.response.PayAdAdRes;
 import com.edu.webapp.model.response.PayAdRes;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface AdvertisingPackageService {
 
     AdvertisingPackageRes createAdvertisingPackage(AdvertisingPackageCreateReq advertisingPackageCreateReq);
 
     AdvertisingPackageRes getAdvertisingPackage(Integer id);
 
-    Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key, ActiveStatus status);
+    Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key, ActiveStatus status, List<Integer> type);
 
     AdvertisingPackageRes updateAdvertisingPackage(AdvertisingPackageUpdateReq advertisingPackageUpdateReq);
 

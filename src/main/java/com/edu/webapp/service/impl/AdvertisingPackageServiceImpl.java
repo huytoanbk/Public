@@ -29,10 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,15 +60,16 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     }
 
     @Override
-    public Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key, ActiveStatus status) {
+    public Page<AdvertisingPackageRes> getAllAdvertisingPackages(Integer page, Integer size, String key, ActiveStatus status, List<Integer> type) {
         Page<AdvertisingPackage> advertisingPackagePage;
         Pageable pageable;
+        if (type == null || type.isEmpty()) type = Arrays.asList(0, 1);
         if (page == null) {
             pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByStatus(status, pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByStatusAndType(status, type, pageable);
         } else {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
-            advertisingPackagePage = advertisingPackageRepository.findAllByStatusAndAdvertisingNameContaining(status, key, pageable);
+            advertisingPackagePage = advertisingPackageRepository.findAllByStatusAndAdvertisingNameContainingAndType(status, key, type, pageable);
         }
         List<AdvertisingPackageRes> advertisingPackageRes = advertisingPackageMapper.listAdvertisingPackageToListAdvertisingPackageRes(advertisingPackagePage.getContent());
         return new PageImpl<>(advertisingPackageRes, pageable, advertisingPackagePage.getTotalElements());

@@ -23,4 +23,5 @@ public class AdvertisingPackageRes {
     private String updatedBy;
     private ActiveStatus active;
     private Integer countDate;
+    private Integer type;
 }
