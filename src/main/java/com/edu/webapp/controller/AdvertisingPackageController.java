@@ -51,7 +51,7 @@ public @RequiredArgsConstructor
     }
 
     @PostMapping("/pay")
-    public ResponseEntity<PayAdRes> payAd(@RequestBody PayAdCreateReq payAdCreateReq) {
+    public ResponseEntity<PayAdRes> payAd(@RequestBody PayAdCreateReq payAdCreateReq) throws Exception {
         return ResponseEntity.ok(advertisingPackageService.createPayAd(payAdCreateReq));
     }
 

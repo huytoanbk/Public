@@ -22,7 +22,7 @@ public interface AdvertisingPackageService {
 
     AdvertisingPackageRes updateAdvertisingPackage(AdvertisingPackageUpdateReq advertisingPackageUpdateReq);
 
-    PayAdRes createPayAd(PayAdCreateReq payAdCreateReq);
+    PayAdRes createPayAd(PayAdCreateReq payAdCreateReq) throws Exception;
 
     PayAdRes getPayAd(Integer id);
 

@@ -90,6 +90,7 @@ public class PostsServiceImpl implements PostService {
         Page<PostEls> posts = elasticsearchService.search("post", buildBoolQuery(filterPostReq), filterPostReq.getPage(), filterPostReq.getSize(), PostEls.class, getOrderSort(filterPostReq.getFieldSort()));
         List<String> postId = posts.stream().map(PostEls::getId).toList();
         List<Post> postList = postRepository.findByIdIn(postId);
+        postList.sort(Comparator.comparing(post -> postId.indexOf(post.getId())));
         List<PostRes> postRes = postMapper.postsToPosts(postList);
         HashMap<String, Integer> mapCount = new HashMap<>();
         Set<String> emails;
@@ -502,13 +503,14 @@ public class PostsServiceImpl implements PostService {
     private Map<String, SortOrder> getOrderSort(String value) {
         Map<String, SortOrder> map = new HashMap<>();
         if (value == null) {
+            map.put("updatedAt", SortOrder.Desc);
             map.put("createdAt", SortOrder.Desc);
             return map;
         }
         switch (value) {
             case "newest":
-                map.put("createdAt", SortOrder.Desc);
                 map.put("updatedAt", SortOrder.Desc);
+                map.put("createdAt", SortOrder.Desc);
                 break;
             case "priceLow":
                 map.put("price", SortOrder.Asc);

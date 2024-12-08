@@ -22,7 +22,6 @@ import com.edu.webapp.security.JwtCommon;
 import com.edu.webapp.service.AdvertisingPackageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -42,6 +41,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     private final UserRepository userRepository;
     private final PayAdRepository payAdRepository;
     private final PayAdMapper payAdMapper;
+    private final VNPayService vnPayService;
 
     @Override
     public AdvertisingPackageRes createAdvertisingPackage(AdvertisingPackageCreateReq advertisingPackageCreateReq) {
@@ -88,7 +88,8 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
     }
 
     @Override
-    public PayAdRes createPayAd(PayAdCreateReq payAdCreateReq) {
+    @Transactional
+    public PayAdRes createPayAd(PayAdCreateReq payAdCreateReq) throws Exception {
         AdvertisingPackage advertisingPackage = advertisingPackageRepository.findById(payAdCreateReq.getAdvertisingPackage())
                 .orElseThrow(() -> new ValidateException(ErrorCodes.ADVERTISING_PACKAGE_VALID));
         String email = jwtCommon.extractUsername();
@@ -100,12 +101,9 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         payAd.setType(advertisingPackage.getType());
         payAd.setDescription(advertisingPackage.getAdvertisingName());
         payAdRepository.save(payAd);
-        if (advertisingPackage.getType() == 0) {
-            ((AdvertisingPackageServiceImpl) AopContext.currentProxy()).payAdsType0Success(payAd);
-        } else {
-            ((AdvertisingPackageServiceImpl) AopContext.currentProxy()).payAdsType1Success(payAd);
-        }
-        return payAdMapper.payAdToPayAdRes(payAd);
+        PayAdRes payAdRes = payAdMapper.payAdToPayAdRes(payAd);
+        payAdRes.setUrlPayment(vnPayService.createOrder(payAd.getId().toString(), (int) payAd.getPrice(), "Thanh toan don hang " + (int) payAd.getPrice(), "http://localhost:8888/api/v1"));
+        return payAdRes;
     }
 
     @Async(value = "taskExecutorPayAd")
@@ -130,11 +128,10 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
         }
     }
 
-    @Async(value = "taskExecutorPayAd")
-    @Transactional
+    //    @Async(value = "taskExecutorPayAd")
+//    @Transactional
     public void payAdsType1Success(PayAd payAd) {
         try {
-            Thread.sleep(3000);
             payAd.setActive(ActiveStatus.ACTIVE);
             payAdRepository.save(payAd);
             log.info("Pay Ad successful and data = {}", payAd);
@@ -143,7 +140,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
                     .orElseThrow(() -> new ValidateException(ErrorCodes.ADVERTISING_PACKAGE_VALID));
             user.setPostVip(user.getPostVip() + advertisingPackage.getCountDate());
             userRepository.save(user);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }

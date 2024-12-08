@@ -58,6 +58,10 @@ app:
       - image/gif
       - image/bmp
     upload-dir: uploads/
+vnpay:
+  tmncode: JWZRK1CI
+  hashsecret: YGS9I1QXTQP9PQS57UT7ZB214HDTJ0ON
+  apiUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
 springdoc:
   api-docs:
     enabled: true

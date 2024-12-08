@@ -20,4 +20,5 @@ public class PayAdRes {
     private ActiveStatus active;
     private OffsetDateTime createdAt;
     private Integer type;
+    private String urlPayment;
 }
