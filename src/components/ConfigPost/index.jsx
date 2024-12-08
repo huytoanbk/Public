@@ -594,6 +594,7 @@ const ConfigPost = ({ initData = null, isEdit = false }) => {
       <ModalPackages
         isVisible={isShowModalPackages}
         onClose={() => setIsShowModalPackages(false)}
+        isHidePostPkg={true}
       />
     </div>
   );

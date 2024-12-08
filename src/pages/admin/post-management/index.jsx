@@ -21,7 +21,7 @@ import {
 const { Option } = Select;
 
 const PostManagement = () => {
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit, reset } = useForm();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -115,7 +115,9 @@ const PostManagement = () => {
       title: "Active",
       dataIndex: "active",
       key: "active",
-      render: (_, record) => <PostStatusColumn record={record} onStatusUpdated={fetchData} />,
+      render: (_, record) => (
+        <PostStatusColumn record={record} onStatusUpdated={fetchData} />
+      ),
     },
     {
       title: "Type",
@@ -135,7 +137,10 @@ const PostManagement = () => {
       ),
     },
   ];
-
+  const resetFilter = ( ) => {
+    reset();
+    fetchData()
+  }
   return (
     <div>
       <Form
@@ -167,41 +172,14 @@ const PostManagement = () => {
             )}
           />
         </Form.Item>
-        {/* 
-        <Form.Item label="Trạng thái nhà">
-          <Controller
-            name="statusRoom"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} placeholder="Chọn trạng thái" allowClear>
-                {statusRoomOptions.map((option) => (
-                  <Select.Option key={option.value} value={option.value}>
-                    {option.label}
-                  </Select.Option>
-                ))}
-              </Select>
-            )}
-          />
-        </Form.Item> */}
-
-        {/* <Form.Item label="Loại phòng">
-          <Controller
-            name="roomType"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} placeholder="Chọn loại phòng" allowClear>
-                {roomTypeOtions.map((option) => (
-                  <Select.Option key={option.value} value={option.value}>
-                    {option.label}
-                  </Select.Option>
-                ))}
-              </Select>
-            )}
-          />
-        </Form.Item> */}
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Search
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button type="default" onClick={() => resetFilter()}>
+            Clear Filters
           </Button>
         </Form.Item>
       </Form>

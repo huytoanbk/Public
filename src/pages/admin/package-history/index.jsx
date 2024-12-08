@@ -92,6 +92,16 @@ export default function PackageHistory() {
       render: (price) => renderWithTooltip(`${price.toLocaleString()} VNĐ`),
     },
     {
+      title: "Loại gói",
+      dataIndex: "type",
+      key: "type",
+      render: (type) => (
+        <Tag color={type === 0 ? "blue-inverse" : "magenta"}>
+        {type === 0  ? "Hiển thị" : "Lượt đăng"}
+      </Tag>
+      ),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "active",
       key: "active",
@@ -102,7 +112,7 @@ export default function PackageHistory() {
       ),
     },
     {
-      title: "Ngày tạo",
+      title: "Ngày mua",
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date) =>

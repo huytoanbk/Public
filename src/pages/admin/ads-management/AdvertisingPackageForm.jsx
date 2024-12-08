@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,11 +15,12 @@ const schema = z.object({
     }),
   des: z.string().nonempty("Vui lòng nhập mô tả"),
   active: z.enum(["ACTIVE", "INACTIVE"], "Vui lòng chọn trạng thái"),
+  type: z.number(),
   countDate: z
     .number()
-    .min(1, "Số ngày phải lớn hơn hoặc bằng 1")
+    .min(1, "Giá trị phải lớn hơn hoặc bằng 1")
     .refine((value) => value !== undefined, {
-      message: "Vui lòng nhập số ngày",
+      message: "Vui lòng nhập giá trị",
     }),
 });
 
@@ -27,6 +28,7 @@ const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -35,9 +37,12 @@ const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
       price: 0,
       des: "",
       active: "ACTIVE",
+      type: "Thời gian hiển thị",
       countDate: 1,
     },
   });
+
+  const typeValue = watch("type");
 
   const handleFormSubmit = async (data) => {
     await onSubmit(data);
@@ -95,7 +100,31 @@ const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
       </div>
 
       <div className="mb-4">
-        <label className="block font-medium text-gray-700 mb-2">Số ngày</label>
+        <label className="block font-medium text-gray-700 mb-2">Loại</label>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              disabled={initialData}
+              className="w-full"
+              options={[
+                { label: "Thời gian hiển thị", value: 0 },
+                { label: "Lượt đăng bài", value: 1 },
+              ]}
+            />
+          )}
+        />
+        {errors.type && (
+          <p className="text-red-500 text-sm mt-1">{errors.type.message}</p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label className="block font-medium text-gray-700 mb-2">
+          {typeValue === 0 ? "Số ngày hiển thị" : "Số lượt đăng"}
+        </label>
         <Controller
           name="countDate"
           control={control}
@@ -104,12 +133,18 @@ const AdvertisingPackageForm = ({ initialData = null, onSubmit }) => {
               {...field}
               className="w-full"
               min={1}
-              placeholder="Nhập số ngày"
+              placeholder={
+                typeValue === "Thời gian hiển thị"
+                  ? "Nhập số ngày hiển thị"
+                  : "Nhập số lượt đăng"
+              }
             />
           )}
         />
         {errors.countDate && (
-          <p className="text-red-500 text-sm mt-1">{errors.countDate.message}</p>
+          <p className="text-red-500 text-sm mt-1">
+            {errors.countDate.message}
+          </p>
         )}
       </div>
 

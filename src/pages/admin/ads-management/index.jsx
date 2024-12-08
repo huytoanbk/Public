@@ -86,6 +86,16 @@ const AdsManagement = () => {
       ),
     },
     {
+      title: "Loại gói",
+      dataIndex: "type",
+      key: "type",
+      render: (type) => (
+        <Tag color={type === 0 ? "blue-inverse" : "gold"}>
+        {type === 0  ? "Hiển thị" : "Lượt đăng"}
+      </Tag>
+      ),
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
@@ -283,7 +293,7 @@ const AdsManagement = () => {
           name="search"
           control={control}
           render={({ field }) => (
-            <Input {...field} placeholder="Tìm kiếm..." className="w-1/3" />
+            <Input {...field} placeholder="Tìm kiếm..." className="w-1/3" allowClear />
           )}
         />
         <Button type="primary" htmlType="submit">

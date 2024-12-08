@@ -49,12 +49,13 @@ const UserProfile = () => {
   };
 
   const onFinish = (values) => {
-    const { roles, id, createdAt, updatedAt, notiStatus, uptime, ...restUser } =
+    const { roles, id, createdAt, updatedAt, notiStatus, uptime, postVip: postVipData, rechargeVip: rechargeVipData, ...restUser } =
       user;
+    const { postVip, rechargeVip, ...restValue} = values;
     const formatData = {
       ...restUser,
-      ...values,
-      avatar
+      ...restValue,
+      avatar,
     };
     axiosInstance
       .post(`/users`, formatData)
@@ -73,19 +74,15 @@ const UserProfile = () => {
     formData.append("file", file);
     try {
       setLoading(true);
-      const response = await axiosInstance.post(
-        "/images",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axiosInstance.post("/images", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       setAvatar(response.data);
       message.success("Tải lên avatar thành công!");
     } catch (error) {
-      const {errorMessage = "Tải lên avatar thất bại!"} = error;
+      const { errorMessage = "Tải lên avatar thất bại!" } = error;
       message.error(errorMessage);
     } finally {
       setLoading(false);
@@ -108,6 +105,8 @@ const UserProfile = () => {
           layout="vertical"
           initialValues={{
             ...user,
+            rechargeVip: user?.rechargeVip || 'Không có dữ liệu',
+            postVip: user?.postVip || 0 
           }}
           onFinish={onFinish}
         >
@@ -185,6 +184,12 @@ const UserProfile = () => {
                   onClick={() => setIsAddressModalVisible(true)}
                   disabled={!editing}
                 />
+              </Form.Item>
+              <Form.Item label="Thời hạn đăng bài" name="rechargeVip">
+                <Input disabled />
+              </Form.Item>
+              <Form.Item label="Số lượng bài viết còn lại" name="postVip">
+                <Input disabled />
               </Form.Item>
               <Form.Item label="Quận" name="district" hidden>
                 <Input />

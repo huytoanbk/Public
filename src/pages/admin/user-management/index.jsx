@@ -174,6 +174,7 @@ const UserManagement = () => {
             <Input
               style={{ width: 200 }}
               {...field}
+              allowClear
               placeholder="Nhập tên user"
             />
           )}
