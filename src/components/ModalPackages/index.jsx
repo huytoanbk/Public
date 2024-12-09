@@ -24,7 +24,8 @@ const ModalPackages = ({ isVisible, onClose, isHidePostPkg = false }) => {
       const response = await axiosInstance.post("/advertising-package/pay", {
         advertisingPackage: packageId,
       });
-      const { id = "" } = response?.data || {};
+      const { id = "", urlPayment = "" } = response?.data || {};
+      window.open(urlPayment, '_blank');
       setSelectedPackageId(id);
     } catch (error) {
       const { errorMessage = "Có lỗi xảy ra" } = error;

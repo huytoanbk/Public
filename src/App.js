@@ -32,6 +32,7 @@ import EditAdvertisingPackage from "./pages/admin/ads-management/EditAdvertising
 import MySavedPost from "./pages/my-saved-post";
 import AdminOverview from "./pages/admin/overview";
 import PackageHistory from "./pages/admin/package-history";
+import PaymentSuccess from "./pages/payment-success";
 
 function App() {
   const { pathname = "" } = useLocation();
@@ -120,6 +121,7 @@ function App() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/search" element={<Home />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route
             path="/admin/*"
             element={
