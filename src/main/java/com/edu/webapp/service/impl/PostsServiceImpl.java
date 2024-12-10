@@ -506,7 +506,7 @@ public class PostsServiceImpl implements PostService {
 
     private Map<String, SortOrder> getOrderSort(String value) {
         Map<String, SortOrder> map = new HashMap<>();
-        map.put("vip", SortOrder.Desc);
+//        map.put("vip", SortOrder.Desc);
         if (value == null) {
             map.put("updatedAt", SortOrder.Desc);
             map.put("createdAt", SortOrder.Desc);
