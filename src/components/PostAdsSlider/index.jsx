@@ -107,7 +107,7 @@ const PostAdsSlider = () => {
                 <div className="px-6 py-3 flex flex-row items-center justify-between bg-gray-100">
                   <span className="py-1 text-xs font-regular text-gray-900 flex items-center">
                     <IoIosTimer className="mr-[6px]" />
-                    {product.uptime}
+                    {product.dateOfJoin}
                   </span>
                   <span className="py-1 text-xs font-regular text-gray-900 flex items-center">
                     <CiLocationOn className="mr-[6px]" />

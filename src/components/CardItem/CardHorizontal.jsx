@@ -69,7 +69,7 @@ export default function CardHorizontal({ item }) {
       <div className="flex items-center justify-between">
         <span className="py-1 text-xs font-regular text-gray-900 flex items-center">
           <IoIosTimer className="mr-[6px] w-4 h-4" width={16} height={16} />
-          Đã đăng {item.uptime}
+          Đã đăng {item.dateOfJoin}
         </span>
         <span className="py-1 text-xs font-regular text-gray-900 flex items-center">
           <CiLocationOn className="mr-[4px] w-4 h-4" width={16} height={16} />
