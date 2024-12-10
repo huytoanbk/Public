@@ -41,4 +41,5 @@ public class PostEls {
     private String latitude;
     private String active;
     private String type;
+    private Integer vip;
 }

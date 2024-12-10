@@ -153,7 +153,7 @@ public class AdvertisingPackageServiceImpl implements AdvertisingPackageService 
 
     @Override
     public PayAdAdPage getPayAdAll(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").ascending());
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").descending());
         Page<PayAd> payAdPage = payAdRepository.findAll(pageable);
         List<AdvertisingPackage> advertisingPackages = advertisingPackageRepository.findAll();
         Map<Integer, String> advertisingPackageMap = advertisingPackages.stream().collect(Collectors.toMap(AdvertisingPackage::getId, AdvertisingPackage::getAdvertisingName));

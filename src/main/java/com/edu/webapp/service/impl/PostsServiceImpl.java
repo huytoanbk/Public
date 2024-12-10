@@ -278,6 +278,10 @@ public class PostsServiceImpl implements PostService {
             }
         }
         PostEls postEls = postMapper.postToPostEls(post);
+        postEls.setVip(0);
+        if (user.getRechargeVip() != null && !LocalDate.now().isAfter(user.getRechargeVip())) {
+            postEls.setVip(1);
+        }
         postElsRepository.save(postEls);
         PostRes postRes = postMapper.postToPostRes(post);
         PostRes.UserPostRes userPostRes = buildUserPostRes(user);
@@ -502,6 +506,7 @@ public class PostsServiceImpl implements PostService {
 
     private Map<String, SortOrder> getOrderSort(String value) {
         Map<String, SortOrder> map = new HashMap<>();
+        map.put("vip", SortOrder.Desc);
         if (value == null) {
             map.put("updatedAt", SortOrder.Desc);
             map.put("createdAt", SortOrder.Desc);

@@ -1,6 +1,7 @@
 package com.edu.webapp.config;
 
 import com.edu.webapp.entity.post.ReportPost;
+import com.edu.webapp.entity.user.User;
 import com.edu.webapp.model.enums.ActiveStatus;
 import com.edu.webapp.repository.PostRepository;
 import com.edu.webapp.repository.ReportPostRepository;
